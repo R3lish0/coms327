@@ -1,0 +1,10 @@
+Okay so here in the scheme
+
+There are multiple biomes to consider
+
+-2 tall grass (:)
+-1 body of water (~)
+-2 clearings (.)
+-boulder outline
+- NS and EW path with exits
+

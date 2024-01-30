@@ -1,0 +1,190 @@
+Lecture Week 01
+Syllabus, Quick UNIX primer, Hello World, Compiling, Makefiles
+
+* Syllabus
+  We have one.  It's kind of long.  Read it.  In particular, if you read
+  nothing else, please read the sections on course work, late policy, and
+  integrity.
+* Pyrite
+  pyrite.cs.iastate.edu: server that you can work on.  Connect to it with
+  ssh.
+** ssh
+   Use ssh to connect to pyrite: ssh pyrite
+   Or use SecureCRT or putty in windows (there are other clients, too)
+** SecureCRT
+   A popular ssh client for windows
+   Installing Cygwin will also supply the command line ssh utility, as well
+   as all other software used in this class.
+* Useful commands
+** man
+   manual pages
+   type "man <command>", for example "man man" will give you the
+   documentation for man itself.  'q' will quit
+** pwd
+   Present (print) working direcetory
+** ls
+   list a directory
+** cd
+   Change Directory
+** cp
+   Copy
+** mv
+   Move
+** rm
+   Remove
+** rmdir
+   Remove a directory
+** mkdir
+   Make a directory
+** cat
+   Concatenate - sticks files together.  If a single file, spew it to
+   terminal (i.e., concatenate it with standard output)
+** less
+   Pager -- allows you to page a file, scroll up and down, q to quit
+* Hello World: Java vs. C
+  Files are attached.
+  To compile and run java program:
+    javac hello.java
+    java hello
+  To compile and run C program:
+    gcc hello.c
+    ./a.out
+  Or
+    gcc hello.c -o hello
+    ./hello
+* Motivation: Why learn C?
+** Jobs
+   You'll never be unemployed if you are a good C programmer
+** Systems programming
+   Almost all systems programming is done in C
+   Low level enough to see what the computer does - "Portable assembly"
+** Understanding computers
+* C History and Philosophy
+** History
+*** Thompson and UNIX
+    Finished first UNIX in 1969
+*** Thompson wanted a language
+    Started with BCPL
+    Modified it, named the new language B
+*** Ritchie joined the project
+    Added types
+    Added some other things, flow control, records...
+    Result was a new language called C
+*** C was used to rewrite UNIX
+*** Versions
+    Brian Kernighan helped write "The C Programming Language" K&R C
+    Second version was standardized ANSI in 1989: C89/C90  -> Second edition
+    of book
+    ANSI/ISO C99 in 1999.  Nobody uses this.  No full implementation exists.
+    ANSI/ISO C11.  I know nothing about this.  :`(
+** Philosophy
+*** No feature should impact performance of programs that don't use it
+    Because systems were weak (they still are)
+*** Easy to compile
+    Because we want to understand and compiler technology was in its infancy
+*** Programmer is right
+    Compiler will not second guess.  Caveat emptor!
+    Leads to security issues.
+* Things needed for first assignment
+  These are not "things you are required to have", but rather "things I
+  cannot reasonably envision a solution not to have"
+** Functions
+   Functions in C are very similar to functions (methods) in Java.
+   <return type> <function name>(<argument list>)
+   Where <return type> is a valid type, <function name> is a valid
+   identifier, and <argument list> is a comma-delimited list of types
+   and identifiers, just as in java.
+** Arrays
+   No need to allocate (so far, we'll learn more later), and brackets come 
+   after the name, so an array of 12 chars, s, is declared:
+      char s[12];
+   and a three dimensional array (matrix) of 4x5x4 ints, m, is declared:
+      int m[4][5][4].
+** Printing
+   Use printf().  Takes a C string (a character array) with "conversion
+   specifiers"
+   "%d" specifies an int argument to follow.
+   Not covered in class: %c specifies a char, %s a string, %f a double
+   Specifiers get mixed with normal text to produce more complex output:
+     char name[] = "Jeremy";
+     int office = 1204;
+     printf("My name is %s, and my office is in room %d.\n", name, office);
+   Notice that the arguments are in the same order as the specifiers.
+   We also saw how to specify a minimum field width (put a number between the
+   '%' and the letter; example in times_table.c).
+** Compiling and Makefiles
+   Compile with "gcc <C file>" to produce a binary "a.out"
+   Add switches for more control.
+   -Wall turns on (almost) all warnings.  Always use it.  It can save you.
+   -Werror turns warnings into errors.  Not necessary, but useful.  I always
+   use it.
+   -g tells the compiler to put debugging symbols in the binary.  -ggdb tells
+   it to put even more symbols that only gdb can understand (a good thing,
+   unless you're debugging with something else).  We'll talk about gdb a bit
+   next week.
+   -o lets you name the output of the compiler.  "gcc hello.c -o hello"
+   produces a binary named "hello", instead of "a.out".
+   We'll lead off next class with Makefiles.
+* Compiling and Makefiles (continued)
+** Last time talked about gcc switches -Wall, -Werror, -g, -ggdb, and -o
+** Makefiles (usually) do compilation in stages, so before we talk about
+   Makefiles, let's finish our discussion on the stages of compilation.
+*** Preprocessing
+    Always runs befor the compiler
+    gcc -E or cpp
+*** Compilation
+    Converts the high-level language code to assembly
+    gcc -S
+*** Assembly
+    Converts assembly code to machine language (object code)
+    gcc -c
+*** Linking
+    gcc (no arguments)
+** A Makefile is a specification of how to compile a program
+*** Sometimes used for other things as well, like generating documentation,
+    so it's more correct to say that it's a specification of how to build a
+    set of targets
+*** Interpreted by 'make'
+*** Consists of a set of definitions (optional, but useful) and a set of
+    rules
+*** Make reads the definitions, interprets the rules, and uses them to
+    determine how to build or rebuild the targets
+*** Definitions:
+      NAME = value
+*** targets
+    Can be multiple lines each, form is (not indenting here, because
+    indentation matters in makefiles!):
+
+target: dependencies
+        command
+        another command...
+
+*** The whitespace before the commands in the rules are single tabs!  Must be
+    single tabs, or it won't work.
+*** Add your compiler switches in here, so that they're always there.
+*** Generating dependencies
+    gcc -MM
+    "gcc -MM *.c" will give you a list of all source file dependencies.  
+    You'll only need to supply build rules and dependencies for the 
+    final executable.
+* README for assignments
+  About 150 words or less
+  How you have (or have not) met the specification
+  Functions we should look at
+  Important changes to previous functionality* README for assignments
+  Dual purpose: To help you think about what you've developed in the context
+  of the specification, and to help the graders quickly understand what to
+  look at to evaluate your work.
+  Should include names and locations of important functions and data structures.
+  Should include discussion on what you have done to meet the specification.
+  If you have failed to meet the specification in any way, it should explicitly
+  say that, as well.
+* CHANGELOG for assignments
+  Running list of your work and changes throughout the term.  No length limit.
+  Think of it as a "diary" of what you have done on your project.  Update it
+  every time you work with a timestamp and what you changed.  If you discover
+  a bug, document it here, even if you haven't fixed it yet.
+
+* Representing arrays (next lecture)
+** We've seen and used (are using) arrays.  How are they represented
+   internally, and what does that mean for us as programmers?

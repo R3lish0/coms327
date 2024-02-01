@@ -1,1 +1,16 @@
+you can know if a world[401][401] cell has been generated if the pointer is null
 
+f ( x , y ) 
+
+
+scanf("%d,%d" , &x, &y)
+
+
+while((c = getc()))
+    switch (c):
+        case 'q' : 
+            exit(0);
+            break;
+        case 'f' :
+            scanf("%d %d, ..)
+                

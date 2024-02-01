@@ -222,7 +222,7 @@ int checkSquare(struct queue *q, char map[X_MAG][Y_MAG], int offsetX, int offset
     if(map[q->head->location[0]+offsetX][q->head->location[1]+offsetY] == 'f')
     {
         map[q->head->location[0]+offsetX][q->head->location[1]+offsetY] = q->head->val;
-        queue_enqueue(*&q, (int[2]) {q->head->location[0]+offsetX,q->head->location[1]+offsetY}, q->head->val);
+        queue_enqueue(q, (int[2]) {q->head->location[0]+offsetX,q->head->location[1]+offsetY}, q->head->val);
     }  
     return 0;
 }
@@ -253,6 +253,7 @@ int grow(int seedLocations[6][2], char map[X_MAG][Y_MAG])
 
         queue_dequeue(&q, q.head->location, &q.head->val);
     }
+    queue_destroy(&q);
     return 0;
 }
 
@@ -364,7 +365,7 @@ int manMade(char map[X_MAG][Y_MAG])
 int main()
 {
 
-
+    clock_t begin = clock();
     //we love a simple main()
     srand((unsigned)time(NULL));
     char map[X_MAG][Y_MAG];
@@ -394,7 +395,6 @@ int main()
     manMade(map);
     printMap(map);
     
-
 
 
     return 0;

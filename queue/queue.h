@@ -3,23 +3,25 @@
 
 
 
+typedef struct queue_node queue_node_t;
+
 struct queue_node {
-    struct queue_node *next;
+    queue_node_t *next;
     int data;
-};
+} ;
 
 
-struct queue {
+typedef struct queue {
     struct queue_node *head, *tail;
     int length;
-};
+} queue_t;
 
-int queue_init(struct queue *q);
-int queue_destroy(struct queue *q);
-int queue_enqueue(struct queue *q, int d);
-int queue_dequeue(struct queue *q, int *d);
-int queue_length(struct queue *q);
-int queue_is_empty(struct queue *q);
+int queue_init(queue_t *q);
+int queue_destroy(queue_t *q);
+int queue_enqueue(queue_t *q, int d);
+int queue_dequeue(queue_t *q, int *d);
+int queue_length(queue_t *q);
+int queue_is_empty(queue_t *q);
 
 
 #endif

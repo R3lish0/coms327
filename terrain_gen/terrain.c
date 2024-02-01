@@ -272,9 +272,21 @@ int manMade(char map[X_MAG][Y_MAG])
     queue_init(&q);
     
     //using 10 for these cause I dont want them close to the edge
-    int ew =  3+(rand() % (Y_MAG - 7));
-    int ns = 1+(rand() % (X_MAG - 12));
+    int ew =  7+(rand() % (Y_MAG - 15));
+    int ns = 5+(rand() % (X_MAG - 12));
 
+    int poke = 2+(rand() % (X_MAG - 5));
+    if(abs(ns -  poke) <= 10) 
+    {
+        if(ns > 40)
+        {
+            poke-=20;
+        }
+        else
+        {
+            poke+=20;
+        }
+    }
     for(int i = 0; i < X_MAG; i++)
     {
         //this is an ew path
@@ -285,24 +297,48 @@ int manMade(char map[X_MAG][Y_MAG])
             if(rando >= 5 && ew < Y_MAG-1)
             {
                 ew++;
-                map[i][ew] = '#';
-                map[i-1][ew] = '#';
-                map[i][ew-1] = '#';
+                map[i][ew] = (map[i][ew]  == 'C' || map[i][ew] == 'M') ? map[i][ew] : '#'; 
+                map[i-1][ew] = (map[i-1][ew]  == 'C' || map[i-1][ew] == 'M') ? map[i-1][ew] : '#';
+                map[i][ew-1] = (map[i][ew-1] == 'C' || map[i][ew-1] == 'M') ? map[i][ew-1] : '#';
+                map[i+1][ew] = (map[i+1][ew]  == 'C' || map[i+1][ew] == 'M') ? map[i+1][ew] : '#';
+                map[i+1][ew-1] = (map[i+1][ew-1]  == 'C' || map[i+1][ew-1] == 'M') ? map[i+1][ew-1] : '#';
             }
             else if(rando < 5 && ew > 1) 
             {
                 ew--;
-                map[i][ew] = '#';
-                map[i][ew+1] = '#';
-                map[i-1][ew] = '#';
+                map[i][ew] = (map[i][ew] == 'C' || map[i][ew] == 'M') ? map[i][ew] : '#'; 
+                map[i][ew+1] = (map[i][ew+1] == 'C' || map[i][ew+1] == 'M') ? map[i][ew+1] : '#';
+                map[i-1][ew] = (map[i-1][ew]  == 'C' || map[i-1][ew] == 'M') ? map[i-1][ew] : '#';
+                map[i+1][ew] = (map[i+1][ew]  == 'C' || map[i+1][ew] == 'M') ? map[i+1][ew] : '#';
+                map[i+1][ew+1] = (map[i+1][ew+1]  == 'C' || map[i+1][ew+1] == 'M') ? map[i+1][ew+1] : '#';
+
             }
+
+
         }
+        
+        if(i == poke)
+        {
+           map[i][ew+1] = 'M';
+           map[i][ew+2] = 'M';
+           map[i][ew-1] = 'C';
+           map[i][ew-2] = 'C';
+
+           map[i+1][ew+1] = 'M';
+           map[i+1][ew+2] = 'M';
+           map[i+1][ew-1] = 'C';
+           map[i+1][ew-2] = 'C';
+
+
+        }
+
+
 
     }
     for(int j = 0; j < Y_MAG; j++)
     {
         map[ns][j] = '#';
-        if(j % 4  == 0)
+        if(j % 5  == 0)
         {
             int rando = rand() % 10;
             if(rando >= 5 && ns < X_MAG-1)

@@ -24,16 +24,12 @@ int queue_init(struct queue *q)
 }
 int queue_destroy(struct queue *q)
 {
-    //works but offensive (sucks butt)
-    //while (!queue_dequeue());
-    //
     struct queue_node *n;
 
     for (n = q->head; n; n = q->head) {
         q->head = q->head->next;
         free(n);
     }
-    //not strictly necessary. Here because I'm a bit of a completionist
     q->length = 0;
     q->tail = NULL;
       
@@ -179,7 +175,7 @@ void seedGen(int seedLocations[6][2], char map[X_MAG][Y_MAG])
     //we have to make clearing on opposite sides of map
     //we also have to make tall grass on opposite sides of map
     
-    //here we set the double biomes and then set them as "set"
+    //here we set the double biomes and then set them as "-1"
     map[seedLocations[first_pair[0]][0]][seedLocations[first_pair[0]][1]] = ':';
     map[seedLocations[second_pair[0]][0]][seedLocations[second_pair[0]][1]] = '.';
     map[seedLocations[first_pair[1]][0]][seedLocations[first_pair[1]][1]] = ':';
@@ -222,6 +218,7 @@ void seedGen(int seedLocations[6][2], char map[X_MAG][Y_MAG])
 }
 int checkSquare(struct queue *q, char map[X_MAG][Y_MAG], int offsetX, int offsetY)
 {
+    //this checks if the square is empty or not and then queues the next square if empty
     if(map[q->head->location[0]+offsetX][q->head->location[1]+offsetY] == 'f')
     {
         map[q->head->location[0]+offsetX][q->head->location[1]+offsetY] = q->head->val;
@@ -236,12 +233,6 @@ int grow(int seedLocations[6][2], char map[X_MAG][Y_MAG])
     struct queue q;
     queue_init(&q);
     char c;
-
-
-
-        
-
-
     char val;
    
     for(int i = 0; i < 6; i++)
@@ -252,6 +243,7 @@ int grow(int seedLocations[6][2], char map[X_MAG][Y_MAG])
     }
     while(queue_length(&q) > 0)
     {
+        //QUEUE TIME
         checkSquare(&q,map,1,0);
         checkSquare(&q,map,0,1);
         checkSquare(&q,map,-1,0);
@@ -271,10 +263,12 @@ int manMade(char map[X_MAG][Y_MAG])
     struct queue q;
     queue_init(&q);
     
-    //using 10 for these cause I dont want them close to the edge
+    //using these numbers for these cause I dont want them close to the edge
     int ew =  7+(rand() % (Y_MAG - 15));
     int ns = 5+(rand() % (X_MAG - 12));
 
+
+    //make sure that NE path doesnt eat buildings
     int poke = 2+(rand() % (X_MAG - 5));
     if(abs(ns -  poke) <= 10) 
     {
@@ -316,7 +310,7 @@ int manMade(char map[X_MAG][Y_MAG])
 
 
         }
-        
+        //spawns the buildings 
         if(i == poke)
         {
            map[i][ew+1] = 'M';
@@ -333,8 +327,9 @@ int manMade(char map[X_MAG][Y_MAG])
         }
 
 
-
+    
     }
+    //this is the NS path
     for(int j = 0; j < Y_MAG; j++)
     {
         map[ns][j] = '#';
@@ -369,6 +364,8 @@ int manMade(char map[X_MAG][Y_MAG])
 int main()
 {
 
+
+    //we love a simple main()
     srand((unsigned)time(NULL));
     char map[X_MAG][Y_MAG];
     for(int i = 0; i < X_MAG; i++)

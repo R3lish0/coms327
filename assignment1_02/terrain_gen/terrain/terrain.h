@@ -20,12 +20,12 @@ typedef struct seeds{
 
 
 
-void printMap(square *sq);
+void printSquare(square *sq);
 void seedGen(seeds *sd, square *sq);
 int checkSquare(queue *q, square *sq, int offsetX, int offsetY);
 int grow(seeds *sd, square *sq);
 int manMade(square *sq);
-int genMap(square *sq, int n, int s, int e, int w);
+int genSquare(square *sq, int n, int s, int e, int w);
 
 
 

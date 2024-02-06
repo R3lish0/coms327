@@ -14,7 +14,7 @@
 
 
 
-void printMap(struct square *sq)
+void printSquare(struct square *sq)
 {
     for(int i = 0; i < Y_MAG; i++)
     {
@@ -45,7 +45,7 @@ void seedGen(struct seeds *sd, struct square *sq)
        
     }
 
-    //now that we have the positions for our seeds generated lets compare
+    //now that we have the positions_b for our seeds generated lets compare
     //and make sure that our 2 tall grass and 2 clearings are as far apart as possible
     int first_dif = 0;
     int first_pair[2] = {0,0};
@@ -174,23 +174,52 @@ int grow(struct seeds *sd, struct square *sq)
     return 0;
 }
 
-
+int pathChangeUp(struct square *sq, int i, int c)
+{
+    sq->map[i][c] = (sq->map[i][c]  == 'C' || sq->map[i][c] == 'M') ? sq->map[i][c] : '#'; 
+    sq->map[i-1][c] = (sq->map[i-1][c]  == 'C' || sq->map[i-1][c] == 'M') ? sq->map[i-1][c] : '#';
+    sq->map[i][c-1] = (sq->map[i][c-1] == 'C' || sq->map[i][c-1] == 'M') ? sq->map[i][c-1] : '#';
+    sq->map[i+1][c] = (sq->map[i+1][c]  == 'C' || sq->map[i+1][c] == 'M') ? sq->map[i+1][c] : '#';
+    sq->map[i+1][c-1] = (sq->map[i+1][c-1]  == 'C' || sq->map[i+1][c-1] == 'M') ? sq->map[i+1][c-1] : '#';
+    return 0;
+}
+int pathChangeDown(struct square *sq, int i, int c)
+{
+    sq->map[i][c] = (sq->map[i][c] == 'C' || sq->map[i][c] == 'M') ? sq->map[i][c] : '#'; 
+    sq->map[i][c+1] = (sq->map[i][c+1] == 'C' || sq->map[i][c+1] == 'M') ? sq->map[i][c+1] : '#';
+    sq->map[i-1][c] = (sq->map[i-1][c]  == 'C' || sq->map[i-1][c] == 'M') ? sq->map[i-1][c] : '#';
+    sq->map[i+1][c] = (sq->map[i+1][c]  == 'C' || sq->map[i+1][c] == 'M') ? sq->map[i+1][c] : '#';
+    sq->map[i+1][c+1] = (sq->map[i+1][c+1]  == 'C' || sq->map[i+1][c+1] == 'M') ? sq->map[i+1][c+1] : '#';
+    return 0;
+}
 //this will handle last touches like path gen and buildings
 int manMade(struct square *sq)
 {
     struct queue q;
     queue_init(&q);
-    
-    //using these numbers for these cause I dont want them close to the edge
-    int ew =  7+(rand() % (Y_MAG - 15));
-    int ns = 5+(rand() % (X_MAG - 12));
-    
+   
+    int e;
+    int n;
+    int w;
+    int s;
+    int quota = (rand() % 10)+3;
+    int delta;
+    int ch = 0;
 
-    //make sure that NE path doesnt eat buildings
-    int poke = 2+(rand() % (X_MAG - 5));
-    if(abs(ns -  poke) <= 10) 
+    //gen starting or just put starting
+    sq->e = (sq->e == 0) ? 7+(rand() % (Y_MAG - 14)) : sq->e;
+    sq->n = (sq->n == 0) ? (rand() % (52-37)+ 30) : sq->n;    
+    sq->w = (sq->w == 0) ? 7+(rand() % (Y_MAG - 14)) : sq->w;
+    sq->s = (sq->s == 0) ? (rand() % (52-37) + 30) : sq->s;    
+    e = sq-> e;
+    n = sq-> n;
+    w = sq-> w;
+    s = sq-> s;
+
+    int poke = 5+(rand() % (X_MAG - 9));
+    if(abs(n - poke) <= 10) 
     {
-        if(ns > 40)
+        if(n > 40)
         {
             poke-=20;
         }
@@ -199,90 +228,135 @@ int manMade(struct square *sq)
             poke+=20;
         }
     }
+    
+    delta = abs(e - w);
     for(int i = 0; i < X_MAG; i++)
     {
-        //this is an ew path
-        sq->map[i][ew] = '#';
-        if(i % 12  == 0)
+        if(i+3 == (X_MAG-(delta*2+5)))
         {
-            int rando = rand() % 10;
-            if(i>1)
-            {
-                if(rando >= 5 && ew > 1)
-                {
-                    ew++;
-                    sq->map[i][ew] = (sq->map[i][ew]  == 'C' || sq->map[i][ew] == 'M') ? sq->map[i][ew] : '#'; 
-                    sq->map[i-1][ew] = (sq->map[i-1][ew]  == 'C' || sq->map[i-1][ew] == 'M') ? sq->map[i-1][ew] : '#';
-                    sq->map[i][ew-1] = (sq->map[i][ew-1] == 'C' || sq->map[i][ew-1] == 'M') ? sq->map[i][ew-1] : '#';
-                    sq->map[i+1][ew] = (sq->map[i+1][ew]  == 'C' || sq->map[i+1][ew] == 'M') ? sq->map[i+1][ew] : '#';
-                    sq->map[i+1][ew-1] = (sq->map[i+1][ew-1]  == 'C' || sq->map[i+1][ew-1] == 'M') ? sq->map[i+1][ew-1] : '#';
-                }
-                else if(rando < 5 && ew > 1) 
-                {
-                    ew--;
-                    sq->map[i][ew] = (sq->map[i][ew] == 'C' || sq->map[i][ew] == 'M') ? sq->map[i][ew] : '#'; 
-                    sq->map[i][ew+1] = (sq->map[i][ew+1] == 'C' || sq->map[i][ew+1] == 'M') ? sq->map[i][ew+1] : '#';
-                    sq->map[i-1][ew] = (sq->map[i-1][ew]  == 'C' || sq->map[i-1][ew] == 'M') ? sq->map[i-1][ew] : '#';
-                    sq->map[i+1][ew] = (sq->map[i+1][ew]  == 'C' || sq->map[i+1][ew] == 'M') ? sq->map[i+1][ew] : '#';
-                    sq->map[i+1][ew+1] = (sq->map[i+1][ew+1]  == 'C' || sq->map[i+1][ew+1] == 'M') ? sq->map[i+1][ew+1] : '#';
-
-                }
-            }
-
-
+            quota = 0;
         }
-   //     //spawns the buildings 
+
+        sq->map[i][e] = '#';
+        if(i > (X_MAG - (delta*2+5)) && delta != 0)
+        {
+            if(e < w)
+            {
+                e++;
+                delta--;
+                pathChangeUp(sq,i,e);
+            }
+            else
+            {
+                e--;
+                delta--;
+                pathChangeDown(sq,i,e);
+            }
+        }
+        else if(i < (X_MAG - 15) && quota != 0)
+        {
+            if(i % 15 == 0 && quota != 0 && i != 0)
+            {
+                ch = (rand() % 2);
+                if(ch == 1)
+                {
+                    e++;
+                    quota--;
+                    pathChangeUp(sq, i, e);
+                }
+                else
+                {
+                    e--;
+                    quota--;
+                    pathChangeDown(sq, i, e);
+                }
+
+            }
+            delta = abs(e-w);
+        }
+
         if(i == poke)
-        {
-           sq->map[i][ew+1] = 'M';
-           sq->map[i][ew+2] = 'M';
-           sq->map[i][ew-1] = 'C';
-           sq->map[i][ew-2] = 'C';
+            {
+                sq->map[i][e+1] = 'M';
+                sq->map[i][e+2] = 'M';
+                sq->map[i][e-1] = 'C';
+                sq->map[i][e-2] = 'C';
 
-           sq->map[i+1][ew+1] = 'M';
-           sq->map[i+1][ew+2] = 'M';
-           sq->map[i+1][ew-1] = 'C';
-           sq->map[i+1][ew-2] = 'C';
-
-
-        }
+                sq->map[i+1][e+1] = 'M';
+                sq->map[i+1][e+2] = 'M';
+                sq->map[i+1][e-1] = 'C';
+                sq->map[i+1][e-2] = 'C';
 
 
-    
+            }
+
     }
-   //this is the NS path
-    for(int j = 0; j < Y_MAG; j++)
+    delta = abs(n - s);
+    quota = (rand() % 6);
+
+    for(int i = 0; i < Y_MAG; i++)
     {
-        sq->map[ns][j] = '#';
-        if(j % 5  == 0 && j > 0 && j < Y_MAG-1)
+        if(i+3 == (Y_MAG-(18)))
         {
-            int rando = rand() % 10;
-            if(rando >= 5 && ns < X_MAG-1)
+            quota = 0;
+        }
+
+        sq->map[n][i] = '#';
+        if(i > (Y_MAG - (17)) && delta != 0)
+        {
+            if(n < s)
             {
-                ns++;
-                sq->map[ns][j] = '#';
-                sq->map[ns-1][j] = '#';
-                sq->map[ns][j-1] = '#';
+                n++;
+                delta--;
+                sq->map[n][i] = '#';
+                sq->map[n-1][i] = '#';
+                sq->map[n][i-1] = '#';
+
+
+
             }
-            else if(rando < 5 && ns > 1) 
+            else
             {
-                ns--;
-                sq->map[ns][j] = '#';
-                sq->map[ns+1][j] = '#';
-                sq->map[ns][j+1] = '#';
+                n--;
+                delta--;
+                sq->map[n][i] = '#';
+                sq->map[n+1][i] = '#';
+                sq->map[n][i+1] = '#';
             }
         }
+        else if(i < (Y_MAG - 5) && quota != 0)
+        {
+            if(i % 3 == 0 && quota != 0 && i != 0)
+            {
+                ch = (rand() % 2);
+                if(ch == 1)
+                {
+                    n++;
+                    quota--;
+                    sq->map[n][i] = '#';
+                    sq->map[n-1][i] = '#';
+                    sq->map[n][i-1] = '#';
+
+                }
+                else
+                {
+                    n--;
+                    quota--;
+                    sq->map[n][i] = '#';
+                    sq->map[n+1][i] = '#';
+                    sq->map[n][i+1] = '#';
+                }
+
+            }
+            delta = abs(n-s);
+        }
     }
-
-
-
-
     return 0;
 }
 
 
 
-int genMap(struct square *sq, int n, int s, int e, int w)
+int genSquare(square *sq, int n, int s, int e, int w)
 {
     
     //we love a simple main()
@@ -319,8 +393,11 @@ int genMap(struct square *sq, int n, int s, int e, int w)
     seedGen(&seed, sq);
     grow(&seed, sq);
     manMade(sq);
-    printMap(sq);
-    
+    printSquare(sq);
+    printf("%d : n\n", sq->n);
+    printf("%d : s\n", sq->s);
+    printf("%d : e\n", sq->e);
+    printf("%d : w\n", sq->w);
 
 
     return 0;

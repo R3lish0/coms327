@@ -184,7 +184,7 @@ int manMade(struct square *sq)
     //using these numbers for these cause I dont want them close to the edge
     int ew =  7+(rand() % (Y_MAG - 15));
     int ns = 5+(rand() % (X_MAG - 12));
-
+    
 
     //make sure that NE path doesnt eat buildings
     int poke = 2+(rand() % (X_MAG - 5));
@@ -206,29 +206,33 @@ int manMade(struct square *sq)
         if(i % 12  == 0)
         {
             int rando = rand() % 10;
-            if(rando >= 5 && ew < Y_MAG-1)
+            if(i>1)
             {
-                ew++;
-                sq->map[i][ew] = (sq->map[i][ew]  == 'C' || sq->map[i][ew] == 'M') ? sq->map[i][ew] : '#'; 
-                sq->map[i-1][ew] = (sq->map[i-1][ew]  == 'C' || sq->map[i-1][ew] == 'M') ? sq->map[i-1][ew] : '#';
-                sq->map[i][ew-1] = (sq->map[i][ew-1] == 'C' || sq->map[i][ew-1] == 'M') ? sq->map[i][ew-1] : '#';
-                sq->map[i+1][ew] = (sq->map[i+1][ew]  == 'C' || sq->map[i+1][ew] == 'M') ? sq->map[i+1][ew] : '#';
-                sq->map[i+1][ew-1] = (sq->map[i+1][ew-1]  == 'C' || sq->map[i+1][ew-1] == 'M') ? sq->map[i+1][ew-1] : '#';
-            }
-            else if(rando < 5 && ew > 1) 
-            {
-                ew--;
-                sq->map[i][ew] = (sq->map[i][ew] == 'C' || sq->map[i][ew] == 'M') ? sq->map[i][ew] : '#'; 
-                sq->map[i][ew+1] = (sq->map[i][ew+1] == 'C' || sq->map[i][ew+1] == 'M') ? sq->map[i][ew+1] : '#';
-                sq->map[i-1][ew] = (sq->map[i-1][ew]  == 'C' || sq->map[i-1][ew] == 'M') ? sq->map[i-1][ew] : '#';
-                sq->map[i+1][ew] = (sq->map[i+1][ew]  == 'C' || sq->map[i+1][ew] == 'M') ? sq->map[i+1][ew] : '#';
-                sq->map[i+1][ew+1] = (sq->map[i+1][ew+1]  == 'C' || sq->map[i+1][ew+1] == 'M') ? sq->map[i+1][ew+1] : '#';
+                if(rando >= 5 && ew < Y_MAG-1)
+                {
+                    ew++;
+                    printf("%c",sq->map[i-1][ew]);
+                    sq->map[i][ew] = (sq->map[i][ew]  == 'C' || sq->map[i][ew] == 'M') ? sq->map[i][ew] : '#'; 
+                    sq->map[i-1][ew] = (sq->map[i-1][ew]  == 'C' || sq->map[i-1][ew] == 'M') ? sq->map[i-1][ew] : '#';
+                    sq->map[i][ew-1] = (sq->map[i][ew-1] == 'C' || sq->map[i][ew-1] == 'M') ? sq->map[i][ew-1] : '#';
+                    sq->map[i+1][ew] = (sq->map[i+1][ew]  == 'C' || sq->map[i+1][ew] == 'M') ? sq->map[i+1][ew] : '#';
+                    sq->map[i+1][ew-1] = (sq->map[i+1][ew-1]  == 'C' || sq->map[i+1][ew-1] == 'M') ? sq->map[i+1][ew-1] : '#';
+                }
+                else if(rando < 5 && ew > 1) 
+                {
+                    ew--;
+                    sq->map[i][ew] = (sq->map[i][ew] == 'C' || sq->map[i][ew] == 'M') ? sq->map[i][ew] : '#'; 
+                    sq->map[i][ew+1] = (sq->map[i][ew+1] == 'C' || sq->map[i][ew+1] == 'M') ? sq->map[i][ew+1] : '#';
+                    sq->map[i-1][ew] = (sq->map[i-1][ew]  == 'C' || sq->map[i-1][ew] == 'M') ? sq->map[i-1][ew] : '#';
+                    sq->map[i+1][ew] = (sq->map[i+1][ew]  == 'C' || sq->map[i+1][ew] == 'M') ? sq->map[i+1][ew] : '#';
+                    sq->map[i+1][ew+1] = (sq->map[i+1][ew+1]  == 'C' || sq->map[i+1][ew+1] == 'M') ? sq->map[i+1][ew+1] : '#';
 
+                }
             }
 
 
         }
-        //spawns the buildings 
+   //     //spawns the buildings 
         if(i == poke)
         {
            sq->map[i][ew+1] = 'M';
@@ -247,7 +251,7 @@ int manMade(struct square *sq)
 
     
     }
-    //this is the NS path
+   //this is the NS path
     for(int j = 0; j < Y_MAG; j++)
     {
         sq->map[ns][j] = '#';

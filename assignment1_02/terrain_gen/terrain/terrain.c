@@ -16,7 +16,7 @@
 
 void printMap(struct square *sq)
 {
-    for(int i = Y_MAG-1; i >= 0; i--)
+    for(int i = 0; i < Y_MAG; i++)
     {
         for(int j = 0; j < X_MAG; j++)
         {
@@ -208,10 +208,9 @@ int manMade(struct square *sq)
             int rando = rand() % 10;
             if(i>1)
             {
-                if(rando >= 5 && ew < Y_MAG-1)
+                if(rando >= 5 && ew > 1)
                 {
                     ew++;
-                    printf("%c",sq->map[i-1][ew]);
                     sq->map[i][ew] = (sq->map[i][ew]  == 'C' || sq->map[i][ew] == 'M') ? sq->map[i][ew] : '#'; 
                     sq->map[i-1][ew] = (sq->map[i-1][ew]  == 'C' || sq->map[i-1][ew] == 'M') ? sq->map[i-1][ew] : '#';
                     sq->map[i][ew-1] = (sq->map[i][ew-1] == 'C' || sq->map[i][ew-1] == 'M') ? sq->map[i][ew-1] : '#';
@@ -255,7 +254,7 @@ int manMade(struct square *sq)
     for(int j = 0; j < Y_MAG; j++)
     {
         sq->map[ns][j] = '#';
-        if(j % 5  == 0)
+        if(j % 5  == 0 && j > 0 && j < Y_MAG-1)
         {
             int rando = rand() % 10;
             if(rando >= 5 && ns < X_MAG-1)
@@ -283,7 +282,7 @@ int manMade(struct square *sq)
 
 
 
-int genMap(struct square *sq)
+int genMap(struct square *sq, int n, int s, int e, int w)
 {
     
     //we love a simple main()

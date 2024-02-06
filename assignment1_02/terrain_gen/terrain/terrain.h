@@ -6,22 +6,26 @@
 #define X_MAG 80
 #define Y_MAG 21
 
-struct square{
+typedef struct square{
     char map[X_MAG][Y_MAG];
-};
+    int n;
+    int s;
+    int e;
+    int w;
+} square;
 
-struct seeds{
+typedef struct seeds{
     int seedLocations[6][2];
-};
+} seeds;
 
 
 
-void printMap(struct square *sq);
-void seedGen(struct seeds *sd, struct square *sq);
-int checkSquare(struct queue *q, struct square *sq,int offsetX, int offsetY);
-int grow(struct seeds *sd, struct square *sq);
-int manMade(struct square *sq);
-int genMap(struct square *sq);
+void printMap(square *sq);
+void seedGen(seeds *sd, square *sq);
+int checkSquare(queue *q, square *sq, int offsetX, int offsetY);
+int grow(seeds *sd, square *sq);
+int manMade(square *sq);
+int genMap(square *sq, int n, int s, int e, int w);
 
 
 

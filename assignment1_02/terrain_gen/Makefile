@@ -8,10 +8,10 @@ main : queue.o terrain.o main.o
 queue.o: ./queue/queue.c ./queue/queue.h
 	gcc -Wall -Werror -g ./queue/queue.c -c
 
-terrain.o: ./terrain/terrain.c ./board/board.h ./queue/queue.h ./terrain/terrain.h
+terrain.o: ./terrain/terrain.c ./queue/queue.h ./terrain/terrain.h
 	gcc -Wall -Werror -g ./terrain/terrain.c -c
 
-main.o: ./main/main.c ./board/board.h ./terrain/terrain.h 
+main.o: ./main/main.c ./terrain/terrain.h 
 	gcc -Wall -Werror -g ./main/main.c -c
 
 

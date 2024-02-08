@@ -519,7 +519,6 @@ int checkTile(board *bd, int x, int y)
     
 
 
-    printf("\n\n\n\n\n %d \n\n\n %d \n\n\n\n %d \n\n\n\n\n\n", pk,xk, yk);
     if((rand() % 400) < abs(pk))
     {
         pk = 0;

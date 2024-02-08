@@ -8,10 +8,13 @@
 
 typedef struct board{
     square* board[BOARD_X][BOARD_Y];
+    int curX;
+    int curY;
 
 } board;
 
 int initBoard(board *bd);
+int printCurSquare(board *bd);
 int checkTile(board *bd, square *sq);
 
 

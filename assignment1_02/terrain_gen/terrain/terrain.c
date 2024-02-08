@@ -4,13 +4,8 @@
 #include <time.h>
 #include <unistd.h>
 #include "../queue/queue.h"
-#include "terrain.h"
-
+#include "../terrain/terrain.h"
 //defining board size
-#define X_MAG 80
-#define Y_MAG 21
-
-
 
 
 
@@ -193,7 +188,7 @@ int pathChangeDown(struct square *sq, int i, int c)
     return 0;
 }
 //this will handle last touches like path gen and buildings
-int manMade(struct square *sq)
+int manMade(struct square *sq, int pk)
 {
     struct queue q;
     queue_init(&q);
@@ -205,33 +200,102 @@ int manMade(struct square *sq)
     int quota = (rand() % 10)+3;
     int delta;
     int ch = 0;
+    
+    int edge_top = 0;
+    int edge_bottom = 0;
+    int edge_left = 0;
+    int edge_right = 0;
+    
+    if(sq->n == -1)
+    {
+       edge_top = 1;
+       sq->n = 0;
+    }
+    
+    if(sq->s == -1)
+    {
+        edge_bottom = 1;
+        sq->s = 0;
+    }
+
+    if(sq->w == -1)
+    {
+        edge_left = 1;
+        sq->w = 0;
+    }
+
+    if(sq->e == -1)
+    {
+        edge_right = 1;
+        sq->e = 0;
+    }
+
+    
+
+
 
     //gen starting or just put starting
     sq->e = (sq->e == 0) ? 7+(rand() % (Y_MAG - 14)) : sq->e;
-    sq->n = (sq->n == 0) ? (rand() % (52-37)+ 30) : sq->n;    
+    sq->n = (sq->n == 0) ? (rand() % (52-37)+ 30) : sq->n;  
     sq->w = (sq->w == 0) ? 7+(rand() % (Y_MAG - 14)) : sq->w;
-    sq->s = (sq->s == 0) ? (rand() % (52-37) + 30) : sq->s;    
-    e = sq-> e;
-    n = sq-> n;
-    w = sq-> w;
-    s = sq-> s;
-
-    int poke = 5+(rand() % (X_MAG - 9));
-    if(abs(n - poke) <= 10) 
+    sq->s = (sq->s == 0) ? (rand() % (52-37) + 30) : sq->s;
+    
+    //e and w are swapped because im bad with directions and switched them
+    w = sq->e;
+    n = sq->n;
+    e = sq->w;
+    s = sq->s;
+    
+    int poke = -1;
+     
+    if(pk)
     {
-        if(n > 40)
+        poke = 5+(rand() % (X_MAG - 9));
+        if(abs(n - poke) <= 10) 
         {
-            poke-=20;
-        }
-        else
-        {
-            poke+=20;
+            if(n > 40)
+            {
+                poke-=20;
+            }
+            else
+            {
+                poke+=20;
+            }
         }
     }
     
-    delta = abs(e - w);
-    for(int i = 0; i < X_MAG; i++)
+    double multiplier_x;
+    double multiplier_y;
+
+
+    if(edge_right)
     {
+        multiplier_x = 0.75;
+    }
+    else
+    {
+        multiplier_x = 1;
+    }
+    if(edge_bottom)
+    {
+        multiplier_y = 0.75;
+    }
+    else
+    {
+        multiplier_y = 1;
+    }
+
+
+    
+    delta = abs(e - w);
+    for(int i = 0; i < X_MAG*multiplier_x; i++)
+    {
+        if(edge_left)
+        {
+            i+=20;
+            edge_left = 0;
+        }
+
         if(i+3 == (X_MAG-(delta*2+5)))
         {
             quota = 0;
@@ -294,8 +358,17 @@ int manMade(struct square *sq)
     delta = abs(n - s);
     quota = (rand() % 6);
 
-    for(int i = 0; i < Y_MAG; i++)
+    for(int i = 0; i < Y_MAG*multiplier_y; i++)
     {
+        if(edge_top)
+        {
+            i+=5;
+            edge_top = 0;
+        }
+    
+
+
+
         if(i+3 == (Y_MAG-(18)))
         {
             quota = 0;
@@ -356,7 +429,7 @@ int manMade(struct square *sq)
 
 
 
-int genSquare(square *sq, int n, int s, int e, int w)
+int genSquare(square *sq, int n, int s, int e, int w, int pk)
 {
     
     //we love a simple main()
@@ -378,7 +451,8 @@ int genSquare(square *sq, int n, int s, int e, int w)
 
         }
     }
-     
+    
+
 
     struct seeds seed;
     for(int i = 0; i < 6; i++)
@@ -388,24 +462,105 @@ int genSquare(square *sq, int n, int s, int e, int w)
             seed.seedLocations[i][j] = 0;
         }
     }
+
+    sq->n = n;
+    sq->s = s;
+    sq->e = e;
+    sq->w = w;
                 
 
     seedGen(&seed, sq);
     grow(&seed, sq);
-    manMade(sq);
-    printSquare(sq);
-    printf("%d : n\n", sq->n);
-    printf("%d : s\n", sq->s);
-    printf("%d : e\n", sq->e);
-    printf("%d : w\n", sq->w);
-
-
+    manMade(sq, pk);
     return 0;
 }
 
 
 
 
+int initBoard(board *bd)
+{
+    //init starting square 
+    square *sq;
+
+
+    if(!(sq = malloc(sizeof(*sq))))
+    {
+        return 1;
+    }
+
+    
+    genSquare(sq,0,0,0,0,1);
+    //lets init a board
+    for(int i = 0; i < BOARD_X; i++)
+    {
+        for(int j = 0; j < BOARD_Y; j++)
+        {
+            bd->board[i][j] = NULL;
+        }
+    }
+    bd->curX = 200;
+    bd->curY = 200;
+
+    bd->board[200][200] = sq;
+
+    return 0;
+}
+
+int checkTile(board *bd, int x, int y)
+{
+
+
+    int pk;
+    int xk = abs(x-200);
+    int yk = abs(y-200);
+    
+    pk = xk + yk;
+    
+
+
+    printf("\n\n\n\n\n %d \n\n\n %d \n\n\n\n %d \n\n\n\n\n\n", pk,xk, yk);
+    if((rand() % 400) < abs(pk))
+    {
+        pk = 0;
+    }
+    else
+    {
+        pk = 1;
+    }
+
+    if(bd->board[x][y] == NULL)
+    {
+        square *sq;
+        if(!(sq = malloc(sizeof(*sq))))
+        {
+            return 1;
+        }
+
+                
+       
+
+        int e;
+        int w;
+        int s;
+        int n;
+        if(!(x == 400)){e=(!(bd->board[x+1][y] == NULL)) ? bd->board[x+1][y]->w : 0;}
+        else{ e = -1;}
+        if(!(x == 0)){w = (!(bd->board[x-1][y] == NULL)) ? bd->board[x-1][y]->e : 0;}
+        else{ w = -1;}
+        if(!(y == 400)){n = (!(bd->board[x][y+1] == NULL)) ? bd->board[x][y+1]->s : 0;}
+        else{n = -1;}
+        if(!(y == 0)){s = (!(bd->board[x][y-1] == NULL)) ? bd->board[x][y-1]->n : 0;}
+        else{s = -1;}
+
+        genSquare(sq,n,s,e,w,pk);
+        bd->board[x][y] = sq; 
+    }
+    bd->curX=x;
+    bd->curY=y;
+
+    return 0;
+}
 
 
 

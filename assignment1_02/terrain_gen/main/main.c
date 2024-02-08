@@ -27,7 +27,7 @@ int main()
                 exit(0);
                 break;
             case 'n':
-                if(bd.curY+1 < 400)
+                if(bd.curY+1 <= 400)
                 {
                 checkTile(&bd,bd.curX,bd.curY+1);
                 printSquare(bd.board[bd.curX][bd.curY]);
@@ -38,7 +38,7 @@ int main()
                 }
                 break;
             case 's':
-                if(bd.curY-1 > 0)
+                if(bd.curY-1 >= 0)
                 {
                     checkTile(&bd,bd.curX,bd.curY-1);
                     printSquare(bd.board[bd.curX][bd.curY]);
@@ -49,7 +49,7 @@ int main()
                 }
                 break;
             case 'e':
-                if(bd.curX+1 < 400)
+                if(bd.curX+1 <= 400)
                 {
                 checkTile(&bd,bd.curX+1,bd.curY);
                 printSquare(bd.board[bd.curX][bd.curY]);
@@ -60,7 +60,7 @@ int main()
                 }
                 break;
             case 'w':
-                if(bd.curX-1 > 0) 
+                if(bd.curX-1 >= 0) 
                 {
                 checkTile(&bd,bd.curX-1,bd.curY);
                 printSquare(bd.board[bd.curX][bd.curY]);
@@ -75,7 +75,7 @@ int main()
                 scanf(" %d", &fx);
                 printf("enter y: ");
                 scanf(" %d", &fy);
-                if(fx > 200 || fy > 200)
+                if(abs(fx) > 200 || abs(fy) > 200)
                 {
                     printf("Slow your roll, thats out of bounds\n");
                     printf("Please enter x and y values under 200\n");

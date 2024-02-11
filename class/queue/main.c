@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 
     while (!queue_is_empty(&q)) {
         if (queue_dequeue(&q, &i)) {
-            fprintf(stderr, "Attempt to dequeue an empty queue\n");
+            printf(stderr, "Attempt to dequeue an empty queue\n");
             return 1;// stdin, stdout, stderr
         }
         printf("%d\n", i);

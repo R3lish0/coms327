@@ -23,5 +23,14 @@ int strcmp_idiomatic(const char *s1, const char *s2)
 }
 
 
+int main()
+{
+    char *s= "hello world";
+    char a[] = "hello world";
 
-
+    printf("%lu\n", strlen327(s));
+    printf("%lu\n", strlen327("Foo"));
+    printf("%lu\n", strlen327(s));
+    printf("%lu\n", strlen327(s));
+return 0;
+}

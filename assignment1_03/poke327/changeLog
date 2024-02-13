@@ -1,0 +1,41 @@
+commit 1658d9e5d4b9bc7eefc4aa4243aba70cf854c6fb (HEAD -> main, origin/main)
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Wed Feb 7 21:05:52 2024 -0600
+
+    cleanup before turnin
+
+commit 5b762d9580b8d5dc8bfc39959fd72c5ba11c1c34
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Wed Feb 7 21:01:00 2024 -0600
+
+    finished path completions and placed finishing touches
+
+commit 44f202250d0d4af8feb0c882da193d85e8b4653b
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Tue Feb 6 16:46:41 2024 -0600
+
+    what?
+
+commit d9134539d19403d0febd91f731d63289b3618529
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Tue Feb 6 16:45:24 2024 -0600
+
+    path change
+
+commit b49eb875f31607fcf844d4cf7c978ba0e77a8998
+Author: Eli Newlin <enewlin@localhost.localdomain>
+Date:   Tue Feb 6 00:08:05 2024 -0600
+
+    struct to typedef
+
+commit 65290671247285d4a6800fe100ee19290aa729d5
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Mon Feb 5 20:38:49 2024 -0600
+
+    No more faults
+
+commit da0c6b2da6726b84f9d4350e79ac92643bbf5b75
+Author: Eli Newlin <enewlin@localhost.localdomain>
+Date:   Sun Feb 4 20:41:19 2024 -0600
+
+    seg fault issue

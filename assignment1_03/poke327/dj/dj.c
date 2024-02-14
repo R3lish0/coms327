@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdbool.h>
+#include <limits.h>
 #include <stdlib.h>
 #include "dj.h"
 #include <malloc.h>
@@ -52,7 +54,7 @@ void insertHelper(heap* h, int index)
         insertHelper(h, parent);
     }
 }
-
+ 
 
 void heapify(heap* h, int index)
 {
@@ -140,8 +142,15 @@ void printHeap(heap* h)
 }
 
 
+int dijkstra(int dist[], bool sptSet[])
+{
+
+}
+
+
 int main()
 {
+
     int arr[9] = { 9, 8, 7, 6, 5, 4, 3, 2, 1 };
     heap* hp = createHeap(9,arr);
 
@@ -151,7 +160,6 @@ int main()
 
     return 0;
 }
-
 
 
 

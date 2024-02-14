@@ -11,7 +11,7 @@ heap* createHeap(int capacity, int *nums);
 void insert(heap* h, int data);
 int extractMin(heap* h);
 void insertHelper(heap* h, int index);
-void minHeapify(heap* h, int index);
+void heapify(heap* h, int index);
 
 
 

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../terrain/terrain.h"
+#include "../dj/dj.h"
 
 #define BOARD_X 401
 #define BOARD_Y 401
@@ -12,8 +13,9 @@ int main()
     board bd;
     //setting board values at null and setting first square/coord
     initBoard(&bd);
+    initCostMap(&bd);
     printSquare((bd.board[bd.curX][bd.curY]));
-
+    
     int fx;
     int fy;
     char c;
@@ -22,7 +24,7 @@ int main()
         scanf(" %c", &c);
         switch (c)
         {
-            case 'q':
+             case 'q':
                 printf("See you later ... quitter\n");
                 exit(0);
                 break;

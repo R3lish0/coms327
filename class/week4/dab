@@ -1,0 +1,9 @@
+you make a queue and depending on the characters they get to move
+
+- the cost of them moving stacks
+
+- character map to make sure characters don't run into each other
+    -literally make a map of either null or character
+
+
+-discrete event simulator

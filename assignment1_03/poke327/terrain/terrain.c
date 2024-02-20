@@ -78,7 +78,8 @@ void seedGen(struct seeds *sd, struct square *sq)
     //we have to assign all the pairs to their respective biomes
         
 
-    //we need 2 :
+    //we need 
+    //2 :
     //1 ~
     //2 .
     //1 %

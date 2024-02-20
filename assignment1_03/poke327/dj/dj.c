@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include "dj.h"
+#include <math.h>
 
 // Define a createHeap function
 heap* createHeap(int capacity, int* nums)
@@ -141,18 +142,31 @@ void printHeap(heap* h)
     }
     printf("\n");
 }
-
  
-int main()
+void initCostMap(board *bd)
 {
-    int arr[9] = { 9, 8, 7, 6, 5, 4, 3, 2, 1 };
-    heap* hp = createHeap(9, arr);
- 
-    printHeap(hp);
-    extractMin(hp);
-    printHeap(hp);
- 
-    return 0;
+    int hiker_cost_map[X_MAG][Y_MAG];
+    for(int i = 0; i < X_MAG; i++)
+    {
+        for(int j = 0; j < Y_MAG; j++)
+        {
+            switch(bd->board[bd->curX][bd->curY]->map[i][j])
+            {
+                case '~':
+                    hiker_cost_map[i][j] = INFINITY;
+                    break;
+                case '.':
+                    hiker_cost_map[i][j] = 10;
+                    break;
+                case ':':
+                    hiker_cost_map[i][j] = 15;
+                    break;
+                case '%':
+                    hiker_cost_map[i][j] = 15;
+            }
+        }
+    }
+
 }
 
 

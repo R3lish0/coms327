@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
-#include "dj.h"
 #include <math.h>
+
+#include "dj.h"
 
 // Define a createHeap function
 heap* createHeap(int capacity, int* nums)
@@ -143,28 +143,67 @@ void printHeap(heap* h)
     printf("\n");
 }
  
-void initCostMap(board *bd)
+void initCostMap(board *bd, float hiker_cost_map[X_MAG][Y_MAG], float rival_cost_map[X_MAG][Y_MAG])
 {
-    int hiker_cost_map[X_MAG][Y_MAG];
+    
+
     for(int i = 0; i < X_MAG; i++)
     {
         for(int j = 0; j < Y_MAG; j++)
         {
-            switch(bd->board[bd->curX][bd->curY]->map[i][j])
+            if(i == 0 || j == 0 || j == 20 || i == 79)
             {
-                case '~':
-                    hiker_cost_map[i][j] = INFINITY;
-                    break;
-                case '.':
-                    hiker_cost_map[i][j] = 10;
-                    break;
-                case ':':
-                    hiker_cost_map[i][j] = 15;
-                    break;
-                case '%':
-                    hiker_cost_map[i][j] = 15;
+                hiker_cost_map[i][j] = INFINITY;
+                rival_cost_map[i][j] = INFINITY;
+            }
+            else
+            {
+                switch(bd->board[bd->curX][bd->curY]->map[i][j])
+                {
+                    case '~':
+                        hiker_cost_map[i][j] = INFINITY;
+                        rival_cost_map[i][j] = INFINITY;
+                        break;
+                    case '.':
+                        hiker_cost_map[i][j] = 10;
+                        rival_cost_map[i][j] = 10;
+                        break;
+                    case ':':
+                        hiker_cost_map[i][j] = 15;
+                        rival_cost_map[i][j] = 15;
+                        break;
+                    case '%':
+                        hiker_cost_map[i][j] = 15;
+                        rival_cost_map[i][j] = 15;
+                        break;
+                    case '#':
+                        hiker_cost_map[i][j] = 10;
+                        rival_cost_map[i][j] = 10;
+                        break;
+                    case 'M':
+                        hiker_cost_map[i][j] = 50;
+                        rival_cost_map[i][j] = 50;
+                        break;
+                    case 'C':
+                        hiker_cost_map[i][j] = 50;
+                        rival_cost_map[i][j] = 50;
+                        break;
+                    default:
+                        hiker_cost_map[i][j] = -1;
+                        rival_cost_map[i][j] = -1;
+                        break;
+                }
             }
         }
+    }
+
+    for(int i = 0; i < Y_MAG; i++)
+    {
+        for(int j = 0; j < X_MAG; j++)
+        {
+           printf("%g ", (hiker_cost_map[j][i]));
+        }
+        printf("\n");
     }
 
 }

@@ -13,7 +13,11 @@ int main()
     board bd;
     //setting board values at null and setting first square/coord
     initBoard(&bd);
+    
+
     initCostMap(&bd);
+
+
     printSquare((bd.board[bd.curX][bd.curY]));
     
     int fx;

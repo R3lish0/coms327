@@ -1,7 +1,7 @@
 #ifndef DJ_H
 #define DJ_H
-#define MAG_X 81
-#define MAG_Y 20
+#define MAG_X 80
+#define MAG_Y 21
 
 # include "../terrain/terrain.h"
 # include <stdint.h>
@@ -21,7 +21,7 @@ void insertHelper(heap* h, int index);
 void heapify(heap* h, int index);
 int extractMin(heap* h);
 void insert(heap* h, int data);
-void initCostMap(board* bd);
+void initCostMap(board* bd, float hiker_cost_map[MAG_X][MAG_Y], float rival_cost_map[MAG_X][MAG_Y]);
 void djkstra(char* board);
 
 

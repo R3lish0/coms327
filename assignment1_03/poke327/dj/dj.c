@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #include "dj.h"
+
+#define INT_MAX 999
 
 // Define a createHeap function
 heap* createHeap(int capacity)
@@ -28,7 +29,7 @@ heap* createHeap(int capacity)
         printf("Memory error");
         return NULL;
     }
-    int i = 1000; 
+    int i = 0; 
     h->size = i;
     i = (h->size - 2) / 2;
     while (i >= 0) {
@@ -49,9 +50,9 @@ void insertHelper(heap* h, int index)
     if (h->arr[parent].dist > h->arr[index].dist) {
         // Swapping when child is smaller
         // than parent element
-        int temp = h->arr[parent].dist;
-        h->arr[parent].dist = h->arr[index].dist;
-        h->arr[index].dist = temp;
+        heapNode temp = h->arr[parent];
+        h->arr[parent] = h->arr[index];
+        h->arr[index] = temp;
  
         // Recursively calling insertHelper
         insertHelper(h, parent);
@@ -80,9 +81,9 @@ void heapify(heap* h, int index)
  
     // Swapping the nodes
     if (min != index) {
-        int temp = h->arr[min].dist;
-        h->arr[min].dist = h->arr[index].dist;
-        h->arr[index].dist = temp;
+        heapNode temp = h->arr[min];
+        h->arr[min] = h->arr[index];
+        h->arr[index] = temp;
  
         // recursively calling for their child elements
         // to maintain min heap
@@ -130,16 +131,8 @@ void insert(heap* h, heapNode* hn)
     }
 }
  
-void printHeap(heap* h)
-{
  
-    for (int i = 0; i < h->size; i++) {
-        printf("%f ", h->arr[i].dist);
-    }
-    printf("\n");
-}
- 
-void initCostMap(board *bd, float hiker_cost_map[X_MAG][Y_MAG], float rival_cost_map[X_MAG][Y_MAG])
+void initCostMap(square* sq, int hiker_cost_map[X_MAG][Y_MAG], int rival_cost_map[X_MAG][Y_MAG])
 {
     
 
@@ -149,16 +142,16 @@ void initCostMap(board *bd, float hiker_cost_map[X_MAG][Y_MAG], float rival_cost
         {
             if(i == 0 || j == 0 || j == 20 || i == 79)
             {
-                hiker_cost_map[i][j] = INFINITY;
-                rival_cost_map[i][j] = INFINITY;
+                hiker_cost_map[i][j] = 999;
+                rival_cost_map[i][j] = 999;
             }
             else
             {
-                switch(bd->board[bd->curX][bd->curY]->map[i][j])
+                switch(sq->map[i][j])
                 {
                     case '~':
-                        hiker_cost_map[i][j] = INFINITY;
-                        rival_cost_map[i][j] = INFINITY;
+                        hiker_cost_map[i][j] = 999;
+                        rival_cost_map[i][j] = 999;
                         break;
                     case '.':
                         hiker_cost_map[i][j] = 10;
@@ -166,11 +159,11 @@ void initCostMap(board *bd, float hiker_cost_map[X_MAG][Y_MAG], float rival_cost
                         break;
                     case ':':
                         hiker_cost_map[i][j] = 15;
-                        rival_cost_map[i][j] = 15;
+                        rival_cost_map[i][j] = 20;
                         break;
                     case '%':
                         hiker_cost_map[i][j] = 15;
-                        rival_cost_map[i][j] = 15;
+                        rival_cost_map[i][j] = 999;
                         break;
                     case '#':
                         hiker_cost_map[i][j] = 10;
@@ -185,8 +178,8 @@ void initCostMap(board *bd, float hiker_cost_map[X_MAG][Y_MAG], float rival_cost
                         rival_cost_map[i][j] = 50;
                         break;
                     case '@':
-                        hiker_cost_map[i][j] = 0;
-                        rival_cost_map[i][j] = 0;
+                        hiker_cost_map[i][j] = 10;
+                        rival_cost_map[i][j] = 10;
                         break;
                     default:
                         hiker_cost_map[i][j] = -1;
@@ -197,44 +190,25 @@ void initCostMap(board *bd, float hiker_cost_map[X_MAG][Y_MAG], float rival_cost
         }
     }
 
-    //for(int i = 0; i < Y_MAG; i++)
-    //{
-    //    for(int j = 0; j < X_MAG; j++)
-    //    {
-    //       printf("%g ", (hiker_cost_map[j][i]));
-    //    }
-    //    printf("\n");
-    //}
-    //printf("\n\n\n\n");
-    //for(int i = 0; i < Y_MAG; i++)
-    //{
-    //    for(int j = 0; j < X_MAG; j++)
-    //    {
-    //       printf("%g ", (rival_cost_map[j][i]));
-    //    }
-    //    printf("\n");
-    //}
 }
 
-int dijkstra(board* bd, float hiker_cost_map[MAG_X][MAG_Y], float rival_cost_map[MAG_X][MAG_Y])
+int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MAG_X][MAG_Y])
 {
     heapNode* hiker_dist_map[MAG_X][MAG_Y];
     heapNode* rival_dist_map[MAG_X][MAG_Y];
 
     heap* h = createHeap(80*21);
-
+    heap* h2 = createHeap(80*21);
     
     for(int i = 0; i < 80; i++)
     {
         for(int j = 0; j < 21; j++)
         {
-            heapNode *rt;
-            heapNode *ht;
-            if(!(rt = malloc(sizeof(*rt)))){return 1;}
-            if(!(ht = malloc(sizeof(*ht)))){return 1;}
+            heapNode *rt = malloc(sizeof(*rt));
+            heapNode *ht = malloc(sizeof(*ht));
 
-            rt->dist = INFINITY;
-            ht->dist = INFINITY;
+            rt->dist = 999;
+            ht->dist = 999;
 
             rt->x = i;
             ht->x = i;
@@ -248,124 +222,341 @@ int dijkstra(board* bd, float hiker_cost_map[MAG_X][MAG_Y], float rival_cost_map
             rt->visited = 0;
             ht->visited = 0;
             
-            hiker_dist_map[i][j] = ht;
             rival_dist_map[i][j] = rt;
-
+            hiker_dist_map[i][j] = ht;
 
         }
     }
-    heapNode *hn;
-    if(!(hn = malloc(sizeof(*hn))))
-    {
-        return 1; 
-    }
-    hn->dist = 0;
-    hn->x = bd->board[bd->curX][bd->curY]->px;
-    hn->y = bd->board[bd->curX][bd->curY]->py;
+    heapNode *hn = malloc(sizeof(*hn));
+    hn->dist = 10;
+    hn->x = sq->px;
+    hn->y = sq->py;
     hn->cost = 0;
     hn->visited = 1;
     insert(h, hn);
-
+    insert(h2, hn);
     rival_dist_map[hn->x][hn->y] = hn;
     hiker_dist_map[hn->x][hn->y] = hn;
 
 
 
-
-
-
-    
     while(h->size != 0)
-    { 
-        heapNode* curr = extractMin(h);
-
-        if(curr->x != 79)
-        {
-            if(!rival_dist_map[(curr->x)+1][(curr->y)]->visited)
-            {
-                insert(h,rival_dist_map[(curr->x)+1][(curr->y)]);
-                rival_dist_map[(curr->x)+1][(curr->y)]->visited = 1;
-            }
-        }
-        if(curr->x != 0)
-        {
-            if(!rival_dist_map[(curr->x)-1][(curr->y)]->visited)
-            {
-                insert(h,rival_dist_map[(curr->x)-1][(curr->y)]);
-                rival_dist_map[(curr->x)-1][(curr->y)]->visited = 1;
-            }
-        }
-
-        if(curr->y != 20)
-        {
-            if(!rival_dist_map[(curr->x)][(curr->y)+1]->visited)
-            {
-                insert(h,rival_dist_map[(curr->x)][(curr->y)+1]);
-                rival_dist_map[(curr->x)][(curr->y)+1]->visited = 1;
-            }
-        }
-
-        if(curr->y != 0)
-        {
-            if(!rival_dist_map[(curr->x)][(curr->y)-1]->visited)
-            {
-                insert(h,rival_dist_map[(curr->x)][(curr->y)-1]);
-                rival_dist_map[(curr->x)][(curr->y)-1]->visited = 1;
-            }
-        }
-
-        if(curr->x != 79 && curr->y != 20)
-        {
-            if(!rival_dist_map[(curr->x)+1][(curr->y)+1]->visited)
-            {
-                insert(h,rival_dist_map[(curr->x)+1][(curr->y)+1]);
-                rival_dist_map[(curr->x)+1][(curr->y)+1]->visited = 1;
-            }
-        }
-
-        if(curr->x != 79 && curr->y != 0)
-        {
-            if(!rival_dist_map[(curr->x)+1][(curr->y)-1]->visited)
-            {
-                insert(h,rival_dist_map[(curr->x)+1][(curr->y)-1]);
-                rival_dist_map[(curr->x)+1][(curr->y)-1]->visited = 1;
-            }
-        }
-
-        if(curr->x != 0 && curr->y != 20){
-            if(!rival_dist_map[(curr->x)-1][(curr->y)+1]->visited)
-            {
-                insert(h,rival_dist_map[(curr->x)-1][(curr->y)+1]);
-                rival_dist_map[(curr->x)-1][(curr->y)+1]->visited = 1;
-            }
-        }
-
-        if(curr->x != 0 && curr->y != 0)
-        {
-            if(!rival_dist_map[(curr->x)-1][(curr->y)-1]->visited)
-            {
-                insert(h,rival_dist_map[(curr->x)-1][(curr->y)-1]);
-                rival_dist_map[(curr->x)-1][(curr->y)-1]->visited = 1;
-            }
-        }
-    }
-
-   for(int i = 0; i < 80; i++)
     {
-        for(int j = 0; j < 21; j++)
+
+        heapNode* curr = extractMin(h);
+        heapNode* tmp;
+
+        if(curr->x < 79)
         {
-            printf("This is the hiker node at %d , %d --",hiker_dist_map[i][j]->x, hiker_dist_map[i][j]->y);
-            printf(" its dist is %f, and it's cost is %f",hiker_dist_map[i][j]->dist, hiker_dist_map[i][j]->cost);
 
-            printf("\n\n");
+            tmp = rival_dist_map[(curr->x)+1][(curr->y)];
+            if(!tmp->visited)
+            {
+                tmp->visited = 1;
+                if(tmp->cost != 999)
+                {
+                    tmp->dist = curr->dist + tmp->cost;
+                    insert(h,tmp);
+                }
+            }
+            tmp = NULL;
+        }
+        if(curr->x > 0)
+        {
+            tmp = rival_dist_map[(curr->x)-1][(curr->y)];
+            if(!tmp->visited)
+            {
+                tmp->visited = 1; 
+                if(tmp->cost != 999)
+                { 
+                    tmp->dist = curr->dist + tmp->cost;
+                    insert(h,tmp);
+                }
 
-            printf("This is the hiker node at %d , %d --",rival_dist_map[i][j]->x, rival_dist_map[i][j]->y);
-            printf(" its dist is %f, and it's cost is %f",rival_dist_map[i][j]->dist, rival_dist_map[i][j]->cost);
+            }
+            tmp = NULL;
+        }
 
+        if(curr->y < 20)
+        {
+            tmp = rival_dist_map[(curr->x)][(curr->y)+1];
+            if(!tmp->visited)
+            {
+                tmp->visited = 1; 
+                if(tmp->cost != 999)
+                { 
+                    tmp->dist = curr->dist + tmp->cost;
+                    insert(h,tmp);
+                }
+            }
+            tmp = NULL;
+        }
 
-            printf("\n\n");
+        if(curr->y > 0)
+        {
+            tmp = rival_dist_map[(curr->x)][(curr->y)-1];
+            if(!tmp->visited)
+            {
+                tmp->visited = 1;
+                if(tmp->cost != 999)
+                { 
+                    tmp->dist = curr->dist + tmp->cost;
+                    insert(h,tmp);
+                }
+            }
+            tmp = NULL;
+        }
+
+        if(curr->x < 79 && curr->y < 20)
+        {
+            tmp = rival_dist_map[(curr->x)+1][(curr->y)+1];
+            if(!tmp->visited)
+            {
+                tmp->visited = 1;
+                if(tmp->cost != 999)
+                { 
+                    tmp->dist = curr->dist + tmp->cost;
+                    insert(h,tmp);
+                }
+            } 
+            tmp = NULL;
+        }
+
+        if(curr->x < 79 && curr->y > 0)
+        {
+            tmp = rival_dist_map[(curr->x)+1][(curr->y)-1];
+            if(!tmp->visited)
+            {
+                tmp->visited = 1;
+                if(tmp->cost != 999)
+                { 
+                    tmp->dist = curr->dist + tmp->cost;
+                    insert(h,tmp);
+                }
+            }
+            tmp = NULL;
+        }
+
+        if(curr->x > 0 && curr->y < 20)
+        {
+            tmp = rival_dist_map[(curr->x)-1][(curr->y)+1];
+            if(!tmp->visited)
+            {
+                tmp->visited = 1;
+                if(tmp->cost != 999)
+                { 
+                    tmp->dist = curr->dist + tmp->cost;
+                    insert(h,tmp);
+                }
+            }
+            tmp = NULL;
+        }
+
+        if(curr->x > 0 && curr->y > 0)
+        {
+            tmp = rival_dist_map[(curr->x)-1][(curr->y)-1];
+            if(!tmp->visited)
+            {
+                tmp->visited = 1;
+                if(tmp->cost != 999)
+                { 
+                    tmp->dist = curr->dist + tmp->cost;
+                    insert(h,tmp);
+                }
+            }
+            tmp = NULL;
         }
     }
+   printf("\n\n\n");
+   for(int i = 1; i < 20; i++)
+    {
+        for(int j = 1; j < 79; j++)
+        {
+    
+            if(rival_dist_map[j][i]->dist == 999)
+            {
+                printf("   ");
+            }
+            else if(rival_dist_map[j][i]->dist % 100 == 5 || rival_dist_map[j][i]->dist % 100 == 0)
+            {
+            printf("0%d ",rival_dist_map[j][i]->dist % 100);
+            }
+            else
+            {
+            printf("%d ",rival_dist_map[j][i]->dist % 100);
+            }
+
+        }
+        printf("\n");
+    }
+//    printf("\n\n");
+//   for(int i = 1; i < 20; i++)
+//    {
+//        for(int j = 1; j < 79; j++)
+//        {
+//    
+//            printf("%d ", rival_cost_map[j][i]);
+//        }
+//        printf("\n");
+//    }
+//
+
+
+
+
+   while(h2->size != 0)
+   {
+
+       heapNode* curr = extractMin(h2);
+       heapNode* tmp = NULL;
+       if(curr->x < 79)
+       {
+
+           tmp = hiker_dist_map[(curr->x)+1][(curr->y)];
+           if(!tmp->visited)
+           {
+               tmp->visited = 1;
+               if(tmp->cost != 999)
+               {
+                   tmp->dist = curr->dist + tmp->cost;
+                   insert(h2,tmp);
+               }
+           }
+           tmp = NULL;
+       }
+       if(curr->x > 0)
+       {
+           tmp = hiker_dist_map[(curr->x)-1][(curr->y)];
+           if(!tmp->visited)
+           {
+               tmp->visited = 1; 
+               if(tmp->cost != 999)
+               { 
+                   tmp->dist = curr->dist + tmp->cost;
+                   insert(h2,tmp);
+               }
+
+           }
+           tmp = NULL;
+       }
+
+       if(curr->y < 20)
+       {
+           tmp = hiker_dist_map[(curr->x)][(curr->y)+1];
+           if(!tmp->visited)
+           {
+               tmp->visited = 1; 
+               if(tmp->cost != 999)
+               { 
+                   tmp->dist = curr->dist + tmp->cost;
+                   insert(h2,tmp);
+               }
+           }
+           tmp = NULL;
+       }
+
+       if(curr->y > 0)
+       {
+           tmp = hiker_dist_map[(curr->x)][(curr->y)-1];
+           if(!tmp->visited)
+           {
+               tmp->visited = 1;
+               if(tmp->cost != 999)
+               { 
+                   tmp->dist = curr->dist + tmp->cost;
+                   insert(h2,tmp);
+               }
+           }
+           tmp = NULL;
+       }
+
+       if(curr->x < 79 && curr->y > 20)
+       {
+           tmp = hiker_dist_map[(curr->x)+1][(curr->y)+1];
+           if(!tmp->visited)
+           {
+               tmp->visited = 1;
+               if(tmp->cost != 999)
+               { 
+                   tmp->dist = curr->dist + tmp->cost;
+                   insert(h2,tmp);
+               }
+           } 
+           tmp = NULL;
+       }
+
+       if(curr->x < 79 && curr->y > 0)
+       {
+           tmp = hiker_dist_map[(curr->x)+1][(curr->y)-1];
+           if(!tmp->visited)
+           {
+               tmp->visited = 1;
+               if(tmp->cost != 999)
+               { 
+                   tmp->dist = curr->dist + tmp->cost;
+                   insert(h2,tmp);
+               }
+           }
+           tmp = NULL;
+       }
+
+       if(curr->x > 0 && curr->y < 20)
+       {
+           tmp = hiker_dist_map[(curr->x)-1][(curr->y)+1];
+           if(!tmp->visited)
+           {
+               tmp->visited = 1;
+               if(tmp->cost != 999)
+               { 
+                   tmp->dist = curr->dist + tmp->cost;
+                   insert(h2,tmp);
+               }
+           }
+           tmp = NULL;
+       }
+
+       if(curr->x > 0 && curr->y > 0)
+       {
+           tmp = hiker_dist_map[(curr->x)-1][(curr->y)-1];
+           if(!tmp->visited)
+           {
+               tmp->visited = 1;
+               if(tmp->cost != 999)
+               { 
+                   tmp->dist = curr->dist + tmp->cost;
+                   insert(h2,tmp);
+               }
+           }
+           tmp = NULL;
+       }
+   }
+   printf("\n\n\n");
+   for(int i = 1; i < 20; i++)
+   {
+       for(int j = 1; j < 79; j++)
+       {
+
+           if(hiker_dist_map[j][i]->dist == 999)
+           {
+                printf("   ");
+           }
+           else if(hiker_dist_map[j][i]->dist % 100 == 5 || hiker_dist_map[j][i]->dist % 100 == 0)
+           {
+               printf("0%d ",hiker_dist_map[j][i]->dist % 100);
+           }
+           else
+           {
+               printf("%d ",hiker_dist_map[j][i]->dist % 100);
+           }
+
+       }
+       printf("\n");
+   }
+
+
+
+
+
  return 0;
 
 }

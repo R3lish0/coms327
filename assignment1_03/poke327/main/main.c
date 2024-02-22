@@ -12,22 +12,24 @@ int main()
     //creating board
     board bd;
 
-    float hiker_cost_map[X_MAG][Y_MAG];
-    float rival_cost_map[X_MAG][Y_MAG];
+    int hiker_cost_map[X_MAG][Y_MAG];
+    int rival_cost_map[X_MAG][Y_MAG];
 
     //setting board values at null and setting first square/coord
     initBoard(&bd);
     
 
-    initCostMap(&bd, hiker_cost_map, rival_cost_map);
     
-    dijkstra(&bd, hiker_cost_map, rival_cost_map);
-
     printSquare((bd.board[bd.curX][bd.curY]));
-    
+    initCostMap(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map);
+    printf("\n\n");
+    dijkstra(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map);
+
+
     int fx;
     int fy;
     char c;
+
     while(1){
         printf("Current location (%d,%d),\nenter option ([q]uit, [n]orth, [s]outh, [e]ast, [w]est, [f]ly): ",bd.curX-200,bd.curY-200);
         scanf(" %c", &c);
@@ -37,51 +39,60 @@ int main()
                 printf("See you later ... quitter\n");
                 exit(0);
                 break;
-            case 'n':
+             case 'n':
                 if(bd.curY+1 <= 400)
                 {
-                checkTile(&bd,bd.curX,bd.curY+1);
-                printSquare(bd.board[bd.curX][bd.curY]);
-                }
+                    checkTile(&bd,bd.curX,bd.curY+1);
+                    printSquare(bd.board[bd.curX][bd.curY]);
+                    initCostMap(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map);
+                    printf("\n\n");
+                    dijkstra(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map);}
                 else
                 {
                     printf("You can't move farther in that direction\n");
                 }
                 break;
-            case 's':
+             case 's':
                 if(bd.curY-1 >= 0)
                 {
                     checkTile(&bd,bd.curX,bd.curY-1);
                     printSquare(bd.board[bd.curX][bd.curY]);
-                } 
+                    initCostMap(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map);
+                    printf("\n\n");
+                    dijkstra(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map);} 
                 else
                 {
                     printf("You can't move farther in that direction\n");
                 }
                 break;
-            case 'e':
+             case 'e':
                 if(bd.curX+1 <= 400)
                 {
-                checkTile(&bd,bd.curX+1,bd.curY);
-                printSquare(bd.board[bd.curX][bd.curY]);
+                    checkTile(&bd,bd.curX+1,bd.curY);
+                    printSquare(bd.board[bd.curX][bd.curY]);
+                    initCostMap(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map);
+                    printf("\n\n");
+                    dijkstra(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map);
                 } 
                 else
                 {
                     printf("You can't move farther in that direction\n");
                 }
                 break;
-            case 'w':
+             case 'w':
                 if(bd.curX-1 >= 0) 
                 {
-                checkTile(&bd,bd.curX-1,bd.curY);
-                printSquare(bd.board[bd.curX][bd.curY]);
-                } 
+                    checkTile(&bd,bd.curX-1,bd.curY);
+                    printSquare(bd.board[bd.curX][bd.curY]);
+                initCostMap(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map);
+                    printf("\n\n");
+                    dijkstra(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map);} 
                 else
                 {
                     printf("You can't move farther in that direction\n");
                 }
                 break;
-            case 'f':
+             case 'f':
                 printf("enter x: "); 
                 scanf(" %d", &fx);
                 printf("enter y: ");
@@ -95,6 +106,9 @@ int main()
                 {
                     checkTile(&bd,fx+200,fy+200);
                     printSquare(bd.board[bd.curX][bd.curY]);
+                    initCostMap(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map);
+                    printf("\n\n");
+                    dijkstra(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map);
                 }
                 break;
             default:

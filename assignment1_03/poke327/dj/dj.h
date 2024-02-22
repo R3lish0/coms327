@@ -10,8 +10,8 @@
 
 
 typedef struct HeapNode {
-    float dist;
-    float cost;
+    int dist;
+    int cost;
     int x;
     int y;
     bool visited;
@@ -31,8 +31,8 @@ void insertHelper(heap* h, int index);
 void heapify(heap* h, int index);
 heapNode* extractMin(heap* h);
 void insert(heap* h, heapNode* hn);
-void initCostMap(board* bd, float hiker_cost_map[MAG_X][MAG_Y], float rival_cost_map[MAG_X][MAG_Y]);
-int dijkstra(board* bd, float hiker_cost_map[MAG_X][MAG_Y], float rival_cost_map[MAG_X][MAG_Y]);
+void initCostMap(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MAG_X][MAG_Y]);
+int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MAG_X][MAG_Y]);
 
 
 

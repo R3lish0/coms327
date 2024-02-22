@@ -201,12 +201,17 @@ int manMade(struct square *sq, int pk)
     int quota = (rand() % 10)+3;
     int delta;
     int ch = 0;
-    
+   
     int edge_top = 0;
     int edge_bottom = 0;
     int edge_left = 0;
     int edge_right = 0;
-    
+
+
+    int player = (rand() % 50) + 5;
+
+
+
     if(sq->n == -1)
     {
        edge_top = 1;
@@ -353,6 +358,12 @@ int manMade(struct square *sq, int pk)
                 sq->map[i+1][e-2] = 'C';
 
 
+            }
+        if(i == player)
+            {
+                sq->map[i][e] = '@';
+                sq->px = i;
+                sq->py = e;
             }
 
     }

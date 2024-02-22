@@ -11,12 +11,17 @@ int main()
 {
     //creating board
     board bd;
+
+    float hiker_cost_map[X_MAG][Y_MAG];
+    float rival_cost_map[X_MAG][Y_MAG];
+
     //setting board values at null and setting first square/coord
     initBoard(&bd);
     
 
-    initCostMap(&bd);
-
+    initCostMap(&bd, hiker_cost_map, rival_cost_map);
+    
+    dijkstra(&bd, hiker_cost_map, rival_cost_map);
 
     printSquare((bd.board[bd.curX][bd.curY]));
     

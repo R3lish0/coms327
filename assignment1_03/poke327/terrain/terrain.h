@@ -16,6 +16,8 @@ typedef struct square{
     int s;
     int e;
     int w;
+    int px;
+    int py;
 } square;
 
 typedef struct seeds{

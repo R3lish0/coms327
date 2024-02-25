@@ -4,7 +4,6 @@
 
 #include "dj.h"
 
-#define INT_MAX 999
 
 // Define a createHeap function
 heap* createHeap(int capacity)
@@ -22,7 +21,7 @@ heap* createHeap(int capacity)
     h->capacity = capacity;
  
     // Allocating memory to array
-    h->arr = (heapNode*)malloc(capacity * sizeof(heapNode));
+    h->arr = malloc(capacity * sizeof(heapNode*));
  
     // Checking if memory is allocated to h or not
     if (h->arr == NULL) {
@@ -47,10 +46,10 @@ void insertHelper(heap* h, int index)
     // in parent variable
     int parent = (index - 1) / 2;
  
-    if (h->arr[parent].dist > h->arr[index].dist) {
+    if (h->arr[parent]->dist > h->arr[index]->dist) {
         // Swapping when child is smaller
         // than parent element
-        heapNode temp = h->arr[parent];
+        heapNode* temp = h->arr[parent];
         h->arr[parent] = h->arr[index];
         h->arr[index] = temp;
  
@@ -74,14 +73,14 @@ void heapify(heap* h, int index)
  
     // store left or right element in min if
     // any of these is smaller that its parent
-    if (left != -1 && h->arr[left].dist < h->arr[index].dist)
+    if (left != -1 && h->arr[left]->dist < h->arr[index]->dist)
         min = left;
-    if (right != -1 && h->arr[right].dist < h->arr[min].dist)
+    if (right != -1 && h->arr[right]->dist < h->arr[min]->dist)
         min = right;
  
     // Swapping the nodes
     if (min != index) {
-        heapNode temp = h->arr[min];
+        heapNode* temp = h->arr[min];
         h->arr[min] = h->arr[index];
         h->arr[index] = temp;
  
@@ -103,7 +102,7 @@ heapNode* extractMin(heap* h)
  
     // Store the node in deleteItem that
     // is to be deleted.
-    deleteItem = &h->arr[0];
+    deleteItem = h->arr[0];
  
     // Replace the deleted node with the last node
     h->arr[0] = h->arr[h->size - 1];
@@ -123,7 +122,7 @@ void insert(heap* h, heapNode* hn)
     // Checking if heap is full or not
     if (h->size < h->capacity) {
         // Inserting data into an array
-        h->arr[h->size] = *hn;
+        h->arr[h->size] = hn;
         // Calling insertHelper function
         insertHelper(h, h->size);
         // Incrementing size of array
@@ -142,16 +141,16 @@ void initCostMap(square* sq, int hiker_cost_map[X_MAG][Y_MAG], int rival_cost_ma
         {
             if(i == 0 || j == 0 || j == 20 || i == 79)
             {
-                hiker_cost_map[i][j] = 999;
-                rival_cost_map[i][j] = 999;
+                hiker_cost_map[i][j] = INT16_MAX;
+                rival_cost_map[i][j] = INT16_MAX;
             }
             else
             {
                 switch(sq->map[i][j])
                 {
                     case '~':
-                        hiker_cost_map[i][j] = 999;
-                        rival_cost_map[i][j] = 999;
+                        hiker_cost_map[i][j] = INT16_MAX;
+                        rival_cost_map[i][j] = INT16_MAX;
                         break;
                     case '.':
                         hiker_cost_map[i][j] = 10;
@@ -163,7 +162,7 @@ void initCostMap(square* sq, int hiker_cost_map[X_MAG][Y_MAG], int rival_cost_ma
                         break;
                     case '%':
                         hiker_cost_map[i][j] = 15;
-                        rival_cost_map[i][j] = 999;
+                        rival_cost_map[i][j] = INT16_MAX;
                         break;
                     case '#':
                         hiker_cost_map[i][j] = 10;
@@ -207,8 +206,8 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
             heapNode *rt = malloc(sizeof(*rt));
             heapNode *ht = malloc(sizeof(*ht));
 
-            rt->dist = 999;
-            ht->dist = 999;
+            rt->dist = INT16_MAX;
+            ht->dist = INT16_MAX;
 
             rt->x = i;
             ht->x = i;
@@ -244,22 +243,20 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
     {
 
         heapNode* curr = extractMin(h);
-        heapNode* tmp;
+        heapNode* tmp = NULL;
 
         if(curr->x < 79)
         {
 
-            tmp = rival_dist_map[(curr->x)+1][(curr->y)];
-            if(!tmp->visited)
+            if(!rival_dist_map[(curr->x)+1][(curr->y)]->visited)
             {
-                tmp->visited = 1;
-                if(tmp->cost != 999)
+                rival_dist_map[(curr->x)+1][(curr->y)]->visited = 1;
+                if(rival_dist_map[(curr->x)+1][(curr->y)]->cost != INT16_MAX)
                 {
-                    tmp->dist = curr->dist + tmp->cost;
-                    insert(h,tmp);
+                    rival_dist_map[(curr->x)+1][(curr->y)]->dist = curr->dist + rival_dist_map[(curr->x)+1][(curr->y)]->cost;
+                    insert(h,rival_dist_map[(curr->x)+1][(curr->y)]);
                 }
             }
-            tmp = NULL;
         }
         if(curr->x > 0)
         {
@@ -267,7 +264,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
             if(!tmp->visited)
             {
                 tmp->visited = 1; 
-                if(tmp->cost != 999)
+                if(tmp->cost != INT16_MAX)
                 { 
                     tmp->dist = curr->dist + tmp->cost;
                     insert(h,tmp);
@@ -283,7 +280,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
             if(!tmp->visited)
             {
                 tmp->visited = 1; 
-                if(tmp->cost != 999)
+                if(tmp->cost != INT16_MAX)
                 { 
                     tmp->dist = curr->dist + tmp->cost;
                     insert(h,tmp);
@@ -298,7 +295,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
             if(!tmp->visited)
             {
                 tmp->visited = 1;
-                if(tmp->cost != 999)
+                if(tmp->cost != INT16_MAX)
                 { 
                     tmp->dist = curr->dist + tmp->cost;
                     insert(h,tmp);
@@ -313,7 +310,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
             if(!tmp->visited)
             {
                 tmp->visited = 1;
-                if(tmp->cost != 999)
+                if(tmp->cost != INT16_MAX)
                 { 
                     tmp->dist = curr->dist + tmp->cost;
                     insert(h,tmp);
@@ -328,7 +325,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
             if(!tmp->visited)
             {
                 tmp->visited = 1;
-                if(tmp->cost != 999)
+                if(tmp->cost != INT16_MAX)
                 { 
                     tmp->dist = curr->dist + tmp->cost;
                     insert(h,tmp);
@@ -343,7 +340,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
             if(!tmp->visited)
             {
                 tmp->visited = 1;
-                if(tmp->cost != 999)
+                if(tmp->cost != INT16_MAX)
                 { 
                     tmp->dist = curr->dist + tmp->cost;
                     insert(h,tmp);
@@ -358,7 +355,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
             if(!tmp->visited)
             {
                 tmp->visited = 1;
-                if(tmp->cost != 999)
+                if(tmp->cost != INT16_MAX)
                 { 
                     tmp->dist = curr->dist + tmp->cost;
                     insert(h,tmp);
@@ -373,7 +370,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
         for(int j = 1; j < 79; j++)
         {
     
-            if(rival_dist_map[j][i]->dist == 999)
+            if(rival_dist_map[j][i]->dist == INT16_MAX)
             {
                 printf("   ");
             }
@@ -416,7 +413,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
            if(!tmp->visited)
            {
                tmp->visited = 1;
-               if(tmp->cost != 999)
+               if(tmp->cost != INT16_MAX)
                {
                    tmp->dist = curr->dist + tmp->cost;
                    insert(h2,tmp);
@@ -430,7 +427,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
            if(!tmp->visited)
            {
                tmp->visited = 1; 
-               if(tmp->cost != 999)
+               if(tmp->cost != INT16_MAX)
                { 
                    tmp->dist = curr->dist + tmp->cost;
                    insert(h2,tmp);
@@ -446,7 +443,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
            if(!tmp->visited)
            {
                tmp->visited = 1; 
-               if(tmp->cost != 999)
+               if(tmp->cost != INT16_MAX)
                { 
                    tmp->dist = curr->dist + tmp->cost;
                    insert(h2,tmp);
@@ -461,7 +458,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
            if(!tmp->visited)
            {
                tmp->visited = 1;
-               if(tmp->cost != 999)
+               if(tmp->cost != INT16_MAX)
                { 
                    tmp->dist = curr->dist + tmp->cost;
                    insert(h2,tmp);
@@ -476,7 +473,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
            if(!tmp->visited)
            {
                tmp->visited = 1;
-               if(tmp->cost != 999)
+               if(tmp->cost != INT16_MAX)
                { 
                    tmp->dist = curr->dist + tmp->cost;
                    insert(h2,tmp);
@@ -491,7 +488,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
            if(!tmp->visited)
            {
                tmp->visited = 1;
-               if(tmp->cost != 999)
+               if(tmp->cost != INT16_MAX)
                { 
                    tmp->dist = curr->dist + tmp->cost;
                    insert(h2,tmp);
@@ -506,7 +503,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
            if(!tmp->visited)
            {
                tmp->visited = 1;
-               if(tmp->cost != 999)
+               if(tmp->cost != INT16_MAX)
                { 
                    tmp->dist = curr->dist + tmp->cost;
                    insert(h2,tmp);
@@ -521,7 +518,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
            if(!tmp->visited)
            {
                tmp->visited = 1;
-               if(tmp->cost != 999)
+               if(tmp->cost != INT16_MAX)
                { 
                    tmp->dist = curr->dist + tmp->cost;
                    insert(h2,tmp);
@@ -536,7 +533,7 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
        for(int j = 1; j < 79; j++)
        {
 
-           if(hiker_dist_map[j][i]->dist == 999)
+           if(hiker_dist_map[j][i]->dist == INT16_MAX)
            {
                 printf("   ");
            }

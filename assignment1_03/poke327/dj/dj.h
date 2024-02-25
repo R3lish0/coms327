@@ -18,7 +18,7 @@ typedef struct HeapNode {
 } heapNode;
 
 typedef struct Heap {
-    heapNode* arr;
+    heapNode** arr;
     int size;
     int capacity;
 } heap;

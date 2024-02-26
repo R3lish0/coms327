@@ -247,13 +247,13 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
 
         if(curr->x < 79)
         {
-            tmp = rival_dist_map[(curr->x)+1][(curr->y)];
-            if(!tmp->visited)
+
+            if(!rival_dist_map[(curr->x)+1][(curr->y)]->visited)
             {
-                tmp->visited = 1;
-                if(tmp->cost != INT16_MAX)
+                rival_dist_map[(curr->x)+1][(curr->y)]->visited = 1;
+                if(rival_dist_map[(curr->x)+1][(curr->y)]->cost != INT16_MAX)
                 {
-                    tmp->dist = curr->dist + tmp->cost;
+                    rival_dist_map[(curr->x)+1][(curr->y)]->dist = curr->dist + rival_dist_map[(curr->x)+1][(curr->y)]->cost;
                     insert(h,rival_dist_map[(curr->x)+1][(curr->y)]);
                 }
             }

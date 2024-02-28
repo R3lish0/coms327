@@ -22,16 +22,58 @@
 //
 #ifndef TURN_H 
 #define TURN_H
-#include "../dj/dj.h"
+#include "../terrain/terrain.h"
 
-
-typedef struct Character {
-    char type;
+typedef struct npc {
     int x;
     int y;
-} character;
+    int cost;
+    char type;
+    char terrain;
+    char cur_dir;    
+} npc;
 
 
+typedef struct HeapNode {
+    npc* npc; 
+    int cost;
+} heapNode;
+
+typedef struct Heap {
+    heapNode** arr;
+    int size;
+    int capacity;
+} heap;
+
+
+
+// define the struct Heap name
+// forward declarations
+heap* createHeap(int capacity);
+void insertHelper(heap* h, int index);
+void heapify(heap* h, int index);
+heapNode* extractMin(heap* h);
+void insert(heap* h, heapNode* hn);
+
+
+void compare(int x,int y,int min_pair[2], int* min, int cost_map[X_MAG][Y_MAG]);
+
+char random_turn(char except);
+
+void move(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
+        int character_map[X_MAG][Y_MAG], int new_x, int new_y);
+
+void chase(npc* c, char map[X_MAG][Y_MAG],
+        int cost_map[X_MAG][Y_MAG], int character_map[X_MAG][Y_MAG]);
+
+void pace(npc* p, char map[X_MAG][Y_MAG],
+        int cost_map[X_MAG][Y_MAG], int character_map[X_MAG][Y_MAG]); 
+
+void wander(npc* w, char map[X_MAG][Y_MAG],
+        int cost_map[X_MAG][Y_MAG], int character_map[X_MAG][Y_MAG]);
+
+void explore(npc* e, char map[X_MAG][Y_MAG],
+        int cost_map[X_MAG][Y_MAG], int character_map[X_MAG][Y_MAG]);
 
 
 

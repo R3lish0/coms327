@@ -191,7 +191,10 @@ void initCostMap(square* sq, int hiker_cost_map[X_MAG][Y_MAG], int rival_cost_ma
 
 }
 
-int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MAG_X][MAG_Y])
+int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], 
+        int rival_cost_map[MAG_X][MAG_Y],
+        int rival_dij_map[MAG_X][MAG_Y],
+        int hiker_dij_map[MAG_X][MAG_Y])
 {
     heapNode* hiker_dist_map[MAG_X][MAG_Y];
     heapNode* rival_dist_map[MAG_X][MAG_Y];
@@ -370,33 +373,11 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
         for(int j = 1; j < 79; j++)
         {
     
-            if(rival_dist_map[j][i]->dist == INT16_MAX)
-            {
-                printf("   ");
-            }
-            else if(rival_dist_map[j][i]->dist % 100 == 5 || rival_dist_map[j][i]->dist % 100 == 0)
-            {
-            printf("0%d ",rival_dist_map[j][i]->dist % 100);
-            }
-            else
-            {
-            printf("%d ",rival_dist_map[j][i]->dist % 100);
-            }
+           rival_dij_map[j][i] = rival_dist_map[j][i]->dist;
 
         }
-        printf("\n");
     }
-//    printf("\n\n");
-//   for(int i = 1; i < 20; i++)
-//    {
-//        for(int j = 1; j < 79; j++)
-//        {
-//    
-//            printf("%d ", rival_cost_map[j][i]);
-//        }
-//        printf("\n");
-//    }
-//
+
 
 
 
@@ -528,28 +509,16 @@ int dijkstra(square* sq, int hiker_cost_map[MAG_X][MAG_Y], int rival_cost_map[MA
        }
    }
    printf("\n\n\n");
+   
    for(int i = 1; i < 20; i++)
    {
        for(int j = 1; j < 79; j++)
        {
 
-           if(hiker_dist_map[j][i]->dist == INT16_MAX)
-           {
-                printf("   ");
-           }
-           else if(hiker_dist_map[j][i]->dist % 100 == 5 || hiker_dist_map[j][i]->dist % 100 == 0)
-           {
-               printf("0%d ",hiker_dist_map[j][i]->dist % 100);
-           }
-           else
-           {
-               printf("%d ",hiker_dist_map[j][i]->dist % 100);
-           }
+           hiker_dij_map[j][i] = hiker_dist_map[j][i]->dist;
 
        }
-       printf("\n");
    }
-
 
 
 

@@ -59,7 +59,7 @@ heapNode_t* extractMin_t(heap_t* h);
 void insert_t(heap_t* h, heapNode_t* hn);
 
 
-void compare(int x,int y,int min_pair[2], int* min, int cost_map[X_MAG][Y_MAG]);
+void compare(int x,int y,int min_pair[2], int* min, int dij[X_MAG][Y_MAG]);
 
 char random_turn(char except);
 
@@ -67,7 +67,9 @@ void move(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG], int new_x, int new_y);
 
 void chase(npc* c, char map[X_MAG][Y_MAG],
-        int cost_map[X_MAG][Y_MAG], int character_map[X_MAG][Y_MAG]);
+        int cost_map[X_MAG][Y_MAG],
+        int character_map[X_MAG][Y_MAG],
+        int dijkstra[X_MAG][Y_MAG]);
 
 void pace(npc* p, char map[X_MAG][Y_MAG],
         int cost_map[X_MAG][Y_MAG], int character_map[X_MAG][Y_MAG]); 
@@ -78,6 +80,18 @@ void wander(npc* w, char map[X_MAG][Y_MAG],
 void explore(npc* e, char map[X_MAG][Y_MAG],
         int cost_map[X_MAG][Y_MAG], int character_map[X_MAG][Y_MAG]);
 
+heapNode_t* create_npc(int x, int y, char type, int cost_map[X_MAG][Y_MAG],
+        int char_map[X_MAG][Y_MAG], char map[X_MAG][Y_MAG]);
 
+heap_t* init_turn_heap(int capacity);
+
+void add_npc(heap_t* h, heapNode_t* ht);
+
+void next_turn(heap_t* h, char map[X_MAG][Y_MAG], 
+        int hiker_cost_map[X_MAG][Y_MAG],
+        int rival_cost_map[X_MAG][Y_MAG],
+        int character_map[X_MAG][Y_MAG],
+         int rival_dij[X_MAG][Y_MAG],
+         int hiker_dij[X_MAG][Y_MAG]);
 
 #endif

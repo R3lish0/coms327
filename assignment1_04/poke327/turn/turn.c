@@ -151,15 +151,16 @@ void insert_t(heap_t* h, heapNode_t* hn)
 }
 
 
-void compare(int x, int y, int min_pair[2], int* min, int cost_map[X_MAG][Y_MAG])
+void compare(int x, int y, int min_pair[2], int* min, int dij[X_MAG][Y_MAG])
 {
-    if (cost_map[x][y] < *min)
+    if(dij[x][y] < *min)
     {
-        *min = cost_map[x][y];
-    }
-    min_pair[0]=x;
-    min_pair[1]=y;
-
+        *min = dij[x][y];
+        min_pair[0]=x;
+        min_pair[1]=y;
+  }
+     
+   
 }
 
 char random_turn(char except)
@@ -253,7 +254,7 @@ char random_turn(char except)
     }
 }
 
-
+//CHILLIN
 void move(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG], int new_x, int new_y)
 {
@@ -268,6 +269,7 @@ void move(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         c->y = new_y;
 
         //occupy space
+        c->terrain = map[c->x][c->y];
         map[c->x][c->y] = c->type;
         c->cost+=cost_map[c->x][c->y];
         character_map[c->x][c->y] = 1;
@@ -344,7 +346,7 @@ void wander(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     //game is printed upsidown so values are adjusted accordingly
     if(p->cur_dir == 'N')
     {
-        if(p->y > 0 && map[p->x][p->y-1] != p->terrain)
+        if(p->y > 0 && map[p->x][p->y-1] == p->terrain)
         {
             move(p, map, cost_map, character_map, p->x, p->y-1);
         }
@@ -356,7 +358,7 @@ void wander(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     }
     else if(p->cur_dir == 'S')
     {
-        if(p->y < 20 && map[p->x][p->y+1] != p->terrain)
+        if(p->y < 20 && map[p->x][p->y+1] == p->terrain)
         {
             move(p, map, cost_map, character_map, p->x, p->y+1);
         }
@@ -368,7 +370,7 @@ void wander(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     }
     else if(p->cur_dir == 'E')
     {
-        if(p->x < 79 && map[p->x+1][p->y] != p->terrain)
+        if(p->x < 79 && map[p->x+1][p->y] == p->terrain)
         {
             move(p, map, cost_map, character_map, p->x+1, p->y);
         }
@@ -380,7 +382,7 @@ void wander(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     }
     else if(p->cur_dir == 'W')
     {
-        if(p->x > 0 && map[p->x-1][p->y] != p->terrain)
+        if(p->x > 0 && map[p->x-1][p->y] == p->terrain)
         {
             move(p, map, cost_map, character_map, p->x-1, p->y);
         }
@@ -450,50 +452,51 @@ void pace(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
 }
 
 void chase(npc* c,char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
-        int character_map[X_MAG][Y_MAG])
+        int character_map[X_MAG][Y_MAG], int dijkstra[X_MAG][Y_MAG])
 {
-    int min_pair[2];
+    int min_pair[2] = {0,0};
     int min = INT16_MAX;
+
     
     if(c->x < 79)
     {
-        compare(c->x+1, c->y, min_pair, &min, cost_map);
+        compare(c->x+1, c->y, min_pair, &min, dijkstra);
     }
-
     if(c->y < 20)
     {
-        compare(c->x, c->y+1, min_pair, &min, cost_map);
+        compare(c->x, c->y+1, min_pair, &min, dijkstra);
     }
 
     if(c->x > 0)
     {
-        compare(c->x-1, c->y, min_pair, &min, cost_map);
+        compare(c->x-1, c->y, min_pair, &min, dijkstra);
     }
 
     if(c->y > 0)
     {
-        compare(c->x, c->y-1, min_pair, &min, cost_map);
+        compare(c->x, c->y-1, min_pair, &min, dijkstra);
     }
 
     if(c->x < 79 && c->y < 20)
     {
-        compare(c->x+1, c->y+1, min_pair, &min, cost_map);
+        compare(c->x+1, c->y+1, min_pair, &min, dijkstra);
     }
 
     if(c->x > 0 && c->y > 0)
     {
-        compare(c->x-1, c->y-1, min_pair, &min, cost_map);
+        compare(c->x-1, c->y-1, min_pair, &min, dijkstra);
     }
 
     if(c->x > 0 && c->y < 20)
     {
-        compare(c->x-1, c->y+1, min_pair, &min, cost_map);
+        compare(c->x-1, c->y+1, min_pair, &min, dijkstra);
     }
 
     if(c->x < 79 && c->y > 0)
     {
-        compare(c->x+1, c->y-1, min_pair, &min, cost_map);
+        compare(c->x+1, c->y-1, min_pair, &min, dijkstra);
     }
+    move(c, map, cost_map, character_map, min_pair[0], min_pair[1]);
 }
 
 heap_t* init_turn_heap(int capacity)
@@ -501,25 +504,23 @@ heap_t* init_turn_heap(int capacity)
     return createHeap_t(capacity);
 }
 
-void add_npc(heap_t* h, npc* npc)
+void add_npc(heap_t* h, heapNode_t* ht)
 {
-    heapNode_t* ht;
-    ht = malloc(sizeof(heapNode_t*));
-    insert_t(h, ht); 
+        insert_t(h, ht); 
 
 }
 
-npc* create_npc(int x, int y, char type, int cost_map[X_MAG][Y_MAG],
-        int char_map[X_MAG][Y_MAG])
+heapNode_t* create_npc(int x, int y, char type, int cost_map[X_MAG][Y_MAG],
+        int char_map[X_MAG][Y_MAG], char map[X_MAG][Y_MAG])
 {
-    npc* npc; 
-    npc = malloc(sizeof(*npc));
+    npc* npc = malloc(sizeof(*npc));
     
     //initialize our basic values
     npc->x = x;
     npc->y = y;
     npc->type = type;
     npc->cost = cost_map[x][y];
+    npc->terrain = map[x][y];
 
     //gen our random direction (only matters for npcs we care about)
 
@@ -538,26 +539,47 @@ npc* create_npc(int x, int y, char type, int cost_map[X_MAG][Y_MAG],
             break;
 
         case 4: 
-            npc->cur_dir = 'W'; 
+            npc->cur_dir = 'N'; 
             break;
     }    
+    char_map[x][y] = 1;
 
-    return npc;
+    heapNode_t* ht;
+    ht = malloc(sizeof(heapNode_t*));
+    ht->npc = npc;
+
+    return ht;
 }
 
 
 void next_turn(heap_t* h, char map[X_MAG][Y_MAG], 
-        int hiker_cost_map[X_MAG][Y_MAG], int character_map[X_MAG][Y_MAG])
+        int hiker_cost_map[X_MAG][Y_MAG],
+        int rival_cost_map[X_MAG][Y_MAG],
+        int character_map[X_MAG][Y_MAG],
+        int rival_dij[X_MAG][Y_MAG],
+        int hiker_dij[X_MAG][Y_MAG])
 {
     heapNode_t* hn = extractMin_t(h); 
     switch(hn->npc->type)
     {
         case 'h':
-            chase(hn->npc, map, hiker_cost_map, character_map);
+            chase(hn->npc, map, hiker_cost_map, character_map, hiker_dij);
             break;
-        default:
+        case 'w':
+            wander(hn->npc, map, rival_cost_map, character_map);
+            break;
+        case 'p':
+            pace(hn->npc, map, rival_cost_map, character_map);
+            break;
+        case 'e':
+            explore(hn->npc, map, rival_cost_map, character_map);
+            break;
+        case 'r':
+            chase(hn->npc, map, rival_cost_map, character_map, rival_dij);
             break;
     }
+    
+    add_npc(h, hn);
 
 }
 

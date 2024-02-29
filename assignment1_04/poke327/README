@@ -18,3 +18,9 @@ Terrain:
 
 Queue:
     Simple queue nothing more nothing less.
+
+DJ:
+    does the Dijkstra's as it should
+
+Turn:
+    handles npc function

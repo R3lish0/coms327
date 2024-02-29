@@ -18,17 +18,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <stdint.h>
+#include <unistd.h>
 
 #include "../turn/turn.h"
-#include "../terrain/terrain.h"
+//#include "../terrain/terrain.h"
 
 
 // Define a createHeap function
-heap* createHeap(int capacity)
+heap_t* createHeap_t(int capacity)
 {
     // Allocating memory to heap h
-    heap* h = (heap*)malloc(sizeof(heap));
+    heap_t* h = (heap_t*)malloc(sizeof(heap_t));
  
     // Checking if memory is allocated to h or not
     if (h == NULL) {
@@ -40,7 +41,7 @@ heap* createHeap(int capacity)
     h->capacity = capacity;
  
     // Allocating memory to array
-    h->arr = malloc(capacity * sizeof(heapNode*));
+    h->arr = malloc(capacity * sizeof(heapNode_t*));
  
     // Checking if memory is allocated to h or not
     if (h->arr == NULL) {
@@ -51,33 +52,33 @@ heap* createHeap(int capacity)
     h->size = i;
     i = (h->size - 2) / 2;
     while (i >= 0) {
-        heapify(h, i);
+        heapify_t(h, i);
         i--;
     }
     return h;
 }
  
 // Defining insertHelper function
-void insertHelper(heap* h, int index)
+void insertHelper_t(heap_t* h, int index)
 {
  
     // Store parent of element at index
     // in parent variable
     int parent = (index - 1) / 2;
  
-    if (h->arr[parent]->cost > h->arr[index]->cost) {
+    if (h->arr[parent]->npc->cost > h->arr[index]->npc->cost) {
         // Swapping when child is smaller
         // than parent element
-        heapNode* temp = h->arr[parent];
+        heapNode_t* temp = h->arr[parent];
         h->arr[parent] = h->arr[index];
         h->arr[index] = temp;
  
         // Recursively calling insertHelper
-        insertHelper(h, parent);
+        insertHelper_t(h, parent);
     }
 }
  
-void heapify(heap* h, int index)
+void heapify_t(heap_t* h, int index)
 {
     int left = index * 2 + 1;
     int right = index * 2 + 2;
@@ -92,26 +93,26 @@ void heapify(heap* h, int index)
  
     // store left or right element in min if
     // any of these is smaller that its parent
-    if (left != -1 && h->arr[left]->cost < h->arr[index]->cost)
+    if (left != -1 && h->arr[left]->npc->cost < h->arr[index]->npc->cost)
         min = left;
-    if (right != -1 && h->arr[right]->cost < h->arr[min]->cost)
+    if (right != -1 && h->arr[right]->npc->cost < h->arr[min]->npc->cost)
         min = right;
  
     // Swapping the nodes
     if (min != index) {
-        heapNode* temp = h->arr[min];
+        heapNode_t* temp = h->arr[min];
         h->arr[min] = h->arr[index];
         h->arr[index] = temp;
  
         // recursively calling for their child elements
         // to maintain min heap
-        heapify(h, min);
+        heapify_t(h, min);
     }
 }
  
-heapNode* extractMin(heap* h)
+heapNode_t* extractMin_t(heap_t* h)
 {
-    heapNode* deleteItem;
+    heapNode_t* deleteItem;
  
     // Checking if the heap is empty or not
     if (h->size == 0) {
@@ -130,12 +131,12 @@ heapNode* extractMin(heap* h)
  
     // Call minheapify_top_down for 0th index
     // to maintain the heap property
-    heapify(h, 0);
+    heapify_t(h, 0);
     return deleteItem;
 }
  
 // Define a insert function
-void insert(heap* h, heapNode* hn)
+void insert_t(heap_t* h, heapNode_t* hn)
 {
  
     // Checking if heap is full or not
@@ -143,7 +144,7 @@ void insert(heap* h, heapNode* hn)
         // Inserting data into an array
         h->arr[h->size] = hn;
         // Calling insertHelper function
-        insertHelper(h, h->size);
+        insertHelper_t(h, h->size);
         // Incrementing size of array
         h->size++;
     }
@@ -493,7 +494,70 @@ void chase(npc* c,char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         compare(c->x+1, c->y-1, min_pair, &min, cost_map);
     }
-    //requeue
+}
+
+heap_t* init_turn_heap(int capacity)
+{
+    return createHeap_t(capacity);
+}
+
+void add_npc(heap_t* h, npc* npc)
+{
+    heapNode_t* ht;
+    ht = malloc(sizeof(heapNode_t*));
+    insert_t(h, ht); 
+
+}
+
+npc* create_npc(int x, int y, char type, int cost_map[X_MAG][Y_MAG],
+        int char_map[X_MAG][Y_MAG])
+{
+    npc* npc; 
+    npc = malloc(sizeof(*npc));
+    
+    //initialize our basic values
+    npc->x = x;
+    npc->y = y;
+    npc->type = type;
+    npc->cost = cost_map[x][y];
+
+    //gen our random direction (only matters for npcs we care about)
+
+    switch ((rand() % 4) + 1)
+    {
+        case 1: 
+            npc->cur_dir = 'W';
+            break;
+
+        case 2: 
+            npc->cur_dir = 'S';
+            break;
+
+        case 3:
+            npc->cur_dir = 'E';
+            break;
+
+        case 4: 
+            npc->cur_dir = 'W'; 
+            break;
+    }    
+
+    return npc;
+}
+
+
+void next_turn(heap_t* h, char map[X_MAG][Y_MAG], 
+        int hiker_cost_map[X_MAG][Y_MAG], int character_map[X_MAG][Y_MAG])
+{
+    heapNode_t* hn = extractMin_t(h); 
+    switch(hn->npc->type)
+    {
+        case 'h':
+            chase(hn->npc, map, hiker_cost_map, character_map);
+            break;
+        default:
+            break;
+    }
 
 }
 

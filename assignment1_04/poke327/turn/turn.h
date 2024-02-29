@@ -22,7 +22,11 @@
 //
 #ifndef TURN_H 
 #define TURN_H
-#include "../terrain/terrain.h"
+
+
+#define X_MAG 80
+#define Y_MAG 21
+
 
 typedef struct npc {
     int x;
@@ -34,26 +38,25 @@ typedef struct npc {
 } npc;
 
 
-typedef struct HeapNode {
+typedef struct HeapNode_t {
     npc* npc; 
-    int cost;
-} heapNode;
+} heapNode_t;
 
-typedef struct Heap {
-    heapNode** arr;
+typedef struct Heap_t { 
+    heapNode_t** arr;
     int size;
     int capacity;
-} heap;
+} heap_t;
 
 
 
 // define the struct Heap name
 // forward declarations
-heap* createHeap(int capacity);
-void insertHelper(heap* h, int index);
-void heapify(heap* h, int index);
-heapNode* extractMin(heap* h);
-void insert(heap* h, heapNode* hn);
+heap_t* createHeap_t(int capacity);
+void insertHelper_t(heap_t* h, int index);
+void heapify_t(heap_t* h, int index);
+heapNode_t* extractMin_t(heap_t* h);
+void insert_t(heap_t* h, heapNode_t* hn);
 
 
 void compare(int x,int y,int min_pair[2], int* min, int cost_map[X_MAG][Y_MAG]);

@@ -4,6 +4,8 @@
 #include "../terrain/terrain.h"
 #include "../dj/dj.h"
 
+
+
 #define BOARD_X 401
 #define BOARD_Y 401
 
@@ -17,8 +19,6 @@ int main()
 
     //setting board values at null and setting first square/coord
     initBoard(&bd);
-    
-
     
     printSquare((bd.board[bd.curX][bd.curY]));
     initCostMap(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map);

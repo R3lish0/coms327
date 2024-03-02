@@ -125,7 +125,10 @@ int main(int argc, char *argv[])
             
         }
         bd.board[bd.curX][bd.curY]->map[x][y] = type;
+        if(type != 's')
+        {
         add_npc(heap_t, npc); 
+        }
     }
      
     while(1)

@@ -156,7 +156,7 @@ void compare(int x, int y, int min_pair[2], int* min, int dij[X_MAG][Y_MAG])
     if(dij[x][y] < *min)
     {
         *min = dij[x][y];
-        min_pair[0]=x;
+         min_pair[0]=x;
         min_pair[1]=y;
   }
      

@@ -7,12 +7,14 @@
 #include "../dj/dj.h"
 #include "../turn/turn.h"
 
+#include <ncurses.h>
 
 #define BOARD_X 401
 #define BOARD_Y 401
 
 int main(int argc, char *argv[])
 {
+    initscr();
     int npc_count = 10;
     for(int i = 0; i < argc; i++)
     {
@@ -134,8 +136,13 @@ int main(int argc, char *argv[])
     while(1)
     {
     printSquare((bd.board[bd.curX][bd.curY]));
-    next_turn(heap_t, bd.board[bd.curX][bd.curY]->map, hiker_cost_map,
-            rival_cost_map, char_map,rival_dij_map,hiker_dij_map);
+    //next_turn(heap_t, bd.board[bd.curX][bd.curY]->map, hiker_cost_map,
+    //        rival_cost_map, char_map,rival_dij_map,hiker_dij_map);
+    getch();
+    clear();
+    
+
+
     usleep(250000);
     
     }

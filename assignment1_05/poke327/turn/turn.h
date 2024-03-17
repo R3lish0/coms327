@@ -63,7 +63,7 @@ void compare(int x,int y,int min_pair[2], int* min, int dij[X_MAG][Y_MAG]);
 
 char random_turn(char except);
 
-void move(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
+void move_npc(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG], int new_x, int new_y);
 
 void chase(npc* c, char map[X_MAG][Y_MAG],

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include <ncurses.h>
 #include "../queue/queue.h"
 #include "../terrain/terrain.h"
 //defining board size
@@ -15,9 +16,9 @@ void printSquare(struct square *sq)
     {
         for(int j = 0; j < X_MAG; j++)
         {
-            printf("%c", sq->map[j][i]);
+            addch(sq->map[j][i]);
         }
-        printf("\n");
+        addch('\n');
     }
 }
 

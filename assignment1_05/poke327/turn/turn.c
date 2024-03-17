@@ -255,7 +255,7 @@ char random_turn(char except)
 }
 
 //CHILLIN
-void move(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
+void move_npc(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG], int new_x, int new_y)
 {
     if(character_map[new_x][new_y] != 1)
@@ -293,11 +293,11 @@ void explore(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->y > 0 && cost_map[p->x][p->y-1] != INT16_MAX)
         {
-            move(p, map, cost_map, character_map, p->x, p->y-1);
+            move_npc(p, map, cost_map, character_map, p->x, p->y-1);
         }
         else
         {
-            move(p, map, cost_map, character_map, p->x, p->y+1);
+            move_npc(p, map, cost_map, character_map, p->x, p->y+1);
             p->cur_dir = random_turn('N');
         }
     }
@@ -305,11 +305,11 @@ void explore(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->y < 20 && cost_map[p->x][p->y+1] != INT16_MAX)
         {
-            move(p, map, cost_map, character_map, p->x, p->y+1);
+            move_npc(p, map, cost_map, character_map, p->x, p->y+1);
         }
         else
         {
-            move(p, map, cost_map, character_map, p->x, p->y-1);
+            move_npc(p, map, cost_map, character_map, p->x, p->y-1);
             p->cur_dir = random_turn('S');
         }
     }
@@ -317,11 +317,11 @@ void explore(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->x < 79 && cost_map[p->x+1][p->y] != INT16_MAX)
         {
-            move(p, map, cost_map, character_map, p->x+1, p->y);
+            move_npc(p, map, cost_map, character_map, p->x+1, p->y);
         }
         else
         {
-            move(p, map, cost_map, character_map, p->x-1, p->y);
+            move_npc(p, map, cost_map, character_map, p->x-1, p->y);
             p->cur_dir = random_turn('E');
         }
     }
@@ -329,11 +329,11 @@ void explore(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->x > 0 && cost_map[p->x-1][p->y] != INT16_MAX)
         {
-            move(p, map, cost_map, character_map, p->x-1, p->y);
+            move_npc(p, map, cost_map, character_map, p->x-1, p->y);
         }
         else
         {
-            move(p, map, cost_map, character_map, p->x+1, p->y);
+            move_npc(p, map, cost_map, character_map, p->x+1, p->y);
             p->cur_dir = random_turn('W');
         }
     }
@@ -348,11 +348,11 @@ void wander(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->y > 0 && map[p->x][p->y-1] == p->terrain)
         {
-            move(p, map, cost_map, character_map, p->x, p->y-1);
+            move_npc(p, map, cost_map, character_map, p->x, p->y-1);
         }
         else
         {
-            move(p, map, cost_map, character_map, p->x, p->y+1);
+            move_npc(p, map, cost_map, character_map, p->x, p->y+1);
             p->cur_dir = random_turn('N');
         }
     }
@@ -360,11 +360,11 @@ void wander(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->y < 20 && map[p->x][p->y+1] == p->terrain)
         {
-            move(p, map, cost_map, character_map, p->x, p->y+1);
+            move_npc(p, map, cost_map, character_map, p->x, p->y+1);
         }
         else
         {
-            move(p, map, cost_map, character_map, p->x, p->y-1);
+            move_npc(p, map, cost_map, character_map, p->x, p->y-1);
             p->cur_dir = random_turn('S');
         }
     }
@@ -372,11 +372,11 @@ void wander(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->x < 79 && map[p->x+1][p->y] == p->terrain)
         {
-            move(p, map, cost_map, character_map, p->x+1, p->y);
+            move_npc(p, map, cost_map, character_map, p->x+1, p->y);
         }
         else
         {
-            move(p, map, cost_map, character_map, p->x-1, p->y);
+            move_npc(p, map, cost_map, character_map, p->x-1, p->y);
             p->cur_dir = random_turn('E');
         }
     }
@@ -384,11 +384,11 @@ void wander(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->x > 0 && map[p->x-1][p->y] == p->terrain)
         {
-            move(p, map, cost_map, character_map, p->x-1, p->y);
+            move_npc(p, map, cost_map, character_map, p->x-1, p->y);
         }
         else
         {
-            move(p, map, cost_map, character_map, p->x+1, p->y);
+            move_npc(p, map, cost_map, character_map, p->x+1, p->y);
             p->cur_dir = random_turn('W');
         }
     }
@@ -404,11 +404,11 @@ void pace(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->y > 0 && cost_map[p->x][p->y-1] != INT16_MAX)
         {
-            move(p, map, cost_map, character_map, p->x, p->y-1);
+            move_npc(p, map, cost_map, character_map, p->x, p->y-1);
         }
         else
         {
-            move(p, map, cost_map, character_map, p->x, p->y+1);
+            move_npc(p, map, cost_map, character_map, p->x, p->y+1);
             p->cur_dir = 'S';
         }
     }
@@ -416,11 +416,11 @@ void pace(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->y < 20 && cost_map[p->x][p->y+1] != INT16_MAX)
         {
-            move(p, map, cost_map, character_map, p->x, p->y+1);
+            move_npc(p, map, cost_map, character_map, p->x, p->y+1);
         }
         else
         {
-            move(p, map, cost_map, character_map, p->x, p->y-1);
+            move_npc(p, map, cost_map, character_map, p->x, p->y-1);
             p->cur_dir = 'N';
         }
     }
@@ -428,11 +428,11 @@ void pace(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->x < 79 && cost_map[p->x+1][p->y] != INT16_MAX)
         {
-            move(p, map, cost_map, character_map, p->x+1, p->y);
+            move_npc(p, map, cost_map, character_map, p->x+1, p->y);
         }
         else
         {
-            move(p, map, cost_map, character_map, p->x-1, p->y);
+            move_npc(p, map, cost_map, character_map, p->x-1, p->y);
             p->cur_dir = 'W';
         }
     }
@@ -440,11 +440,11 @@ void pace(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->x > 0 && cost_map[p->x-1][p->y] != INT16_MAX)
         {
-            move(p, map, cost_map, character_map, p->x-1, p->y);
+            move_npc(p, map, cost_map, character_map, p->x-1, p->y);
         }
         else
         {
-            move(p, map, cost_map, character_map, p->x+1, p->y);
+            move_npc(p, map, cost_map, character_map, p->x+1, p->y);
             p->cur_dir = 'E';
         }
     }
@@ -496,7 +496,7 @@ void chase(npc* c,char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         compare(c->x+1, c->y-1, min_pair, &min, dijkstra);
     }
-    move(c, map, cost_map, character_map, min_pair[0], min_pair[1]);
+    move_npc(c, map, cost_map, character_map, min_pair[0], min_pair[1]);
 }
 
 heap_t* init_turn_heap(int capacity)

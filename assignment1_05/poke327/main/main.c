@@ -8,7 +8,6 @@
 #include "../turn/turn.h"
 
 #include <ncurses.h>
-
 #define BOARD_X 401
 #define BOARD_Y 401
 
@@ -135,16 +134,47 @@ int main(int argc, char *argv[])
      
     while(1)
     {
-    printSquare((bd.board[bd.curX][bd.curY]));
-    //next_turn(heap_t, bd.board[bd.curX][bd.curY]->map, hiker_cost_map,
-    //        rival_cost_map, char_map,rival_dij_map,hiker_dij_map);
-    getch();
+        printSquare((bd.board[bd.curX][bd.curY]));
+        //next_turn(heap_t, bd.board[bd.curX][bd.curY]->map, hiker_cost_map,
+        //        rival_cost_map, char_map,rival_dij_map,hiker_dij_map);
+        
+        //huge case switch here
+        int c = getch();
+
+
+
+        if(c == '1' || c == 'b')
+        {}
+        else if(c == '2' || c == 'j')
+        {}
+        else if(c == '3' || c == 'n')
+        {}
+        else if(c == '4' || c == 'h')
+        {}
+        else if(c == '5' || c == ' ' || c == '.')
+        {}
+        else if(c == '6' || c == 'l')
+        {}
+        else if(c == '7' || c == 'y')
+        {}
+        else if(c == '8' || c == 'k')
+        {}
+        else if(c == KEY_UP)
+        {
+            return 0;
+        }
+        else if(c == KEY_DOWN)
+        {}
+        else if(c == KEY_LEFT)
+        {}
+        else if(c == KEY_RIGHT)
+        {}
+
     clear();
-    
-
-
-    usleep(250000);
-    
+        if (c == KEY_UP)
+        {
+            addch('u');
+        }
     }
 
     

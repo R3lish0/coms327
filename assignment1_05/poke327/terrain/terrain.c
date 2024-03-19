@@ -23,6 +23,7 @@
 
 void printSquare(struct square *sq)
 {
+    clear();
     start_color();
     init_pair(S_GRASS, COLOR_GREEN, COLOR_GREEN);
     init_pair(T_GRASS, COLOR_YELLOW, COLOR_YELLOW);
@@ -42,47 +43,47 @@ void printSquare(struct square *sq)
             {
                 case '.':
                     attron(COLOR_PAIR(S_GRASS));
-                    mvaddch(i,j,sq->map[j][i]);
+                    mvaddch(i+1,j,sq->map[j][i]);
                     attroff(COLOR_PAIR(S_GRASS));
                     break;
                 case ':':
                     attron(COLOR_PAIR(T_GRASS));
-                    mvaddch(i,j,sq->map[j][i]);
+                    mvaddch(i+1,j,sq->map[j][i]);
                     attroff(COLOR_PAIR(T_GRASS));
                     break;
                 case '~':
                     attron(COLOR_PAIR(WATER));
-                    mvaddch(i,j,sq->map[j][i]);
+                    mvaddch(i+1,j,sq->map[j][i]);
                     attroff(COLOR_PAIR(WATER));
                     break;
                 case '%':
-                    attron(COLOR_PAIR(MOUNTAIN));
-                    mvaddch(i,j,sq->map[j][i]);
+                    attron(COLOR_PAIR(MOUNTAIN)); 
+                    mvaddch(i+1,j,sq->map[j][i]);
                     attroff(COLOR_PAIR(MOUNTAIN));
                     break;
                 case '#':
                     attron(COLOR_PAIR(PATH));
-                    mvaddch(i,j,sq->map[j][i]);
+                    mvaddch(i+1,j,sq->map[j][i]);
                     attroff(COLOR_PAIR(PATH));
                     break;
                 case '@':
                     attron(COLOR_PAIR(PLAYER));
-                    mvaddch(i,j,sq->map[j][i]);
+                    mvaddch(i+1,j,sq->map[j][i]);
                     attroff(COLOR_PAIR(PLAYER));
                     break;
                 case 'C':
                     attron(COLOR_PAIR(CENTER));
-                    mvaddch(i,j,sq->map[j][i]);
+                    mvaddch(i+1,j,sq->map[j][i]);
                     attroff(COLOR_PAIR(CENTER));
                     break;
                 case 'M':
                     attron(COLOR_PAIR(MART));
-                    mvaddch(i,j,sq->map[j][i]);
+                    mvaddch(i+1,j,sq->map[j][i]);
                     attroff(COLOR_PAIR(MART));
                     break;
                 default:
                     attron(COLOR_PAIR(NPC));
-                    mvaddch(i,j,sq->map[j][i]);
+                    mvaddch(i+1,j,sq->map[j][i]);
                     attroff(COLOR_PAIR(NPC));
                     break;
             }
@@ -277,7 +278,7 @@ int manMade(struct square *sq, int pk)
     int edge_right = 0;
 
 
-    int player = (rand() % 50) + 5;
+    int player = 4;
 
 
 

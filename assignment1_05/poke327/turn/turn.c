@@ -23,7 +23,7 @@
 #include <unistd.h>
 
 #include "../turn/turn.h"
-//#include "../terrain/terrain.h"
+#include "../terrain/terrain.h"
 
 
 // Define a createHeap function
@@ -144,7 +144,7 @@ void insert_t(heap_t* h, heapNode_t* hn)
     if (h->size < h->capacity) {
         // Inserting data into an array
         h->arr[h->size] = hn;
-        // Calli0ng insertHelper function
+        // Calling insertHelper function
         insertHelper_t(h, h->size);
         // Incrementing size of array
         h->size++;
@@ -259,7 +259,8 @@ char random_turn(char except)
 void move_npc(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG], int new_x, int new_y)
 {
-    if(character_map[new_x][new_y] != 1 && cost_map[new_x][new_y] != INT16_MAX)
+    if(character_map[new_x][new_y] != 1 && 
+            cost_map[new_x][new_y] != INT16_MAX)
     {
         //setting values back to before character was there 
         character_map[c->x][c->y] = 0;
@@ -283,31 +284,7 @@ void move_npc(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     }
 }
 
-void move_player(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
-        int character_map[X_MAG][Y_MAG], int new_x, int new_y)
-{
-    if(character_map[new_x][new_y] != 1 && cost_map[new_x][new_y] != INT16_MAX)
-    {
-        //setting values back to before character was there 
-        character_map[c->x][c->y] = 0;
-        map[c->x][c->y] = c->terrain;
-       
-        //setting new coords
-        c->x = new_x;
-        c->y = new_y;
 
-        //occupy space
-        c->terrain = map[c->x][c->y];
-        map[c->x][c->y] = c->type;
-        c->cost+=cost_map[c->x][c->y];
-        character_map[c->x][c->y] = 1;
-    }
-    else
-    {
-        
-        c->cost+=5;
-    }
-}
 
 
 void explore(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
@@ -517,7 +494,7 @@ void chase(npc* c,char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         compare(c->x-1, c->y+1, min_pair, &min, dijkstra);
     }
 
-    if(c->x < 78 && c->y > 1)
+    if(c->x < 79 && c->y > 1)
     {
         compare(c->x+1, c->y-1, min_pair, &min, dijkstra);
     }
@@ -535,7 +512,7 @@ void add_npc(heap_t* h, heapNode_t* ht)
 
 }
 
-heapNode_t* create_npc(int x, int y, char type, int cost_map[X_MAG][Y_MAG],
+heapNode_t* create_npc(int index, int x, int y, char type, int cost_map[X_MAG][Y_MAG],
         int char_map[X_MAG][Y_MAG], char map[X_MAG][Y_MAG])
 {
     npc* npc = malloc(sizeof(*npc));
@@ -543,9 +520,11 @@ heapNode_t* create_npc(int x, int y, char type, int cost_map[X_MAG][Y_MAG],
     //initialize our basic values
     npc->x = x;
     npc->y = y;
+    npc->is_defeated = 0;
     npc->type = type;
     npc->cost = cost_map[x][y];
     npc->terrain = map[x][y];
+    npc->index = index;
 
     //gen our random direction (only matters for npcs we care about)
 
@@ -576,33 +555,96 @@ heapNode_t* create_npc(int x, int y, char type, int cost_map[X_MAG][Y_MAG],
     return ht;
 }
 
-void next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG], 
-        int rival_cost_map[X_MAG][Y_MAG],
+int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG], 
+        int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG],
         square* sq)
 {
 
+        int error_caught = 0;
+
+        int winchar;
         //move to the lower left
         if(c == '1' || c == 'b')
         {
-            sq->px -= 1;
-            sq->py += 1;
+            if (cost_map[sq->px-1][sq->py+1] != INT16_MAX)
+            {
+                sq->px -= 1;
+                sq->py += 1;
+            }
+            else
+            {
+                error_caught = 1;
+                if (sq->map[sq->px-1][sq->py+1] == '~')
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 2;
+                }
+            }
         }
         //move down
         else if(c == '2' || c == 'j')
         {
-            sq->py += 1;
+            if (cost_map[sq->px][sq->py+1] != INT16_MAX)
+            {
+                sq->py += 1;
+            }
+            else
+            {
+                error_caught = 1;
+                if (sq->map[sq->px][sq->py+1] == '~')
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 2;
+                }
+            }
         }
         //move to lower right
         else if(c == '3' || c == 'n')
         {
-            sq->px += 1;
-            sq->py += 1;
+            if (cost_map[sq->px+1][sq->py+1] != INT16_MAX)
+            {
+                sq->px += 1;
+                sq->py += 1;
+            }
+            else
+            {
+                error_caught = 1;
+                if (sq->map[sq->px+1][sq->py+1] == '~')
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 2;
+                }
+            }
         }
         //move one cell to left
         else if(c == '4' || c == 'h')
         {
-            sq->px -= 1;
+            if (cost_map[sq->px-1][sq->py] != INT16_MAX)
+            {
+                sq->px -= 1;
+            }
+            else
+            {
+                error_caught = 1;
+                if (sq->map[sq->px-1][sq->py] == '~')
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 2;
+                }
+            } 
         }
         //rest
         else if(c == '5' || c == ' ' || c == '.')
@@ -612,31 +654,118 @@ void next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
         //move one cell to the right
         else if(c == '6' || c == 'l')
         {
-            sq->px += 1;
+            if (cost_map[sq->px+1][sq->py] != INT16_MAX)
+            {
+                sq->px += 1;
+            }
+            else
+            {
+                error_caught = 1;
+                if (sq->map[sq->px+1][sq->py] == '~')
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 2;
+                }
+            }
         }
         //move to the upper left
         else if(c == '7' || c == 'y')
         {
-            sq->px -= 1;
-            sq->py -= 1;
+            if (cost_map[sq->px-1][sq->py-1] != INT16_MAX)
+            {
+                sq->px -= 1;
+                sq->py -= 1;
+            }
+            else
+            {
+                error_caught = 1;
+                if (sq->map[sq->px-1][sq->py-1] == '~')
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 2;
+                }
+            }
         }
         //move one cell up
         else if(c == '8' || c == 'k')
         {
-            sq->py -= 1;
+            if (cost_map[sq->px][sq->py-1] != INT16_MAX)
+            {
+                sq->py -= 1;
+            }
+            else
+            {
+                error_caught = 1;
+                if (sq->map[sq->px][sq->py-1] == '~')
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 2;
+                }
+            }
         }
         else if(c == '9' || c == 'u')
         {
-            sq->py -= 1;
+            if (cost_map[sq->px+1][sq->py-1] != INT16_MAX)
+            {
+                sq->py -= 1;
+                sq->px += 1;
+            }
+            else
+            {
+                error_caught = 1;
+                if (sq->map[sq->px+1][sq->py-1] == '~')
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 2;
+                }
+            }
         }
-        move_npc(hn->npc, map, rival_cost_map, character_map, sq->px, sq->py); 
+        else if(c == '>' 
+                && (hn->npc->terrain == 'C' || 
+                hn->npc->terrain == 'M'))
+            
+        {
+            WINDOW * menu = newwin(10,52,5,15);
+            waddch(menu, sq->map[sq->px][sq->py]); 
+            winchar = wgetch(menu);
+            if(winchar == '<')
+            {
+            endwin();
+            }
+        }
+        else
+        {
+            
+            move_npc(hn->npc, map, cost_map, character_map, sq->px, sq->py); 
+            return 0; 
+        }
+
+        if(!error_caught)
+        {
+            move_npc(hn->npc, map, cost_map, character_map, sq->px, sq->py); 
+            return -1;
+        }
+        return -1;
+
 }
-//void move_npc(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
-//        int character_map[X_MAG][Y_MAG], int new_x, int new_y)
-//{
-void next_turn(heap_t* h, char map[X_MAG][Y_MAG], 
+
+
+int next_turn(heap_t* h, char map[X_MAG][Y_MAG], 
         int hiker_cost_map[X_MAG][Y_MAG],
         int rival_cost_map[X_MAG][Y_MAG],
+        int pc_cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG],
         int rival_dij[X_MAG][Y_MAG],
         int hiker_dij[X_MAG][Y_MAG], 
@@ -644,6 +773,7 @@ void next_turn(heap_t* h, char map[X_MAG][Y_MAG],
 {
     heapNode_t* hn = extractMin_t(h); 
     int c;
+    int response = -1; 
     switch(hn->npc->type)
     {
         case 'h':
@@ -663,12 +793,13 @@ void next_turn(heap_t* h, char map[X_MAG][Y_MAG],
             break;
         case '@':
             c = getch();
-            next_player_turn(hn, c, map, rival_cost_map, character_map, sq);
+            response = next_player_turn(hn, c, map, pc_cost_map, character_map, sq);
             break;
-            
     }
-    
+     
     add_npc(h, hn);
+
+    return response;
 
 }
 

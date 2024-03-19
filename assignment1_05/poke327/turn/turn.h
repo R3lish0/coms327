@@ -36,6 +36,8 @@ typedef struct npc {
     int x;
     int y;
     int cost;
+    int index;
+    int is_defeated;
     char type;
     char terrain;
     char cur_dir;    
@@ -84,16 +86,17 @@ void wander(npc* w, char map[X_MAG][Y_MAG],
 void explore(npc* e, char map[X_MAG][Y_MAG],
         int cost_map[X_MAG][Y_MAG], int character_map[X_MAG][Y_MAG]);
 
-heapNode_t* create_npc(int x, int y, char type, int cost_map[X_MAG][Y_MAG],
+heapNode_t* create_npc(int index, int x, int y, char type, int cost_map[X_MAG][Y_MAG],
         int char_map[X_MAG][Y_MAG], char map[X_MAG][Y_MAG]);
 
 heap_t* init_turn_heap(int capacity);
 
 void add_npc(heap_t* h, heapNode_t* ht);
 
-void next_turn(heap_t* h, char map[X_MAG][Y_MAG], 
+int next_turn(heap_t* h, char map[X_MAG][Y_MAG], 
         int hiker_cost_map[X_MAG][Y_MAG],
         int rival_cost_map[X_MAG][Y_MAG],
+        int pc_cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG],
          int rival_dij[X_MAG][Y_MAG],
          int hiker_dij[X_MAG][Y_MAG],

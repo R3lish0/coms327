@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -131,7 +132,11 @@ void insert(heap* h, heapNode* hn)
 }
  
  
-void initCostMap(square* sq, int hiker_cost_map[X_MAG][Y_MAG], int rival_cost_map[X_MAG][Y_MAG])
+void initCostMap(square* sq, 
+        int hiker_cost_map[X_MAG][Y_MAG], 
+        int rival_cost_map[X_MAG][Y_MAG],
+        int pc_cost_map[X_MAG][Y_MAG])
+
 {
     
 
@@ -143,6 +148,7 @@ void initCostMap(square* sq, int hiker_cost_map[X_MAG][Y_MAG], int rival_cost_ma
             {
                 hiker_cost_map[i][j] = INT16_MAX;
                 rival_cost_map[i][j] = INT16_MAX;
+                pc_cost_map[i][j] = INT16_MAX;
             }
             else
             {
@@ -151,38 +157,47 @@ void initCostMap(square* sq, int hiker_cost_map[X_MAG][Y_MAG], int rival_cost_ma
                     case '~':
                         hiker_cost_map[i][j] = INT16_MAX;
                         rival_cost_map[i][j] = INT16_MAX;
+                        pc_cost_map[i][j] = INT16_MAX;
                         break;
                     case '.':
                         hiker_cost_map[i][j] = 10;
                         rival_cost_map[i][j] = 10;
+                        pc_cost_map[i][j] = 10;
                         break;
                     case ':':
                         hiker_cost_map[i][j] = 15;
                         rival_cost_map[i][j] = 20;
+                        pc_cost_map[i][j] = 20;
                         break;
                     case '%':
                         hiker_cost_map[i][j] = 15;
                         rival_cost_map[i][j] = INT16_MAX;
+                        pc_cost_map[i][j] = INT16_MAX;
                         break;
                     case '#':
                         hiker_cost_map[i][j] = 10;
                         rival_cost_map[i][j] = 10;
+                        pc_cost_map[i][j] = 10;
                         break;
                     case 'M':
                         hiker_cost_map[i][j] = 50;
                         rival_cost_map[i][j] = 50;
+                        pc_cost_map[i][j] = 10;
                         break;
                     case 'C':
                         hiker_cost_map[i][j] = 50;
                         rival_cost_map[i][j] = 50;
+                        pc_cost_map[i][j] = 10;
                         break;
                     case '@':
                         hiker_cost_map[i][j] = 10;
                         rival_cost_map[i][j] = 10;
+                        pc_cost_map[i][j] = 0;
                         break;
                     default:
                         hiker_cost_map[i][j] = -1;
                         rival_cost_map[i][j] = -1;
+                        pc_cost_map[i][j] = -1;
                         break;
                 }
             }

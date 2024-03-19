@@ -18,12 +18,11 @@
 int main(int argc, char *argv[])
 {
     initscr();
-    clear();
-    noecho();
     cbreak();
+    noecho();
+    refresh();
     set_escdelay(0);
    
-
     int npc_count = 10;
     for(int i = 0; i < argc; i++)
     {
@@ -33,12 +32,15 @@ int main(int argc, char *argv[])
             }
     }
 
+    heapNode_t* npc_arr[npc_count];
 
     //creating board
     board bd;
 
     int hiker_cost_map[X_MAG][Y_MAG];
     int rival_cost_map[X_MAG][Y_MAG];
+    int pc_cost_map[X_MAG][Y_MAG]; 
+
 
     int rival_dij_map[X_MAG][Y_MAG];
     int hiker_dij_map[X_MAG][Y_MAG];
@@ -58,13 +60,18 @@ int main(int argc, char *argv[])
     //setting board values at null and setting first square/coord
     initBoard(&bd);
     
-    initCostMap(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map);
+    initCostMap(bd.board[bd.curX][bd.curY], 
+            hiker_cost_map, 
+            rival_cost_map,
+            pc_cost_map);
+
+
     dijkstra(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map,
             rival_dij_map, hiker_dij_map);
 
     
-    char_map[bd.board[bd.curX][bd.curY]->px][bd.board[bd.curX][bd.curY]->py] = 1;
-    heap_t* heap_t = init_turn_heap(npc_count);
+
+    heap_t* heap_t = init_turn_heap(npc_count+1);
 
     for(int i = 0; i < npc_count; i++)
     {
@@ -127,11 +134,11 @@ int main(int argc, char *argv[])
         heapNode_t* npc;
         if(type == 'h')
         {
-            npc = create_npc(x,y,type,hiker_cost_map,char_map,bd.board[bd.curX][bd.curY]->map);
+            npc = create_npc(i,x,y,type,hiker_cost_map,char_map,bd.board[bd.curX][bd.curY]->map);
         }
         else
         {
-            npc = create_npc(x,y,type,rival_cost_map,char_map,bd.board[bd.curX][bd.curY]->map);
+            npc = create_npc(i,x,y,type,rival_cost_map,char_map,bd.board[bd.curX][bd.curY]->map);
             
         }
         bd.board[bd.curX][bd.curY]->map[x][y] = type;
@@ -139,28 +146,64 @@ int main(int argc, char *argv[])
         {
         add_npc(heap_t, npc); 
         }
+        npc_arr[i] = npc;
 
     }
-    heapNode_t* playerNode = create_npc(bd.board[bd.curX][bd.curY]->px,
-            bd.board[bd.curX][bd.curY]->py, '@', rival_cost_map, char_map,
+    heapNode_t* playerNode = create_npc(npc_count,bd.board[bd.curX][bd.curY]->px,
+            bd.board[bd.curX][bd.curY]->py, '@', pc_cost_map, char_map,
             bd.board[bd.curX][bd.curY]->map);
 
     bd.board[bd.curX][bd.curY]->
         map[bd.board[bd.curX][bd.curY]->px][bd.board[bd.curX][bd.curY]->py] = '@';
+
+    npc_arr[npc_count] = playerNode;
+    
     add_npc(heap_t,playerNode);
-     
+    
+    printSquare(bd.board[bd.curX][bd.curY]);
+
+    const char *responses[5];
+    responses[0] = "Wrong input pal, looks like you lose a turn";
+    responses[1] = "You can't go there, thats water, you'll drown!";
+    responses[2] = "I don't see any climbing gear, so I don't think you can climb that mountain";
+    responses[3] = "That's the edge of the world you can't cross that";
+    printf("%d", npc_arr[0]->npc->index); 
+    int response;
     while(1)
     {
-        printSquare(bd.board[bd.curX][bd.curY]);
         if (heap_t->arr[0]->npc->type == '@')
         {
             dijkstra(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map,
                     rival_dij_map, hiker_dij_map);
-        } 
-        next_turn(heap_t, bd.board[bd.curX][bd.curY]->map, hiker_cost_map,
-                rival_cost_map, char_map, rival_dij_map,hiker_dij_map,
+            response = next_turn(heap_t, bd.board[bd.curX][bd.curY]->map,
+                    hiker_cost_map,
+                    rival_cost_map,
+                    pc_cost_map,
+                    char_map, 
+                    rival_dij_map,
+                    hiker_dij_map,
+                    bd.board[bd.curX][bd.curY]);
+            
+            
+
+            printSquare(bd.board[bd.curX][bd.curY]);
+            if(response != -1)
+            {
+                mvprintw(0,0,"%s", responses[response]); 
+                refresh();
+            }
+        }
+        else
+        {
+        next_turn(heap_t, bd.board[bd.curX][bd.curY]->map,
+                hiker_cost_map,
+                rival_cost_map,
+                pc_cost_map,
+                char_map, 
+                rival_dij_map,
+                hiker_dij_map,
                 bd.board[bd.curX][bd.curY]);
-        
+        } 
 
         //huge case switch here
 
@@ -181,7 +224,6 @@ int main(int argc, char *argv[])
         //    exit(1);
         //}
 
-    clear();
     }
 
     

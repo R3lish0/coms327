@@ -8,15 +8,84 @@
 #include "../terrain/terrain.h"
 //defining board size
 
+#define S_GRASS 1
+#define T_GRASS 2
+#define PATH 3
+#define WATER 4
+#define MOUNTAIN 5
+#define NPC 6
+#define PLAYER 7
+#define MART 8
+#define CENTER 9
+
+
 
 
 void printSquare(struct square *sq)
 {
+    start_color();
+    init_pair(S_GRASS, COLOR_GREEN, COLOR_GREEN);
+    init_pair(T_GRASS, COLOR_YELLOW, COLOR_YELLOW);
+    init_pair(PATH, COLOR_WHITE, COLOR_WHITE);
+    init_pair(WATER, COLOR_BLUE, COLOR_BLUE);
+    init_pair(MOUNTAIN, COLOR_WHITE, COLOR_BLACK);
+    init_pair(NPC, COLOR_BLACK, COLOR_RED);
+    init_pair(PLAYER, COLOR_BLACK, COLOR_MAGENTA);
+    init_pair(MART, COLOR_BLUE, COLOR_WHITE);
+    init_pair(CENTER, COLOR_RED, COLOR_WHITE);
+
     for(int i = 0; i < Y_MAG; i++)
     {
         for(int j = 0; j < X_MAG; j++)
         {
-            mvaddch(i,j,sq->map[j][i]);
+            switch(sq->map[j][i])
+            {
+                case '.':
+                    attron(COLOR_PAIR(S_GRASS));
+                    mvaddch(i,j,sq->map[j][i]);
+                    attroff(COLOR_PAIR(S_GRASS));
+                    break;
+                case ':':
+                    attron(COLOR_PAIR(T_GRASS));
+                    mvaddch(i,j,sq->map[j][i]);
+                    attroff(COLOR_PAIR(T_GRASS));
+                    break;
+                case '~':
+                    attron(COLOR_PAIR(WATER));
+                    mvaddch(i,j,sq->map[j][i]);
+                    attroff(COLOR_PAIR(WATER));
+                    break;
+                case '%':
+                    attron(COLOR_PAIR(MOUNTAIN));
+                    mvaddch(i,j,sq->map[j][i]);
+                    attroff(COLOR_PAIR(MOUNTAIN));
+                    break;
+                case '#':
+                    attron(COLOR_PAIR(PATH));
+                    mvaddch(i,j,sq->map[j][i]);
+                    attroff(COLOR_PAIR(PATH));
+                    break;
+                case '@':
+                    attron(COLOR_PAIR(PLAYER));
+                    mvaddch(i,j,sq->map[j][i]);
+                    attroff(COLOR_PAIR(PLAYER));
+                    break;
+                case 'C':
+                    attron(COLOR_PAIR(CENTER));
+                    mvaddch(i,j,sq->map[j][i]);
+                    attroff(COLOR_PAIR(CENTER));
+                    break;
+                case 'M':
+                    attron(COLOR_PAIR(MART));
+                    mvaddch(i,j,sq->map[j][i]);
+                    attroff(COLOR_PAIR(MART));
+                    break;
+                default:
+                    attron(COLOR_PAIR(NPC));
+                    mvaddch(i,j,sq->map[j][i]);
+                    attroff(COLOR_PAIR(NPC));
+                    break;
+            }
         }
     }
 }

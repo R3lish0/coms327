@@ -144,7 +144,7 @@ void insert_t(heap_t* h, heapNode_t* hn)
     if (h->size < h->capacity) {
         // Inserting data into an array
         h->arr[h->size] = hn;
-        // Calling insertHelper function
+        // Calli0ng insertHelper function
         insertHelper_t(h, h->size);
         // Incrementing size of array
         h->size++;
@@ -259,7 +259,7 @@ char random_turn(char except)
 void move_npc(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG], int new_x, int new_y)
 {
-    if(character_map[new_x][new_y] != 1)
+    if(character_map[new_x][new_y] != 1 && cost_map[new_x][new_y] != INT16_MAX)
     {
         //setting values back to before character was there 
         character_map[c->x][c->y] = 0;
@@ -283,7 +283,31 @@ void move_npc(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     }
 }
 
+void move_player(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
+        int character_map[X_MAG][Y_MAG], int new_x, int new_y)
+{
+    if(character_map[new_x][new_y] != 1 && cost_map[new_x][new_y] != INT16_MAX)
+    {
+        //setting values back to before character was there 
+        character_map[c->x][c->y] = 0;
+        map[c->x][c->y] = c->terrain;
+       
+        //setting new coords
+        c->x = new_x;
+        c->y = new_y;
 
+        //occupy space
+        c->terrain = map[c->x][c->y];
+        map[c->x][c->y] = c->type;
+        c->cost+=cost_map[c->x][c->y];
+        character_map[c->x][c->y] = 1;
+    }
+    else
+    {
+        
+        c->cost+=5;
+    }
+}
 
 
 void explore(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
@@ -456,44 +480,44 @@ void chase(npc* c,char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG], int dijkstra[X_MAG][Y_MAG])
 {
     int min_pair[2] = {0,0};
-    int min = INT16_MAX;
+    int min = INT16_MAX-1;
 
     
-    if(c->x < 79)
+    if(c->x < 78)
     {
         compare(c->x+1, c->y, min_pair, &min, dijkstra);
     }
-    if(c->y < 20)
+    if(c->y < 19)
     {
         compare(c->x, c->y+1, min_pair, &min, dijkstra);
     }
 
-    if(c->x > 0)
+    if(c->x > 1)
     {
         compare(c->x-1, c->y, min_pair, &min, dijkstra);
     }
 
-    if(c->y > 0)
+    if(c->y > 1)
     {
         compare(c->x, c->y-1, min_pair, &min, dijkstra);
     }
 
-    if(c->x < 79 && c->y < 20)
+    if(c->x < 78 && c->y < 19)
     {
         compare(c->x+1, c->y+1, min_pair, &min, dijkstra);
     }
 
-    if(c->x > 0 && c->y > 0)
+    if(c->x > 1 && c->y > 1)
     {
         compare(c->x-1, c->y-1, min_pair, &min, dijkstra);
     }
 
-    if(c->x > 0 && c->y < 20)
+    if(c->x > 1 && c->y < 19)
     {
         compare(c->x-1, c->y+1, min_pair, &min, dijkstra);
     }
 
-    if(c->x < 79 && c->y > 0)
+    if(c->x < 78 && c->y > 1)
     {
         compare(c->x+1, c->y-1, min_pair, &min, dijkstra);
     }
@@ -603,7 +627,6 @@ void next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
         }
         else if(c == '9' || c == 'u')
         {
-            sq->px += 1;
             sq->py -= 1;
         }
         move_npc(hn->npc, map, rival_cost_map, character_map, sq->px, sq->py); 

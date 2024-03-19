@@ -12,6 +12,9 @@
 #define WIDTH 80
 #define HEIGHT 24
 
+
+
+
 int main(int argc, char *argv[])
 {
     initscr();
@@ -19,9 +22,7 @@ int main(int argc, char *argv[])
     noecho();
     cbreak();
     set_escdelay(0);
-    
-
-
+   
 
     int npc_count = 10;
     for(int i = 0; i < argc; i++)
@@ -151,12 +152,15 @@ int main(int argc, char *argv[])
     while(1)
     {
         printSquare(bd.board[bd.curX][bd.curY]);
+        if (heap_t->arr[0]->npc->type == '@')
+        {
+            dijkstra(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map,
+                    rival_dij_map, hiker_dij_map);
+        } 
         next_turn(heap_t, bd.board[bd.curX][bd.curY]->map, hiker_cost_map,
-                rival_cost_map, char_map,rival_dij_map,hiker_dij_map,
+                rival_cost_map, char_map, rival_dij_map,hiker_dij_map,
                 bd.board[bd.curX][bd.curY]);
-        dijkstra(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map,
-            rival_dij_map, hiker_dij_map);
-
+        
 
         //huge case switch here
 

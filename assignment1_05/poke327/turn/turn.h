@@ -20,6 +20,10 @@
 //boundaries, only changing to a new, random direction when they reach an
 //impassable terrain element
 //
+
+
+#include "../terrain/terrain.h"
+
 #ifndef TURN_H 
 #define TURN_H
 
@@ -92,6 +96,7 @@ void next_turn(heap_t* h, char map[X_MAG][Y_MAG],
         int rival_cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG],
          int rival_dij[X_MAG][Y_MAG],
-         int hiker_dij[X_MAG][Y_MAG]);
+         int hiker_dij[X_MAG][Y_MAG],
+         square* sq);
 
 #endif

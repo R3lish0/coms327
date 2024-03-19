@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <ncurses.h>
 #include <unistd.h>
 
 #include "../turn/turn.h"
@@ -551,15 +552,75 @@ heapNode_t* create_npc(int x, int y, char type, int cost_map[X_MAG][Y_MAG],
     return ht;
 }
 
+void next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG], 
+        int rival_cost_map[X_MAG][Y_MAG],
+        int character_map[X_MAG][Y_MAG],
+        square* sq)
+{
 
+        //move to the lower left
+        if(c == '1' || c == 'b')
+        {
+            sq->px -= 1;
+            sq->py += 1;
+        }
+        //move down
+        else if(c == '2' || c == 'j')
+        {
+            sq->py += 1;
+        }
+        //move to lower right
+        else if(c == '3' || c == 'n')
+        {
+            sq->px += 1;
+            sq->py += 1;
+        }
+        //move one cell to left
+        else if(c == '4' || c == 'h')
+        {
+            sq->px -= 1;
+        }
+        //rest
+        else if(c == '5' || c == ' ' || c == '.')
+        {
+            ;
+        }
+        //move one cell to the right
+        else if(c == '6' || c == 'l')
+        {
+            sq->px += 1;
+        }
+        //move to the upper left
+        else if(c == '7' || c == 'y')
+        {
+            sq->px -= 1;
+            sq->py -= 1;
+        }
+        //move one cell up
+        else if(c == '8' || c == 'k')
+        {
+            sq->py -= 1;
+        }
+        else if(c == '9' || c == 'u')
+        {
+            sq->px += 1;
+            sq->py -= 1;
+        }
+        move_npc(hn->npc, map, rival_cost_map, character_map, sq->px, sq->py); 
+}
+//void move_npc(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
+//        int character_map[X_MAG][Y_MAG], int new_x, int new_y)
+//{
 void next_turn(heap_t* h, char map[X_MAG][Y_MAG], 
         int hiker_cost_map[X_MAG][Y_MAG],
         int rival_cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG],
         int rival_dij[X_MAG][Y_MAG],
-        int hiker_dij[X_MAG][Y_MAG])
+        int hiker_dij[X_MAG][Y_MAG], 
+        square* sq)
 {
     heapNode_t* hn = extractMin_t(h); 
+    int c;
     switch(hn->npc->type)
     {
         case 'h':
@@ -577,9 +638,15 @@ void next_turn(heap_t* h, char map[X_MAG][Y_MAG],
         case 'r':
             chase(hn->npc, map, rival_cost_map, character_map, rival_dij);
             break;
+        case '@':
+            c = getch();
+            next_player_turn(hn, c, map, rival_cost_map, character_map, sq);
+            break;
+            
     }
     
     add_npc(h, hn);
 
 }
 
+ 

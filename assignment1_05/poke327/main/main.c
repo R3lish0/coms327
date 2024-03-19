@@ -1,5 +1,4 @@
 #include <unistd.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -10,10 +9,20 @@
 #include <ncurses.h>
 #define BOARD_X 401
 #define BOARD_Y 401
+#define WIDTH 80
+#define HEIGHT 24
 
 int main(int argc, char *argv[])
 {
     initscr();
+    clear();
+    noecho();
+    cbreak();
+    set_escdelay(0);
+    
+
+
+
     int npc_count = 10;
     for(int i = 0; i < argc; i++)
     {
@@ -49,7 +58,6 @@ int main(int argc, char *argv[])
     initBoard(&bd);
     
     initCostMap(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map);
-    printf("\n\n");
     dijkstra(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map,
             rival_dij_map, hiker_dij_map);
 
@@ -130,51 +138,46 @@ int main(int argc, char *argv[])
         {
         add_npc(heap_t, npc); 
         }
+
     }
+    heapNode_t* playerNode = create_npc(bd.board[bd.curX][bd.curY]->px,
+            bd.board[bd.curX][bd.curY]->py, '@', rival_cost_map, char_map,
+            bd.board[bd.curX][bd.curY]->map);
+
+    bd.board[bd.curX][bd.curY]->
+        map[bd.board[bd.curX][bd.curY]->px][bd.board[bd.curX][bd.curY]->py] = '@';
+    add_npc(heap_t,playerNode);
      
     while(1)
     {
-        printSquare((bd.board[bd.curX][bd.curY]));
-        //next_turn(heap_t, bd.board[bd.curX][bd.curY]->map, hiker_cost_map,
-        //        rival_cost_map, char_map,rival_dij_map,hiker_dij_map);
-        
+        printSquare(bd.board[bd.curX][bd.curY]);
+        next_turn(heap_t, bd.board[bd.curX][bd.curY]->map, hiker_cost_map,
+                rival_cost_map, char_map,rival_dij_map,hiker_dij_map,
+                bd.board[bd.curX][bd.curY]);
+        dijkstra(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map,
+            rival_dij_map, hiker_dij_map);
+
+
         //huge case switch here
-        int c = getch();
 
+        
+       
+        //this is for when UH we in a window
 
-
-        if(c == '1' || c == 'b')
-        {}
-        else if(c == '2' || c == 'j')
-        {}
-        else if(c == '3' || c == 'n')
-        {}
-        else if(c == '4' || c == 'h')
-        {}
-        else if(c == '5' || c == ' ' || c == '.')
-        {}
-        else if(c == '6' || c == 'l')
-        {}
-        else if(c == '7' || c == 'y')
-        {}
-        else if(c == '8' || c == 'k')
-        {}
-        else if(c == KEY_UP)
-        {
-            return 0;
-        }
-        else if(c == KEY_DOWN)
-        {}
-        else if(c == KEY_LEFT)
-        {}
-        else if(c == KEY_RIGHT)
-        {}
+        //when displaying trainer list, scroll up if overflow
+        //else if(c == KEY_UP)
+        //{
+        //}
+        //when displaying trainer  list, scroll down if overflow
+        //else if(c == KEY_DOWN)
+        //{}
+        //else if(c == 27)
+        //{
+        //    endwin();
+        //    exit(1);
+        //}
 
     clear();
-        if (c == KEY_UP)
-        {
-            addch('u');
-        }
     }
 
     
@@ -273,7 +276,6 @@ int main(int argc, char *argv[])
    //     }
 
     //}
-
     return 0;
     
 }

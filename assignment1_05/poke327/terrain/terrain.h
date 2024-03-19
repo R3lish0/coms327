@@ -1,4 +1,6 @@
 #include "../queue/queue.h"
+#include <ncurses.h>
+
 
 #ifndef TERRAIN_H
 #define TERRAIN_H
@@ -8,6 +10,9 @@
 
 #define BOARD_X 401
 #define BOARD_Y 401
+
+
+
 
 
 typedef struct square{

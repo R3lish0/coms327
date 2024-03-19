@@ -16,9 +16,8 @@ void printSquare(struct square *sq)
     {
         for(int j = 0; j < X_MAG; j++)
         {
-            addch(sq->map[j][i]);
+            mvaddch(i,j,sq->map[j][i]);
         }
-        addch('\n');
     }
 }
 
@@ -362,7 +361,6 @@ int manMade(struct square *sq, int pk)
             }
         if(i == player)
             {
-                sq->map[i][e] = '@';
                 sq->px = i;
                 sq->py = e;
             }

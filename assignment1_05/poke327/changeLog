@@ -1,3 +1,45 @@
+commit 7155b9db10e27b83cd1794257376bdb22bba5034
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Wed Mar 20 21:45:18 2024 -0500
+
+    DONE
+
+commit b6612c5587473d4395376292ea886b7848176b9b
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Tue Mar 19 18:17:07 2024 -0500
+
+    1 piece left
+
+commit 8ad88b4a9b9944aa1b81e66ce3641b0aa26408d8
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Tue Mar 19 11:36:41 2024 -0500
+
+    fixed some dijkstra and added color
+
+commit fcdce9ead346b7569f8277d3a1982dc2626ae984
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Mon Mar 18 23:37:38 2024 -0500
+
+    movement done
+
+commit fcbab045d757923d02a2a9b18c00b3c64c40d86f
+Author: R3lish <elinewlin@gmail.com>
+Date:   Sun Mar 17 22:36:43 2024 -0500
+
+    full case
+
+commit c96dbba4ac53c0a850c905d9c43a01c5b88361c8
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Sun Mar 17 18:27:59 2024 -0500
+
+    some ncurses type things
+
+commit cd438e6eb1522af2d279a2ad6e41a83601f9bc63
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Sat Mar 2 16:53:28 2024 -0600
+
+    fixed s
+
 commit e05bf8c955c1b2e02bec3e61097e663f78cc677a
 Author: R3lish0 <elinewlin@gmail.com>
 Date:   Wed Feb 28 23:26:55 2024 -0600

@@ -190,8 +190,8 @@ void initCostMap(square* sq,
                         pc_cost_map[i][j] = 10;
                         break;
                     case '@':
-                        hiker_cost_map[i][j] = 10;
-                        rival_cost_map[i][j] = 10;
+                        hiker_cost_map[i][j] = 0;
+                        rival_cost_map[i][j] = 0;
                         pc_cost_map[i][j] = 0;
                         break;
                     default:

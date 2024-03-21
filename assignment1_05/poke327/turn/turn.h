@@ -5,7 +5,6 @@
 //
 //Rival: r - Rivals path to the PC by following a maximum gradient on the 
 //rival map
-//
 //Pacers: p - Pacers start with a direction a walk until they hit some terrain
 //they cannot traverse, then they turn around and repeat, pacing back and forth
 //
@@ -69,21 +68,21 @@ void compare(int x,int y,int min_pair[2], int* min, int dij[X_MAG][Y_MAG]);
 
 char random_turn(char except);
 
-void move_npc(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
+int move_npc(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG], int new_x, int new_y);
 
-void chase(npc* c, char map[X_MAG][Y_MAG],
+int chase(npc* c, char map[X_MAG][Y_MAG],
         int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG],
         int dijkstra[X_MAG][Y_MAG]);
 
-void pace(npc* p, char map[X_MAG][Y_MAG],
+int pace(npc* p, char map[X_MAG][Y_MAG],
         int cost_map[X_MAG][Y_MAG], int character_map[X_MAG][Y_MAG]); 
 
-void wander(npc* w, char map[X_MAG][Y_MAG],
+int wander(npc* w, char map[X_MAG][Y_MAG],
         int cost_map[X_MAG][Y_MAG], int character_map[X_MAG][Y_MAG]);
 
-void explore(npc* e, char map[X_MAG][Y_MAG],
+int explore(npc* e, char map[X_MAG][Y_MAG],
         int cost_map[X_MAG][Y_MAG], int character_map[X_MAG][Y_MAG]);
 
 heapNode_t* create_npc(int index, int x, int y, char type, int cost_map[X_MAG][Y_MAG],
@@ -100,6 +99,8 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG],
          int rival_dij[X_MAG][Y_MAG],
          int hiker_dij[X_MAG][Y_MAG],
-         square* sq);
+         square* sq,
+         heapNode_t** npc_arr,
+         int n);
 
 #endif

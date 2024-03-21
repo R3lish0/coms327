@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
             }
     }
 
-    heapNode_t* npc_arr[npc_count];
+    heapNode_t* npc_arr[npc_count+1];
 
     //creating board
     board bd;
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     {
         for(int j = 0; j < Y_MAG; j++)
         {
-            char_map[i][j] = 0;
+            char_map[i][j] = -1;
         }
     }
 
@@ -72,8 +72,18 @@ int main(int argc, char *argv[])
     
 
     heap_t* heap_t = init_turn_heap(npc_count+1);
+    heapNode_t* playerNode = create_npc(0,bd.board[bd.curX][bd.curY]->px,
+            bd.board[bd.curX][bd.curY]->py, '@', pc_cost_map, char_map,
+            bd.board[bd.curX][bd.curY]->map);
 
-    for(int i = 0; i < npc_count; i++)
+    bd.board[bd.curX][bd.curY]->
+        map[bd.board[bd.curX][bd.curY]->px][bd.board[bd.curX][bd.curY]->py] = '@';
+
+    npc_arr[0] = playerNode;
+    
+    add_npc(heap_t,playerNode);
+
+    for(int i = 1; i <= npc_count; i++)
     {
        bool valid = 0;
        char type; 
@@ -118,14 +128,14 @@ int main(int argc, char *argv[])
 
            if(type == 'h')
            {
-               if(hiker_cost_map[x][y] != INT16_MAX && char_map[x][y] == 0)
+               if(hiker_cost_map[x][y] != INT16_MAX && char_map[x][y] == -1)
                {
                    valid = 1;
                }
            }
            else
            {
-               if(rival_cost_map[x][y] != INT16_MAX && char_map[x][y] == 0)
+               if(rival_cost_map[x][y] != INT16_MAX && char_map[x][y] == -1)
                {
                    valid = 1;
                }
@@ -149,16 +159,7 @@ int main(int argc, char *argv[])
         npc_arr[i] = npc;
 
     }
-    heapNode_t* playerNode = create_npc(npc_count,bd.board[bd.curX][bd.curY]->px,
-            bd.board[bd.curX][bd.curY]->py, '@', pc_cost_map, char_map,
-            bd.board[bd.curX][bd.curY]->map);
-
-    bd.board[bd.curX][bd.curY]->
-        map[bd.board[bd.curX][bd.curY]->px][bd.board[bd.curX][bd.curY]->py] = '@';
-
-    npc_arr[npc_count] = playerNode;
     
-    add_npc(heap_t,playerNode);
     
     printSquare(bd.board[bd.curX][bd.curY]);
 
@@ -182,7 +183,9 @@ int main(int argc, char *argv[])
                     char_map, 
                     rival_dij_map,
                     hiker_dij_map,
-                    bd.board[bd.curX][bd.curY]);
+                    bd.board[bd.curX][bd.curY],
+                    npc_arr,
+                    npc_count);
             
             
 
@@ -202,7 +205,9 @@ int main(int argc, char *argv[])
                 char_map, 
                 rival_dij_map,
                 hiker_dij_map,
-                bd.board[bd.curX][bd.curY]);
+                bd.board[bd.curX][bd.curY],
+                npc_arr,
+                npc_count);
         } 
 
         //huge case switch here

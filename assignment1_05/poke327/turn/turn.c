@@ -151,6 +151,109 @@ void insert_t(heap_t* h, heapNode_t* hn)
     }
 }
 
+void battle(npc* p, npc* n, int character_map[X_MAG][Y_MAG])
+{
+    int battle_choice;
+    WINDOW * menu = newwin(10,52,5,15);
+    wprintw(menu, "escape (e)"); 
+    int in_menu = 1;
+    while(in_menu)
+    {
+        battle_choice = wgetch(menu);
+        if(battle_choice == 'e')
+        {
+            in_menu = 0;
+            n->is_defeated = 1;
+            character_map[n->x][n->y] = -1;
+            endwin();
+        }
+    }
+}
+
+void show_trainers(npc* p, heapNode_t** num_arr, int n)
+{
+    
+    WINDOW * trainer_pad = newpad(6*n,52);
+    keypad(trainer_pad,TRUE);
+    scrollok(trainer_pad,TRUE); 
+    idlok(trainer_pad,TRUE);
+    npc* trainer;
+    char* x_dir;
+    char* y_dir;
+    int x_dist;
+    int y_dist;
+    char * status;
+    int mv = 0;
+
+    for(int i = 1; i <= n; i++)
+    {
+        trainer = num_arr[i]->npc; 
+        mvwprintw(trainer_pad,mv,0, "Type of trainer: %c", trainer->type);
+        if((p->x - trainer->x) < 0) 
+        {
+            x_dir = "East";
+            x_dist = trainer->x - p->x;
+        } 
+        else
+        {
+            x_dir = "West";
+            x_dist = p->x - trainer->x;
+        }
+
+        if((p->y - trainer->y) < 0)
+        {
+            y_dir = "South";
+            y_dist = trainer->y - p->y;
+        }
+        else
+        {
+            y_dir = "North";
+            y_dist = p->y - trainer->y;
+        }
+        mv++;
+        mvwprintw(trainer_pad,mv,0,"%s", "Distance from player:");
+        mv++;
+        mvwprintw(trainer_pad,mv,0,"%s : %d", x_dir, x_dist);
+        mv++;
+        mvwprintw(trainer_pad,mv,0,"%s : %d", y_dir, y_dist);
+        mv++;
+        if(trainer->is_defeated)
+        {status = "Defeated";}
+        else
+        {status = "Ready for battle";}
+        mvwprintw(trainer_pad,mv,0,"Status : %s", status);
+        mv+=2;
+
+    }
+
+    prefresh(trainer_pad,0,0,5,15,15,70);
+    int pad_location = 0;
+    int viewing = 1;
+    int input; 
+    while(viewing)
+    {
+       input = wgetch(trainer_pad);
+       if(input == 27)
+       {
+         viewing = 0;
+       }
+       else if(input == KEY_UP && pad_location >= 0)
+       {
+           pad_location--;
+           prefresh(trainer_pad, pad_location,0,5,15,15,70); 
+       }
+       else if(input == KEY_DOWN && pad_location <=50)
+       {
+           pad_location++;
+           prefresh(trainer_pad, pad_location,0,5,15,15,70); 
+       }
+
+    }
+    endwin();
+
+
+
+}
 
 void compare(int x, int y, int min_pair[2], int* min, int dij[X_MAG][Y_MAG])
 {
@@ -256,14 +359,14 @@ char random_turn(char except)
 }
 
 //CHILLIN
-void move_npc(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
+int move_npc(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG], int new_x, int new_y)
 {
-    if(character_map[new_x][new_y] != 1 && 
+    if(character_map[new_x][new_y] == -1 && 
             cost_map[new_x][new_y] != INT16_MAX)
     {
         //setting values back to before character was there 
-        character_map[c->x][c->y] = 0;
+        character_map[c->x][c->y] = -1;
         map[c->x][c->y] = c->terrain;
        
         //setting new coords
@@ -274,32 +377,45 @@ void move_npc(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         c->terrain = map[c->x][c->y];
         map[c->x][c->y] = c->type;
         c->cost+=cost_map[c->x][c->y];
-        character_map[c->x][c->y] = 1;
+        character_map[c->x][c->y] = c->index;
 
         
     }
     else
-    {
+    {  
+        if(character_map[new_x][new_y] == 0 && c->type != '@')
+        {
+        return character_map[new_x][new_y];
+        }
+        else if(character_map[new_x][new_y] != -1 && c->type == '@')
+        {
+        return character_map[new_x][new_y];
+        }
+        else
+        {
         c->cost+=5;
+        }
     }
+    return -1;
 }
 
 
 
 
-void explore(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
+int explore(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG])
 {
+    int collision;
     //game is printed upsidown so values are adjusted accordingly
     if(p->cur_dir == 'N')
     {
         if(p->y > 0 && cost_map[p->x][p->y-1] != INT16_MAX)
         {
-            move_npc(p, map, cost_map, character_map, p->x, p->y-1);
+            collision = move_npc(p, map, cost_map, character_map, p->x, p->y-1);
         }
         else
         {
-            move_npc(p, map, cost_map, character_map, p->x, p->y+1);
+            collision = move_npc(p, map, cost_map, character_map, p->x, p->y+1);
             p->cur_dir = random_turn('N');
         }
     }
@@ -307,11 +423,11 @@ void explore(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->y < 20 && cost_map[p->x][p->y+1] != INT16_MAX)
         {
-            move_npc(p, map, cost_map, character_map, p->x, p->y+1);
+            collision = move_npc(p, map, cost_map, character_map, p->x, p->y+1);
         }
         else
         {
-            move_npc(p, map, cost_map, character_map, p->x, p->y-1);
+            collision = move_npc(p, map, cost_map, character_map, p->x, p->y-1);
             p->cur_dir = random_turn('S');
         }
     }
@@ -319,11 +435,11 @@ void explore(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->x < 79 && cost_map[p->x+1][p->y] != INT16_MAX)
         {
-            move_npc(p, map, cost_map, character_map, p->x+1, p->y);
+            collision = move_npc(p, map, cost_map, character_map, p->x+1, p->y);
         }
         else
         {
-            move_npc(p, map, cost_map, character_map, p->x-1, p->y);
+            collision = move_npc(p, map, cost_map, character_map, p->x-1, p->y);
             p->cur_dir = random_turn('E');
         }
     }
@@ -331,30 +447,32 @@ void explore(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->x > 0 && cost_map[p->x-1][p->y] != INT16_MAX)
         {
-            move_npc(p, map, cost_map, character_map, p->x-1, p->y);
+            collision = move_npc(p, map, cost_map, character_map, p->x-1, p->y);
         }
         else
         {
-            move_npc(p, map, cost_map, character_map, p->x+1, p->y);
+            collision = move_npc(p, map, cost_map, character_map, p->x+1, p->y);
             p->cur_dir = random_turn('W');
         }
     }
+    return collision;
 }
 
 
-void wander(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
+int wander(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG])
 {
+    int collision;
     //game is printed upsidown so values are adjusted accordingly
     if(p->cur_dir == 'N')
     {
         if(p->y > 0 && map[p->x][p->y-1] == p->terrain)
         {
-            move_npc(p, map, cost_map, character_map, p->x, p->y-1);
+            collision = move_npc(p, map, cost_map, character_map, p->x, p->y-1);
         }
         else
         {
-            move_npc(p, map, cost_map, character_map, p->x, p->y+1);
+            collision = move_npc(p, map, cost_map, character_map, p->x, p->y+1);
             p->cur_dir = random_turn('N');
         }
     }
@@ -362,11 +480,11 @@ void wander(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->y < 20 && map[p->x][p->y+1] == p->terrain)
         {
-            move_npc(p, map, cost_map, character_map, p->x, p->y+1);
+            collision = move_npc(p, map, cost_map, character_map, p->x, p->y+1);
         }
         else
         {
-            move_npc(p, map, cost_map, character_map, p->x, p->y-1);
+            collision = move_npc(p, map, cost_map, character_map, p->x, p->y-1);
             p->cur_dir = random_turn('S');
         }
     }
@@ -374,11 +492,11 @@ void wander(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->x < 79 && map[p->x+1][p->y] == p->terrain)
         {
-            move_npc(p, map, cost_map, character_map, p->x+1, p->y);
+            collision = move_npc(p, map, cost_map, character_map, p->x+1, p->y);
         }
         else
         {
-            move_npc(p, map, cost_map, character_map, p->x-1, p->y);
+            collision = move_npc(p, map, cost_map, character_map, p->x-1, p->y);
             p->cur_dir = random_turn('E');
         }
     }
@@ -386,31 +504,32 @@ void wander(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->x > 0 && map[p->x-1][p->y] == p->terrain)
         {
-            move_npc(p, map, cost_map, character_map, p->x-1, p->y);
+            collision = move_npc(p, map, cost_map, character_map, p->x-1, p->y);
         }
         else
         {
-            move_npc(p, map, cost_map, character_map, p->x+1, p->y);
+            collision = move_npc(p, map, cost_map, character_map, p->x+1, p->y);
             p->cur_dir = random_turn('W');
         }
     }
-
+    return collision;
 }
 
 
-void pace(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
+int pace(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG])
 {
+    int collision;
     //game is printed upsidown so values are adjusted accordingly
     if(p->cur_dir == 'N')
     {
         if(p->y > 0 && cost_map[p->x][p->y-1] != INT16_MAX)
         {
-            move_npc(p, map, cost_map, character_map, p->x, p->y-1);
+            collision = move_npc(p, map, cost_map, character_map, p->x, p->y-1);
         }
         else
         {
-            move_npc(p, map, cost_map, character_map, p->x, p->y+1);
+            collision = move_npc(p, map, cost_map, character_map, p->x, p->y+1);
             p->cur_dir = 'S';
         }
     }
@@ -418,11 +537,11 @@ void pace(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->y < 20 && cost_map[p->x][p->y+1] != INT16_MAX)
         {
-            move_npc(p, map, cost_map, character_map, p->x, p->y+1);
+            collision = move_npc(p, map, cost_map, character_map, p->x, p->y+1);
         }
         else
         {
-            move_npc(p, map, cost_map, character_map, p->x, p->y-1);
+            collision = move_npc(p, map, cost_map, character_map, p->x, p->y-1);
             p->cur_dir = 'N';
         }
     }
@@ -430,11 +549,11 @@ void pace(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->x < 79 && cost_map[p->x+1][p->y] != INT16_MAX)
         {
-            move_npc(p, map, cost_map, character_map, p->x+1, p->y);
+            collision = move_npc(p, map, cost_map, character_map, p->x+1, p->y);
         }
         else
         {
-            move_npc(p, map, cost_map, character_map, p->x-1, p->y);
+            collision = move_npc(p, map, cost_map, character_map, p->x-1, p->y);
             p->cur_dir = 'W';
         }
     }
@@ -442,22 +561,24 @@ void pace(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         if(p->x > 0 && cost_map[p->x-1][p->y] != INT16_MAX)
         {
-            move_npc(p, map, cost_map, character_map, p->x-1, p->y);
+            collision = move_npc(p, map, cost_map, character_map, p->x-1, p->y);
         }
         else
         {
-            move_npc(p, map, cost_map, character_map, p->x+1, p->y);
+            collision = move_npc(p, map, cost_map, character_map, p->x+1, p->y);
             p->cur_dir = 'E';
         }
     }
+    return collision;
 
 }
 
-void chase(npc* c,char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
+int chase(npc* c,char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG], int dijkstra[X_MAG][Y_MAG])
 {
     int min_pair[2] = {0,0};
     int min = INT16_MAX-1;
+    int collision;
 
     
     if(c->x < 78)
@@ -498,7 +619,10 @@ void chase(npc* c,char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
     {
         compare(c->x+1, c->y-1, min_pair, &min, dijkstra);
     }
-    move_npc(c, map, cost_map, character_map, min_pair[0], min_pair[1]);
+    collision = move_npc(c, map, cost_map, character_map, min_pair[0], min_pair[1]);
+
+    
+    return collision;
 }
 
 heap_t* init_turn_heap(int capacity)
@@ -522,7 +646,10 @@ heapNode_t* create_npc(int index, int x, int y, char type, int cost_map[X_MAG][Y
     npc->y = y;
     npc->is_defeated = 0;
     npc->type = type;
-    npc->cost = cost_map[x][y];
+    if(type != '@')
+    {npc->cost = cost_map[x][y];}
+    else
+    {npc->cost = 15;}
     npc->terrain = map[x][y];
     npc->index = index;
 
@@ -546,7 +673,7 @@ heapNode_t* create_npc(int index, int x, int y, char type, int cost_map[X_MAG][Y
             npc->cur_dir = 'N'; 
             break;
     }    
-    char_map[x][y] = 1;
+    char_map[x][y] = index;
 
     heapNode_t* ht;
     ht = malloc(sizeof(heapNode_t*));
@@ -558,11 +685,14 @@ heapNode_t* create_npc(int index, int x, int y, char type, int cost_map[X_MAG][Y
 int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG], 
         int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG],
-        square* sq)
+        square* sq,
+        heapNode_t** npc_arr,
+        int n)
 {
 
         int error_caught = 0;
-
+        int collision;
+        int menu_open = 0;
         int winchar;
         //move to the lower left
         if(c == '1' || c == 'b')
@@ -649,7 +779,7 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
         //rest
         else if(c == '5' || c == ' ' || c == '.')
         {
-            ;
+            hn->npc->cost += 10;
         }
         //move one cell to the right
         else if(c == '6' || c == 'l')
@@ -737,24 +867,43 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
                 hn->npc->terrain == 'M'))
             
         {
+            menu_open = 1;
             WINDOW * menu = newwin(10,52,5,15);
-            waddch(menu, sq->map[sq->px][sq->py]); 
             winchar = wgetch(menu);
             if(winchar == '<')
             {
             endwin();
             }
         }
+        else if (c == 't')
+        {
+            menu_open = 1;
+            show_trainers(hn->npc, npc_arr, n);
+        }
+        else if(c == 'Q')
+        {
+            endwin();
+            exit(0);
+        }
         else
         {
             
-            move_npc(hn->npc, map, cost_map, character_map, sq->px, sq->py); 
+            collision = move_npc(hn->npc, map, cost_map, character_map, sq->px, sq->py); 
+            if(collision != -1 && collision != 0)
+            {
+                battle(hn->npc,npc_arr[collision]->npc,character_map);
+
+            }
             return 0; 
         }
 
-        if(!error_caught)
+        if(!error_caught && !menu_open)
         {
-            move_npc(hn->npc, map, cost_map, character_map, sq->px, sq->py); 
+            collision = move_npc(hn->npc, map, cost_map, character_map, sq->px, sq->py); 
+            if (collision != -1 && collision != 0) 
+            {
+                battle(hn->npc,npc_arr[collision]->npc,character_map);
+            }
             return -1;
         }
         return -1;
@@ -769,36 +918,63 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG],
         int rival_dij[X_MAG][Y_MAG],
         int hiker_dij[X_MAG][Y_MAG], 
-        square* sq)
+        square* sq,
+        heapNode_t** npc_arr,
+        int n)
 {
     heapNode_t* hn = extractMin_t(h); 
-    int c;
     int response = -1; 
+    if(!hn->npc->is_defeated)
+    {
+    int c;
+    int collision;
     switch(hn->npc->type)
     {
         case 'h':
-            chase(hn->npc, map, hiker_cost_map, character_map, hiker_dij);
+            collision = chase(hn->npc, map, hiker_cost_map, character_map, hiker_dij);
+            if(collision == 0)
+            {
+                battle(npc_arr[collision]->npc, hn->npc, character_map);
+            }
             break;
         case 'w':
-            wander(hn->npc, map, rival_cost_map, character_map);
+            collision = wander(hn->npc, map, rival_cost_map, character_map);
+            if(collision == 0)
+            {
+                battle(npc_arr[collision]->npc, hn->npc, character_map);
+            }
             break;
         case 'p':
-            pace(hn->npc, map, rival_cost_map, character_map);
+            collision = pace(hn->npc, map, rival_cost_map, character_map);
+            if(collision == 0)
+            {
+                battle(npc_arr[collision]->npc, hn->npc, character_map);
+            }
             break;
         case 'e':
-            explore(hn->npc, map, rival_cost_map, character_map);
+            collision = explore(hn->npc, map, rival_cost_map, character_map);
+            if(collision == 0)
+            {
+                battle(npc_arr[collision]->npc, hn->npc, character_map);
+            }
             break;
         case 'r':
-            chase(hn->npc, map, rival_cost_map, character_map, rival_dij);
+            collision = chase(hn->npc, map, rival_cost_map, 
+                    character_map, rival_dij);
+            if(collision == 0)
+            {
+                battle(npc_arr[collision]->npc, hn->npc, character_map);
+            }
             break;
         case '@':
             c = getch();
-            response = next_player_turn(hn, c, map, pc_cost_map, character_map, sq);
+            response = next_player_turn(hn, c, map, pc_cost_map,
+                    character_map, sq, npc_arr, n);
             break;
     }
      
     add_npc(h, hn);
-
+    }
     return response;
 
 }

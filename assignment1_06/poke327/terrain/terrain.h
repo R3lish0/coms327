@@ -24,6 +24,7 @@ typedef class square{
     int w;
     int px;
     int py;
+//    Heap_t player_heap;
 } square;
 
 typedef class seeds{

@@ -153,6 +153,8 @@ void insert_t(heap_t* h, heapNode_t* hn)
     }
 }
 
+
+
 void battle(npc* p, npc* n, int character_map[X_MAG][Y_MAG])
 {
     int battle_choice;
@@ -172,7 +174,7 @@ void battle(npc* p, npc* n, int character_map[X_MAG][Y_MAG])
     }
 }
 
-void show_trainers(npc* p, heapNode_t** num_arr, int n)
+void show_trainers(npc* p, heapNode_t** npc_arr, int n)
 {
     
     WINDOW * trainer_pad = newpad(6*n,52);
@@ -189,7 +191,7 @@ void show_trainers(npc* p, heapNode_t** num_arr, int n)
 
     for(int i = 1; i <= n; i++)
     {
-        trainer = num_arr[i]->h_npc; 
+        trainer = npc_arr[i]->h_npc; 
         mvwprintw(trainer_pad,mv,0, "Type of trainer: %c", trainer->type);
         if((p->x - trainer->x) < 0) 
         {

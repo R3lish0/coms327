@@ -105,6 +105,17 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
          int hiker_dij[X_MAG][Y_MAG],
          square* sq,
          heapNode_t** npc_arr,
-         int n);
+         int n,
+         board* bd,
+         heap_t* queue_array[401][401]);
+void init_new_square(board *bd,int hiker_cost_map[X_MAG][Y_MAG], 
+        int hiker_dij_map[X_MAG][Y_MAG],
+        int rival_cost_map[X_MAG][Y_MAG],
+        int rival_dij_map[X_MAG][Y_MAG],
+        int pc_cost_map[X_MAG][Y_MAG],
+        heapNode_t** npc_arr,
+        heap_t* queue_array[BOARD_X][BOARD_Y],
+        int npc_count,
+        int char_map[X_MAG][Y_MAG]);
 
 #endif

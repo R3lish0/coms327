@@ -13,120 +13,7 @@
 #define HEIGHT 24
 
 
-void init_new_square(board *bd,int hiker_cost_map[X_MAG][Y_MAG], 
-        int hiker_dij_map[X_MAG][Y_MAG],
-        int rival_cost_map[X_MAG][Y_MAG],
-        int rival_dij_map[X_MAG][Y_MAG],
-        int pc_cost_map[X_MAG][Y_MAG],
-        heapNode_t** npc_arr,
-        heap_t* queue_array[BOARD_X][BOARD_Y],
-        int npc_count,
-        int char_map[X_MAG][Y_MAG])
-{
-    initCostMap(bd->board[bd->curX][bd->curY], 
-            hiker_cost_map, 
-            rival_cost_map,
-            pc_cost_map);
-    dijkstra(bd->board[bd->curX][bd->curY], hiker_cost_map, rival_cost_map,
-            rival_dij_map, hiker_dij_map);
-    queue_array[200][200] = init_turn_heap(10);
 
-
-    heapNode_t* playerNode = create_npc(0,bd->board[bd->curX][bd->curY]->px,
-            bd->board[bd->curX][bd->curY]->py, '@', pc_cost_map, char_map,
-            bd->board[bd->curX][bd->curY]->map);
-
-    bd->board[bd->curX][bd->curY]->
-        map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '@';
-
-    npc_arr[0] = playerNode;
-
-    add_npc(queue_array[bd->curX][bd->curY],playerNode);
-
-    for(int i = 1; i <= npc_count; i++)
-    {
-        bool valid = 0;
-        char type; 
-
-        if(i % 2 == 0 || i % 2 == 1)
-        {
-            type = 'h';
-        }
-        if(i % 3 == 0)
-        {
-            if((rand() % 2) + 1 == 1)
-            {
-                type = 'e';
-            }
-            else
-            {
-                type = 'p';
-            }
-        }
-        if(i % 4 == 0)
-        {
-            type = 'r';
-        }
-        if(i % 5 == 0)
-        {
-            if((rand() % 2) + 1 == 1)
-            {
-                type = 'w';
-            }
-            else
-            {
-                type = 's';
-            }
-        }
-        int x;
-        int y;
-        while(!valid)
-        {
-            x = (rand() % (75)) + 2;
-            y = (rand() % (16)) + 2;
-
-
-            if(type == 'h')
-            {
-                if(hiker_cost_map[x][y] != INT16_MAX && char_map[x][y] == -1)
-                {
-                    valid = 1;
-                }
-            }
-            else
-            {
-                if(rival_cost_map[x][y] != INT16_MAX && char_map[x][y] == -1)
-                {
-                    valid = 1;
-                }
-            }
-        }
-        heapNode_t* npc;
-        if(type == 'h')
-        {
-            npc = create_npc(i,x,y,type,hiker_cost_map,
-                    char_map,bd->board[bd->curX][bd->curY]->map);
-        }
-        else
-        {
-            npc = create_npc(i,x,y,type,rival_cost_map,
-                    char_map,bd->board[bd->curX][bd->curY]->map);
-
-        }
-        bd->board[bd->curX][bd->curY]->map[x][y] = type;
-        if(type != 's')
-        {
-            add_npc(queue_array[bd->curX][bd->curY], npc); 
-        }
-        npc_arr[i] = npc;
-
-    }
-
-
-
-
-
-}
 
 int main(int argc, char *argv[])
 {
@@ -171,6 +58,7 @@ int main(int argc, char *argv[])
         }
     }
 
+
 //`void init_queue_array(board *bd,int hiker_cost_map[X_MAG][Y_MAG], 
 //`        int hiker_dij_map[X_MAG][Y_MAG],
 //`        int rival_cost_map[X_MAG][Y_MAG],
@@ -185,7 +73,7 @@ int main(int argc, char *argv[])
     //setting board values at null and setting first square/coord
 
     initBoard(&bd);
-    
+        
     init_new_square(&bd, hiker_cost_map, hiker_dij_map,
             rival_cost_map, rival_dij_map,
             pc_cost_map, npc_arr,
@@ -196,13 +84,16 @@ int main(int argc, char *argv[])
     
     printSquare(bd.board[bd.curX][bd.curY]);
 
-    const char *responses[5];
+    const char *responses[6];
     responses[0] = "Wrong input pal, looks like you lose a turn";
     responses[1] = "You can't go there, thats water, you'll drown!";
     responses[2] = "I don't see any climbing gear, so I don't think you can climb that mountain";
     responses[3] = "That's the edge of the world you can't cross that";
+    responses[4] = "You need to be at a gate to travel";
+    responses[5] = "";
     printf("%d", npc_arr[0]->h_npc->index); 
     int response;
+
   //  int fx;
   //  int fy;
   //  char c;
@@ -219,17 +110,21 @@ int main(int argc, char *argv[])
                     hiker_dij_map,
                     bd.board[bd.curX][bd.curY],
                     npc_arr,
-                    npc_count);
+                    npc_count,
+                    &bd,
+                    queue_array);
             dijkstra(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map,
                     rival_dij_map, hiker_dij_map);
 
             printSquare(bd.board[bd.curX][bd.curY]);
-            
+
             if(response != -1)
             {
-                mvprintw(0,0,"%s", responses[response]); 
-                refresh();
+                    mvprintw(0,0,"%s", responses[response]); 
+                    refresh();
             }
+            //turn over here
+           
         }
         else
         {
@@ -242,7 +137,9 @@ int main(int argc, char *argv[])
                     hiker_dij_map,
                     bd.board[bd.curX][bd.curY],
                     npc_arr,
-                    npc_count);
+                    npc_count,
+                    &bd,
+                    queue_array);
         } 
 //        switch (c)
 //        {

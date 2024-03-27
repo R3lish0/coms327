@@ -25,6 +25,7 @@
 
 #include "../turn/turn.h"
 #include "../terrain/terrain.h"
+#include "../dj/dj.h"
 
 using namespace std;
 
@@ -257,6 +258,7 @@ void show_trainers(npc* p, heapNode_t** npc_arr, int n)
        }
 
     }
+   
     endwin();
 
 
@@ -690,6 +692,119 @@ heapNode_t* create_npc(int index, int x, int y, char type, int cost_map[X_MAG][Y
     return ht;
 }
 
+void init_new_square(board *bd,int hiker_cost_map[X_MAG][Y_MAG], 
+        int hiker_dij_map[X_MAG][Y_MAG],
+        int rival_cost_map[X_MAG][Y_MAG],
+        int rival_dij_map[X_MAG][Y_MAG],
+        int pc_cost_map[X_MAG][Y_MAG],
+        heapNode_t** npc_arr,
+        heap_t* queue_array[BOARD_X][BOARD_Y],
+        int npc_count,
+        int char_map[X_MAG][Y_MAG])
+{
+
+    initCostMap(bd->board[bd->curX][bd->curY], 
+            hiker_cost_map, 
+            rival_cost_map,
+            pc_cost_map);
+    dijkstra(bd->board[bd->curX][bd->curY], hiker_cost_map, rival_cost_map,
+            rival_dij_map, hiker_dij_map);
+
+    queue_array[bd->curX][bd->curY] = init_turn_heap(npc_count+1);
+
+
+    heapNode_t* playerNode = create_npc(0,bd->board[bd->curX][bd->curY]->px,
+            bd->board[bd->curX][bd->curY]->py, '@', pc_cost_map, char_map,
+            bd->board[bd->curX][bd->curY]->map);
+
+    bd->board[bd->curX][bd->curY]->
+        map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '@';
+
+    npc_arr[0] = playerNode;
+
+    add_npc(queue_array[bd->curX][bd->curY],playerNode);
+
+    for(int i = 1; i <= npc_count; i++)
+    {
+        bool valid = 0;
+        char type; 
+
+        if(i % 2 == 0 || i % 2 == 1)
+        {
+            type = 'h';
+        }
+        if(i % 3 == 0)
+        {
+            if((rand() % 2) + 1 == 1)
+            {
+                type = 'e';
+            }
+            else
+            {
+                type = 'p';
+            }
+        }
+        if(i % 4 == 0)
+        {
+            type = 'r';
+        }
+        if(i % 5 == 0)
+        {
+            if((rand() % 2) + 1 == 1)
+            {
+                type = 'w';
+            }
+            else
+            {
+                type = 's';
+            }
+        }
+        int x;
+        int y;
+        while(!valid)
+        {
+            x = (rand() % (75)) + 2;
+            y = (rand() % (16)) + 2;
+
+
+            if(type == 'h')
+            {
+                if(hiker_cost_map[x][y] != INT16_MAX && char_map[x][y] == -1)
+                {
+                    valid = 1;
+                }
+            }
+            else
+            {
+                if(rival_cost_map[x][y] != INT16_MAX && char_map[x][y] == -1)
+                {
+                    valid = 1;
+                }
+            }
+        }
+        heapNode_t* npc;
+        if(type == 'h')
+        {
+            npc = create_npc(i,x,y,type,hiker_cost_map,
+                    char_map,bd->board[bd->curX][bd->curY]->map);
+        }
+        else
+        {
+            npc = create_npc(i,x,y,type,rival_cost_map,
+                    char_map,bd->board[bd->curX][bd->curY]->map);
+
+        }
+        bd->board[bd->curX][bd->curY]->map[x][y] = type;
+        if(type != 's')
+        {
+            add_npc(queue_array[bd->curX][bd->curY], npc); 
+        }
+        npc_arr[i] = npc;
+
+    }
+
+
+}
 int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG], 
         int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG],
@@ -870,6 +985,50 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
                 }
             }
         }
+        else if(c == 'N')
+        {
+            if(sq->px == sq->n && sq->py == 1)
+            {
+                return c;
+            }
+            else
+            {
+                return 4;
+            }
+        }
+        else if(c == 'W')
+        {
+            if(sq->py == sq->w && sq->px == 1)
+            {
+                return c;
+            }
+            else
+            {
+                return 4;
+            }
+        }
+        else if(c == 'E')
+        {
+            if(sq->py == sq->e && sq->px == 78)
+            {
+                return c;
+            }
+            else
+            {
+                return 4;
+            }
+        }
+        else if(c == 'S')
+        {
+            if(sq->px == sq->s && sq->py == 19)
+            {
+                return c;
+            }
+            else
+            {
+                return 4;
+            }
+        }
         else if(c == '>' 
                 && (hn->h_npc->terrain == 'C' || 
                 hn->h_npc->terrain == 'M'))
@@ -880,6 +1039,7 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             winchar = wgetch(menu);
             if(winchar == '<')
             {
+            menu_open = 0;
             endwin();
             }
         }
@@ -887,6 +1047,7 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
         {
             menu_open = 1;
             show_trainers(hn->h_npc, npc_arr, n);
+            menu_open = 0;
         }
         else if(c == 'Q')
         {
@@ -904,6 +1065,8 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             }
             return 0; 
         }
+
+
 
         if(!error_caught && !menu_open)
         {
@@ -928,7 +1091,9 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
         int hiker_dij[X_MAG][Y_MAG], 
         square* sq,
         heapNode_t** npc_arr,
-        int n)
+        int n,
+        board* bd,
+        heap_t* queue_array[401][401])
 {
     heapNode_t* hn = extractMin_t(h); 
     int response = -1; 
@@ -978,6 +1143,300 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
             c = getch();
             response = next_player_turn(hn, c, map, pc_cost_map,
                     character_map, sq, npc_arr, n);
+            if(response == 78)
+                {
+                    //north
+                    if(bd->curY+1 <= 400)
+                    {
+                        if(bd->board[bd->curX][bd->curY+1] == NULL)   
+                        {
+                            checkTile(bd,bd->curX,bd->curY+1);
+                            init_new_square(bd, hiker_cost_map, hiker_dij,
+                                    rival_cost_map, rival_dij,
+                                    pc_cost_map, npc_arr,
+                                    queue_array, n, character_map);
+
+                            bd->board[bd->curX][bd->curY]->
+                                map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '#';
+
+                            npc_arr[0]->h_npc->x = bd->board[bd->curX][bd->curY]->s;
+                            npc_arr[0]->h_npc->y = 19;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->px = bd->board[bd->curX][bd->curY]->s;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->py = 19;
+
+
+                            bd->board[bd->curX][bd->curY] 
+                                ->map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '@';
+
+                            initCostMap(bd->board[bd->curX][bd->curY], 
+                                    hiker_cost_map, 
+                                    rival_cost_map,
+                                    pc_cost_map);
+                            dijkstra(bd->board[bd->curX][bd->curY], hiker_cost_map, rival_cost_map,
+                                    rival_dij, hiker_dij);
+
+
+
+                        }
+                        else
+                        {
+                            checkTile(bd,bd->curX,bd->curY+1);
+
+                            bd->board[bd->curX][bd->curY]->
+                                map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '#';
+
+                            npc_arr[0]->h_npc->x = bd->board[bd->curX][bd->curY]->s;
+                            npc_arr[0]->h_npc->y = 19;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->px = bd->board[bd->curX][bd->curY]->s;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->py = 19;
+
+
+                            bd->board[bd->curX][bd->curY] 
+                                ->map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '@';
+
+                            initCostMap(bd->board[bd->curX][bd->curY], 
+                                    hiker_cost_map, 
+                                    rival_cost_map,
+                                    pc_cost_map);
+                            dijkstra(bd->board[bd->curX][bd->curY], hiker_cost_map, rival_cost_map,
+                                    rival_dij, hiker_dij);
+}
+                      //  heapNode_t* playerNode = create_npc(0,bd->board[bd->curX][bd->curY]->px,
+                      //          bd->board[bd->curX][bd->curY]->py, '@', pc_cost_map, char_map,
+                      //          bd->board[bd->curX][bd->curY]->map);
+
+                                        }
+                    else
+                    {
+                        mvprintw(0,0,"%s", "You can't move farther in that direction");
+                    }
+
+                    response = -1;
+                }
+            else if(response == 87)
+                {
+                    //west
+                    
+                    if(bd->curX-1 >= 0)
+                    {
+                        if(bd->board[bd->curX-1][bd->curY] == NULL)   
+                        {
+                            checkTile(bd,bd->curX-1,bd->curY);
+                            init_new_square(bd, hiker_cost_map, hiker_dij,
+                                    rival_cost_map, rival_dij,
+                                    pc_cost_map, npc_arr,
+                                    queue_array, n, character_map);
+                            
+                            bd->board[bd->curX][bd->curY]->
+                                map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '#';
+
+                            npc_arr[0]->h_npc->x = 78;
+                            npc_arr[0]->h_npc->y = bd->board[bd->curX][bd->curY]->e;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->py = bd->board[bd->curX][bd->curY]->e;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->px = 78;
+
+
+                            bd->board[bd->curX][bd->curY] 
+                                ->map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '@';
+
+                            initCostMap(bd->board[bd->curX][bd->curY], 
+                                    hiker_cost_map, 
+                                    rival_cost_map,
+                                    pc_cost_map);
+                            dijkstra(bd->board[bd->curX][bd->curY], hiker_cost_map, rival_cost_map,
+                                    rival_dij, hiker_dij);
+}
+                        else
+                        {
+                            checkTile(bd,bd->curX-1,bd->curY);
+                            bd->board[bd->curX][bd->curY]->
+                                map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '#';
+
+                            npc_arr[0]->h_npc->y = bd->board[bd->curX][bd->curY]->e;
+                            npc_arr[0]->h_npc->x = 78;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->py = bd->board[bd->curX][bd->curY]->e;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->px = 78;
+
+
+                            bd->board[bd->curX][bd->curY] 
+                                ->map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '@';
+
+                            initCostMap(bd->board[bd->curX][bd->curY], 
+                                    hiker_cost_map, 
+                                    rival_cost_map,
+                                    pc_cost_map);
+                            dijkstra(bd->board[bd->curX][bd->curY], hiker_cost_map, rival_cost_map,
+                                    rival_dij, hiker_dij);
+
+
+                        }
+                    }
+                    else
+                    {
+                        mvprintw(0,0,"%s", "You can't move farther in that direction");
+                    }
+                    response = -1;
+                }
+            else if(response == 69)
+                {
+                    //east
+                    if(bd->curX+1 <= 400)
+                    {
+                        
+                        if(bd->board[bd->curX+1][bd->curY] == NULL)
+                        {
+                            checkTile(bd,bd->curX+1,bd->curY);
+                            init_new_square(bd, hiker_cost_map, hiker_dij,
+                                    rival_cost_map, rival_dij,
+                                    pc_cost_map, npc_arr,
+                                    queue_array, n, character_map);
+                            bd->board[bd->curX][bd->curY]->
+                                map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '#';
+
+                            npc_arr[0]->h_npc->y = bd->board[bd->curX][bd->curY]->w;
+                            npc_arr[0]->h_npc->x = 1;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->py = bd->board[bd->curX][bd->curY]->w;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->px = 1;
+
+
+                            bd->board[bd->curX][bd->curY] 
+                                ->map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '@';
+
+                            initCostMap(bd->board[bd->curX][bd->curY], 
+                                    hiker_cost_map, 
+                                    rival_cost_map,
+                                    pc_cost_map);
+                            dijkstra(bd->board[bd->curX][bd->curY], hiker_cost_map, rival_cost_map,
+                                    rival_dij, hiker_dij);
+}
+                        else
+                        {
+                            
+                            checkTile(bd,bd->curX+1,bd->curY);
+                            bd->board[bd->curX][bd->curY]->
+                                map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '#';
+
+                            npc_arr[0]->h_npc->y = bd->board[bd->curX][bd->curY]->w;
+                            npc_arr[0]->h_npc->x = 1;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->py = bd->board[bd->curX][bd->curY]->w;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->px = 1;
+
+
+                            bd->board[bd->curX][bd->curY] 
+                                ->map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '@';
+
+                            initCostMap(bd->board[bd->curX][bd->curY], 
+                                    hiker_cost_map, 
+                                    rival_cost_map,
+                                    pc_cost_map);
+                            dijkstra(bd->board[bd->curX][bd->curY], hiker_cost_map, rival_cost_map,
+                                    rival_dij, hiker_dij);
+
+                        } 
+                    }
+                    else
+                    {
+                        mvprintw(0,0,"%s", "You can't move farther in that direction");
+                    }
+                    response = -1;
+                }
+            else if(response == 83)
+                {
+                    //South
+                    if(bd->curY-1 >= 0)
+                    {
+                        if(bd->board[bd->curX][bd->curY-1] == NULL)
+                        {
+                            checkTile(bd,bd->curX,bd->curY-1);
+                            init_new_square(bd, hiker_cost_map, hiker_dij,
+                                    rival_cost_map, rival_dij,
+                                    pc_cost_map, npc_arr,
+                                    queue_array, n, character_map);
+                            bd->board[bd->curX][bd->curY]->
+                                map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '#';
+
+                            npc_arr[0]->h_npc->x = bd->board[bd->curX][bd->curY]->n;
+                            npc_arr[0]->h_npc->y = 1;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->px = bd->board[bd->curX][bd->curY]->n;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->py = 1;
+
+
+                            bd->board[bd->curX][bd->curY] 
+                                ->map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '@';
+
+                            initCostMap(bd->board[bd->curX][bd->curY], 
+                                    hiker_cost_map, 
+                                    rival_cost_map,
+                                    pc_cost_map);
+                            dijkstra(bd->board[bd->curX][bd->curY], hiker_cost_map, rival_cost_map,
+                                    rival_dij, hiker_dij);
+                        }
+                        else
+                        {
+                            checkTile(bd,bd->curX,bd->curY-1);
+                            bd->board[bd->curX][bd->curY]->
+                                map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '#';
+
+                            npc_arr[0]->h_npc->x = bd->board[bd->curX][bd->curY]->n;
+                            npc_arr[0]->h_npc->y = 1;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->px = bd->board[bd->curX][bd->curY]->n;
+
+                            bd->board[bd->curX][bd->curY]
+                                ->py = 1;
+
+
+                            bd->board[bd->curX][bd->curY] 
+                                ->map[bd->board[bd->curX][bd->curY]->px][bd->board[bd->curX][bd->curY]->py] = '@';
+
+                            initCostMap(bd->board[bd->curX][bd->curY], 
+                                    hiker_cost_map, 
+                                    rival_cost_map,
+                                    pc_cost_map);
+                            dijkstra(bd->board[bd->curX][bd->curY], hiker_cost_map, rival_cost_map,
+                                    rival_dij, hiker_dij);
+
+                        } 
+                    }
+                    else
+                    {
+                        mvprintw(0,0,"%s", "You can't move farther in that direction");
+                    }
+                    response = -1;
+                }
+
+
+
+
             break;
     }
      

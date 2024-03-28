@@ -33,7 +33,6 @@ int main(int argc, char *argv[])
             }
     }
 
-    heapNode_t* npc_arr[npc_count+1];
 
     //creating board
     board bd;
@@ -46,29 +45,14 @@ int main(int argc, char *argv[])
     int rival_dij_map[X_MAG][Y_MAG];
     int hiker_dij_map[X_MAG][Y_MAG];
 
-    int char_map[X_MAG][Y_MAG];
 
     heap_t* queue_array[BOARD_X][BOARD_Y];
+    heapNode_t** npc_arr_board[BOARD_X][BOARD_Y];
 
-    for(int i = 0; i < X_MAG; i++)
-    {
-        for(int j = 0; j < Y_MAG; j++)
-        {
-            char_map[i][j] = -1;
-        }
-    }
+    
+            
 
 
-//`void init_queue_array(board *bd,int hiker_cost_map[X_MAG][Y_MAG], 
-//`        int hiker_dij_map[X_MAG][Y_MAG],
-//`        int rival_cost_map[X_MAG][Y_MAG],
-//`        int rival_dij_map[X_MAG][Y_MAG],
-//`        int pc_cost_map[X_MAG][Y_MAG],
-//`        heapNode_t** npc_arr,
-//`        heap_t* queue_array[BOARD_X][BOARD_Y],
-//`        int npc_count,
-//`        int char_map[X_MAG][Y_MAG])
-//`{
 
     //setting board values at null and setting first square/coord
 
@@ -76,14 +60,15 @@ int main(int argc, char *argv[])
         
     init_new_square(&bd, hiker_cost_map, hiker_dij_map,
             rival_cost_map, rival_dij_map,
-            pc_cost_map, npc_arr,
-            queue_array, npc_count, char_map);
+            pc_cost_map, npc_arr_board,
+            queue_array, npc_count);
 
     
     
     
     printSquare(bd.board[bd.curX][bd.curY]);
 
+    mvprintw(22,0,"%d, %d", bd.curX,bd.curY); 
     const char *responses[6];
     responses[0] = "Wrong input pal, looks like you lose a turn";
     responses[1] = "You can't go there, thats water, you'll drown!";
@@ -91,12 +76,8 @@ int main(int argc, char *argv[])
     responses[3] = "That's the edge of the world you can't cross that";
     responses[4] = "You need to be at a gate to travel";
     responses[5] = "";
-    printf("%d", npc_arr[0]->h_npc->index); 
     int response;
 
-  //  int fx;
-  //  int fy;
-  //  char c;
     while(1)
     {
         if (queue_array[bd.curX][bd.curY]->arr[0]->h_npc->type == '@')
@@ -105,11 +86,10 @@ int main(int argc, char *argv[])
                     hiker_cost_map,
                     rival_cost_map,
                     pc_cost_map,
-                    char_map, 
                     rival_dij_map,
                     hiker_dij_map,
                     bd.board[bd.curX][bd.curY],
-                    npc_arr,
+                    npc_arr_board,
                     npc_count,
                     &bd,
                     queue_array);
@@ -117,7 +97,7 @@ int main(int argc, char *argv[])
                     rival_dij_map, hiker_dij_map);
 
             printSquare(bd.board[bd.curX][bd.curY]);
-
+            mvprintw(22,0,"%d, %d", bd.curX,bd.curY); 
             if(response != -1)
             {
                     mvprintw(0,0,"%s", responses[response]); 
@@ -132,11 +112,10 @@ int main(int argc, char *argv[])
                     hiker_cost_map,
                     rival_cost_map,
                     pc_cost_map,
-                    char_map, 
                     rival_dij_map,
                     hiker_dij_map,
                     bd.board[bd.curX][bd.curY],
-                    npc_arr,
+                    npc_arr_board, 
                     npc_count,
                     &bd,
                     queue_array);

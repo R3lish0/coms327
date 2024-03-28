@@ -342,7 +342,7 @@ int manMade(struct square *sq, int pk)
             }
         }
     }
-    
+    sq->martX = poke; 
     double multiplier_x;
     double multiplier_y;
 
@@ -429,6 +429,8 @@ int manMade(struct square *sq, int pk)
                 sq->map[i+1][e+2] = 'M';
                 sq->map[i+1][e-1] = 'C';
                 sq->map[i+1][e-2] = 'C';
+
+                sq->martY = e;
 
 
             }
@@ -552,6 +554,13 @@ int genSquare(square *sq, int n, int s, int e, int w, int pk)
     sq->e = e;
     sq->w = w;
                 
+    for(int i = 0; i < X_MAG; i++)
+    {
+        for(int j = 0; j < Y_MAG; j++)
+        {
+            sq->char_map[i][j] = -1;
+        }
+    }
 
     seedGen(&seed, sq);
     grow(&seed, sq);

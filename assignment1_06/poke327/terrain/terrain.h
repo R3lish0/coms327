@@ -18,12 +18,15 @@
 typedef class square{
     public:
     char map[X_MAG][Y_MAG];
+    int char_map[X_MAG][Y_MAG];
     int n;
     int s;
     int e;
     int w;
     int px;
     int py;
+    int martX;
+    int martY;
 //    Heap_t player_heap;
 } square;
 

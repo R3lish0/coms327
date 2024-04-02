@@ -1,0 +1,257 @@
+commit cbfa73bc10388a78b12f3c1b50b150f745926541
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Wed Mar 27 20:45:53 2024 -0500
+
+    Done with 06
+
+commit f99649a143ea7c56a9177dffc782714464365aca
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Tue Mar 26 21:59:21 2024 -0500
+
+    jebus bro
+
+commit ab5ea1fe75dbb4278a867c6ca3875850b842e85c
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Tue Mar 26 14:13:29 2024 -0500
+
+    init_new_square added
+
+commit 3945627db4834e2663a892dede1d1f35aad6c4d3
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Mon Mar 25 16:37:12 2024 -0500
+
+    port complete
+
+commit 129040899f9eb45c1ad1274757ade243e9c20b3c
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Wed Mar 20 21:46:37 2024 -0500
+
+    cleanup
+
+commit 7155b9db10e27b83cd1794257376bdb22bba5034
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Wed Mar 20 21:45:18 2024 -0500
+
+    DONE
+
+commit b6612c5587473d4395376292ea886b7848176b9b
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Tue Mar 19 18:17:07 2024 -0500
+
+    1 piece left
+
+commit 8ad88b4a9b9944aa1b81e66ce3641b0aa26408d8
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Tue Mar 19 11:36:41 2024 -0500
+
+    fixed some dijkstra and added color
+
+commit fcdce9ead346b7569f8277d3a1982dc2626ae984
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Mon Mar 18 23:37:38 2024 -0500
+
+    movement done
+
+commit fcbab045d757923d02a2a9b18c00b3c64c40d86f
+Author: R3lish <elinewlin@gmail.com>
+Date:   Sun Mar 17 22:36:43 2024 -0500
+
+    full case
+
+commit c96dbba4ac53c0a850c905d9c43a01c5b88361c8
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Sun Mar 17 18:27:59 2024 -0500
+
+    some ncurses type things
+
+commit cd438e6eb1522af2d279a2ad6e41a83601f9bc63
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Sat Mar 2 16:53:28 2024 -0600
+
+    fixed s
+
+commit e05bf8c955c1b2e02bec3e61097e663f78cc677a
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Wed Feb 28 23:26:55 2024 -0600
+
+    gamer time
+
+commit 0426a37a89dc8e4b9740082f6dca6123a53abfa2
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Wed Feb 28 18:23:49 2024 -0600
+
+    saving before bathroom
+
+commit 575e624d1c0302b113ae5d3d24f7261617862fe8
+Author: R3lish <elinewlin@gmail.com>
+Date:   Wed Feb 28 16:12:49 2024 -0600
+
+    making sure
+
+commit ccc61abda08d6aaa111671252b0f5931a1304467
+Author: R3lish <elinewlin@gmail.com>
+Date:   Tue Feb 27 19:44:30 2024 -0600
+
+    filled turn.c out
+
+commit a019c5e6872fd6a98b54e5b1a8380f87f7944626
+Author: eli newlin <enewlin@soilserdem.com>
+Date:   Mon Feb 26 23:38:42 2024 -0600
+
+    initializing tasks
+
+commit 377dd3616071065ad23cfb5f4146ccba21317481
+Author: enewlin <elinewlin@gmail.com>
+Date:   Mon Feb 26 10:26:59 2024 -0600
+
+    openSuse
+
+commit c880cee2a4ff2a698d2f65c421c1d448f58237dc
+Author: enewlin <elinewlin@gmail.com>
+Date:   Sun Feb 25 17:05:59 2024 -0600
+
+    DONE
+
+commit da65d051a7ebf7f96985af1e72c981eb0c4d61ef
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Wed Feb 21 23:41:57 2024 -0600
+
+    final touches
+
+commit d6738d7ae87ded5eaba2a6f6b035f5815bc2b412
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Wed Feb 21 19:30:46 2024 -0600
+
+    we cookin now
+
+commit 71005c86fbd97c992bc16e90b7adfe535fc7394c
+Author: enewlin <elinewlin@gmail.com>
+Date:   Wed Feb 21 12:18:26 2024 -0600
+
+    vcg
+
+commit 438b0a3388abcbecf606719d1be3ff2bad2d84d2
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Tue Feb 20 16:03:50 2024 -0600
+
+    finishing cost map gen
+
+commit 3443829100f462d24fe37759cb6667b146a79970
+Author: enewlin <elinewlin@gmail.com>
+Date:   Mon Feb 19 23:51:24 2024 -0600
+
+    finally on track
+
+commit 6139ec23d74c4c8ec674f0d194d3e2c3d9507912
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Tue Feb 13 23:21:46 2024 -0600
+
+    thank god it was pushed back
+
+commit fd42b69701ebab3556414edc497de2c0aa7d74e2
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Tue Feb 13 20:44:45 2024 -0600
+
+    back to d grind
+
+commit be5015f16729bde290c43e3e00c047aef410646d
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Tue Feb 13 18:38:04 2024 -0600
+
+    couch time
+
+commit f639de55e34c256f14163dfb716e4891673aa7b4
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Tue Feb 13 14:16:03 2024 -0600
+
+    heap start
+
+commit 706f529145874c10af292a43a26f839315a7d815
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Sat Feb 10 22:44:38 2024 -0600
+
+    syncing
+
+commit 7d2f1d7e6b7d3f826fa48565748517350a4c118e
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Wed Feb 7 21:18:23 2024 -0600
+
+    found some edge cases
+
+commit 1658d9e5d4b9bc7eefc4aa4243aba70cf854c6fb
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Wed Feb 7 21:05:52 2024 -0600
+
+    cleanup before turnin
+
+commit 5b762d9580b8d5dc8bfc39959fd72c5ba11c1c34
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Wed Feb 7 21:01:00 2024 -0600
+
+    finished path completions and placed finishing touches
+
+commit 44f202250d0d4af8feb0c882da193d85e8b4653b
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Tue Feb 6 16:46:41 2024 -0600
+
+    what?
+
+commit d9134539d19403d0febd91f731d63289b3618529
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Tue Feb 6 16:45:24 2024 -0600
+
+    path change
+
+commit b49eb875f31607fcf844d4cf7c978ba0e77a8998
+Author: Eli Newlin <enewlin@localhost.localdomain>
+Date:   Tue Feb 6 00:08:05 2024 -0600
+
+    struct to typedef
+
+commit 65290671247285d4a6800fe100ee19290aa729d5
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Mon Feb 5 20:38:49 2024 -0600
+
+    No more faults
+
+commit da0c6b2da6726b84f9d4350e79ac92643bbf5b75
+Author: Eli Newlin <enewlin@localhost.localdomain>
+Date:   Sun Feb 4 20:41:19 2024 -0600
+
+    seg fault issue
+
+commit cf6f68e982a22d9560808230dc4343ba5771d7fa
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Thu Feb 1 10:29:10 2024 -0600
+
+    garbage collection
+
+commit e8cd0548e40d52e850c8f4a2a4824c905613368a
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Wed Jan 31 19:04:14 2024 -0600
+
+    forgot comment code
+
+commit dec103d05fb1686932cdb1a1afd82a45d8858889
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Wed Jan 31 18:56:56 2024 -0600
+
+    done with assignment 1.01
+
+commit 8324b0cbcf23c0d8ec02c4a998e67b27e0c5145b
+Author: R3lish0 <elinewlin@gmail.com>
+Date:   Wed Jan 31 17:59:39 2024 -0600
+
+    almost done with terrain-gen
+
+commit 0ca6c2edbe1135b83d8fbaff1afc208ae3e4b5d6
+Author: Eli Newlin <enewlin@localhost.localdomain>
+Date:   Mon Jan 29 23:25:28 2024 -0600
+
+    pointers pointing me to the toaster
+
+commit 71626d886108187e7789a8149bed0ba95bb5ea9b
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Mon Jan 29 19:07:57 2024 -0600
+
+    first commit

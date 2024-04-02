@@ -1,0 +1,37 @@
+Hello and welcome to my assignment 1.02.
+
+There are a few simple things that make this program possible and I'm going to list out what
+makes this program tick.
+
+First off building the project is easy, just a simple "make" is all you need to get started,
+then there should be a terrain_out you can use to run the program.
+
+The program is split into multiple directories: Queue, Terrain, and Main.
+
+Main:
+    This only has the main function, this function is responsible for
+    making the call to the initialize the board and handle user input
+
+Terrain:
+    Terrain is the heavy lifter of the project, it handles structs: board,seed,
+    and square. It is also responsible for initializing the board, printing current square, checking tiles, generating a map, and a lot more.
+
+Queue:
+    Simple queue nothing more nothing less.
+
+DJ:
+    does the Dijkstra's as it should
+
+Turn:
+    handles npc function
+    *NEW*
+    Turn has also evolved to handle and turnbased movement, battles, and other
+    interfaces for the game, This file right here is becoming a very large part
+    of this game
+
+
+CONTROLS:
+
+Map to map travel: type W,E,S,N when on correct gate
+
+Flying: hit F then where you would like to go ("enter" between numbers is needed)

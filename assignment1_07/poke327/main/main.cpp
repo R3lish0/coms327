@@ -1,8 +1,8 @@
 #include <unistd.h>
-#include <stdlib.h>
 #include <iostream>
 #include <cstdlib>
 #include <ncurses.h>
+#include <vector>
 
 #include "../terrain/terrain.h"
 #include "../turn/turn.h"
@@ -53,31 +53,118 @@ int main(int argc, char *argv[])
 //
 //    heap_t* queue_array[BOARD_X][BOARD_Y];
 //    heapNode_t** npc_arr_board[BOARD_X][BOARD_Y];
-    
+
     string env_home = "HOME";
     
     string value;
 
     value = std::getenv(env_home.c_str());
 
-    cout << value << endl;
 
-    //looks for files in ~/.poke327/ 
-    if(check_file("/share/poke327/bingle.txt"))
-    {
-        get_data("/share/poke327/bingle.txt");
+    //create a for loop for finding files
+    //
+    //for(dataType in dataArr)
+    //check
+    //get
+    //
+    //
+    string filenames[] = {"pokemon", "moves", "pokemon_moves", 
+        "pokemon_species","experience", "type_names", 
+        "pokemon_stats", "stats", "pokemon_types"};
 
-    }
-   
-    //Looks for files in ~/.poke327/
-    if(check_file(value + "/.poke327/bingle.txt"))
+    vector<pokemon*> pokemon_vec;
+    vector<moves*> moves_vec;
+    vector<pokemon_moves*>  pokemon_moves_vec;
+    vector<pokemon_species*> species_vec;
+    vector<experience*> exp_vec;
+    vector<type_names*> types_name_vec;
+    vector<pokemon_stats*> poke_stat_vec;
+    vector<stats*>  stats_vec;
+    vector<pokemon_types*> pokemon_types_vec;
+
+
+    int i;
+    string path;
+    for(i = 0; i < 3; i++)
     {
-        get_data(value + "/.poke327/bingle.txt");
+        if(check_file(value + "/.poke327/pokedex/pokedex/data/csv/" + filenames[i] + ".csv"))
+        {
+            path = value + "/.poke327/pokedex/pokedex/data/csv/"+ filenames[i] + ".csv";
+            switch (i)
+            {
+
+                case 0:
+                    get_pokemon_data(path, pokemon_vec);
+                    break;
+                case 2:
+                    get_pokemon_moves_data(path, pokemon_moves_vec);
+                    break;
+                default:
+                    cout << "success" << endl;
+//                case 2:
+//                    get_pokemon_moves_data(path, pokemon_moves_vec);
+//                    break;
+//                case 3:
+//                    get_species_data(path,species_vec);
+//                    break;
+//                case 4:
+//                    get_exp_data(path, exp_vec);
+//                    break;
+//                case 5:
+//                    get_type_name_data(path, types_name_vec);
+//                    break;
+//                case 6:
+//                    get_pokemon_stats_data(path, poke_stat_vec);
+//                    break;
+//                case 7:
+//                    get_stats_data(path, stats_vec);
+//                    break;
+//                case 8:
+//                    get_pokemon_types_data(path, pokemon_types_vec);
+            }
+        }
+        else if(check_file("/share/poke327/pokedex/pokedex/data/csv/"+ filenames[i] + ".csv"))
+        {
+            switch (i)
+            {
+
+                case 0:
+                    get_pokemon_data(path, pokemon_vec);
+                    break;
+                //case 1:
+                //    get_pokemon_moves_data(path, pokemon_moves_vec);
+                //    break;
+                //default:
+                //    cout << "success" << endl;
+             // case 2:
+//                    get_pokemon_moves_data(path, pokemon_moves_vec);
+//                    break;
+//                case 3:
+//                    get_species_data(path,species_vec);
+//                    break;
+//                case 4:
+//                    get_exp_data(path, exp_vec);
+//                    break;
+//                case 5:
+//                    get_type_name_data(path, types_name_vec);
+//                    break;
+//                case 6:
+//                    get_pokemon_stats_data(path, poke_stat_vec);
+//                    break;
+//                case 7:
+//                    get_stats_data(path, stats_vec);
+//                    break;
+//                case 8:
+//                    get_pokemon_types_data(path, pokemon_types_vec);
+            }
+        }  
     }
-    else
-    {
-        cout << "bingus" << endl;
-    }
+
+
+
+        print_pokemon_moves_data(pokemon_moves_vec);
+
+    
 
 
     //setting board values at null and setting first square/coord

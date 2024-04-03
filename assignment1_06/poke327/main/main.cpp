@@ -80,6 +80,8 @@ int main(int argc, char *argv[])
 
     while(1)
     {
+
+
         if (queue_array[bd.curX][bd.curY]->arr[0]->h_npc->type == '@')
         {
             response = next_turn(queue_array[bd.curX][bd.curY], bd.board[bd.curX][bd.curY]->map,

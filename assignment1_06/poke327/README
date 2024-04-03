@@ -28,3 +28,10 @@ Turn:
     Turn has also evolved to handle and turnbased movement, battles, and other
     interfaces for the game, This file right here is becoming a very large part
     of this game
+
+
+CONTROLS:
+
+Map to map travel: type W,E,S,N when on correct gate
+
+Flying: hit F then where you would like to go ("enter" between numbers is needed)

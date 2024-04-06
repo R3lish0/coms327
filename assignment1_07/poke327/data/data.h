@@ -129,23 +129,42 @@ int get_pokemon_stats_data(const std::string& name,
 int get_pokemon_types_data(const std::string& name, 
         std::vector<pokemon_types*>& pokemon_types);
 
-int get_move_data(const std::string& name, 
-        std::vector<moves*> moves);
+int get_moves_data(const std::string& name, 
+        std::vector<moves*>& moves);
 
-int get_species_data(const std::string& name, 
-        std::vector<pokemon_species*> species_vec);
+int get_pokemon_species_data(const std::string& name, 
+        std::vector<pokemon_species*>& species_vec);
 
 int get_type_name_data(const std::string& name, 
-        std::vector<type_names*> types_vec);
+        std::vector<type_names*>& types_vec);
+
+
 int get_types_data(const std::string& name, 
-        std::vector<pokemon_types*> pokemon_types_vec);
+        std::vector<pokemon_types*>& pokemon_types_vec);
+
 int get_stats_data(const std::string& name, 
-        std::vector<stats*> pokemon_stats_vec);
+        std::vector<stats*>& pokemon_stats_vec);
+
 int get_exp_data(const std::string& name, 
-        std::vector<experience*> exp_vec);
+        std::vector<experience*>& exp_vec);
 
 void print_pokemon_data(std::vector<pokemon*>& poke);
+
 void print_pokemon_moves_data(std::vector<pokemon_moves*>& poke);
+
+void print_moves_data(std::vector<moves*>& poke);
+
+void print_pokemon_stats_data(std::vector<pokemon_stats*>& poke);
+
+void print_stats_data(std::vector<stats*>& poke);
+
+void print_pokemon_species_data(std::vector<pokemon_species*>& poke);
+
+void print_pokemon_types_data(std::vector<pokemon_types*>& poke);
+
+void print_exp_data(std::vector<experience*>& poke);
+
+void print_type_name_data(std::vector<type_names*>& poke);
 
 
 #endif

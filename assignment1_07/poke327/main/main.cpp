@@ -1,8 +1,8 @@
 #include <unistd.h>
-#include <iostream>
 #include <cstdlib>
 #include <ncurses.h>
 #include <vector>
+#include <string.h>
 
 #include "../terrain/terrain.h"
 #include "../turn/turn.h"
@@ -28,14 +28,7 @@ int main(int argc, char *argv[])
 //    refresh();
 //    set_escdelay(0);
    
-//    int npc_count = 10;
-//    for(int i = 0; i < argc; i++)
-//    {
-//        if(strcmp(argv[i],"--numtrainers") == 0)
-//            {
-//                npc_count = atoi(argv[i+1]);
-//            }
-//    }
+    
 
     
 
@@ -77,15 +70,15 @@ int main(int argc, char *argv[])
     vector<pokemon_moves*>  pokemon_moves_vec;
     vector<pokemon_species*> species_vec;
     vector<experience*> exp_vec;
-    vector<type_names*> types_name_vec;
-    vector<pokemon_stats*> poke_stat_vec;
+    vector<type_names*> type_name_vec;
+    vector<pokemon_stats*> pokemon_stat_vec;
     vector<stats*>  stats_vec;
     vector<pokemon_types*> pokemon_types_vec;
 
 
     int i;
     string path;
-    for(i = 0; i < 3; i++)
+    for(i = 0; i < 9; i++)
     {
         if(check_file(value + "/.poke327/pokedex/pokedex/data/csv/" + filenames[i] + ".csv"))
         {
@@ -96,75 +89,120 @@ int main(int argc, char *argv[])
                 case 0:
                     get_pokemon_data(path, pokemon_vec);
                     break;
+                case 1:
+                    get_moves_data(path, moves_vec);
+                    break;
                 case 2:
                     get_pokemon_moves_data(path, pokemon_moves_vec);
                     break;
-                default:
-                    cout << "success" << endl;
-//                case 2:
-//                    get_pokemon_moves_data(path, pokemon_moves_vec);
-//                    break;
-//                case 3:
-//                    get_species_data(path,species_vec);
-//                    break;
-//                case 4:
-//                    get_exp_data(path, exp_vec);
-//                    break;
-//                case 5:
-//                    get_type_name_data(path, types_name_vec);
-//                    break;
-//                case 6:
-//                    get_pokemon_stats_data(path, poke_stat_vec);
-//                    break;
-//                case 7:
-//                    get_stats_data(path, stats_vec);
-//                    break;
-//                case 8:
-//                    get_pokemon_types_data(path, pokemon_types_vec);
+                case 3:
+                    get_pokemon_species_data(path, species_vec);
+                    break;
+                case 4:
+                    get_exp_data(path,exp_vec);
+                    break;
+                case 5:
+                    get_type_name_data(path, type_name_vec);
+                    break;
+                case 6:
+                    get_pokemon_stats_data(path, pokemon_stat_vec);
+                    break;
+                case 7:
+                    get_stats_data(path, stats_vec);
+                    break;
+                case 8:
+                    get_pokemon_types_data(path, pokemon_types_vec);
             }
         }
-        else if(check_file("/share/poke327/pokedex/pokedex/data/csv/"+ filenames[i] + ".csv"))
+        else if(check_file("/share/cs327/pokedex/pokedex/data/csv/"+ filenames[i] + ".csv"))
         {
+            path = "/share/cs327/pokedex/pokedex/data/csv/"+ filenames[i] + ".csv";
             switch (i)
             {
 
                 case 0:
                     get_pokemon_data(path, pokemon_vec);
                     break;
-                //case 1:
-                //    get_pokemon_moves_data(path, pokemon_moves_vec);
-                //    break;
-                //default:
-                //    cout << "success" << endl;
-             // case 2:
-//                    get_pokemon_moves_data(path, pokemon_moves_vec);
-//                    break;
-//                case 3:
-//                    get_species_data(path,species_vec);
-//                    break;
-//                case 4:
-//                    get_exp_data(path, exp_vec);
-//                    break;
-//                case 5:
-//                    get_type_name_data(path, types_name_vec);
-//                    break;
-//                case 6:
-//                    get_pokemon_stats_data(path, poke_stat_vec);
-//                    break;
-//                case 7:
-//                    get_stats_data(path, stats_vec);
-//                    break;
-//                case 8:
-//                    get_pokemon_types_data(path, pokemon_types_vec);
+                case 1:
+                    get_moves_data(path, moves_vec);
+                    break;
+                case 2:
+                    get_pokemon_moves_data(path, pokemon_moves_vec);
+                    break;
+                case 3:
+                    get_pokemon_species_data(path, species_vec);
+                    break;
+                case 4:
+                    get_exp_data(path,exp_vec);
+                    break;
+                case 5:
+                    get_type_name_data(path, type_name_vec);
+                    break;
+                case 6:
+                    get_pokemon_stats_data(path, pokemon_stat_vec);
+                    break;
+                case 7:
+                    get_stats_data(path, stats_vec);
+                    break;
+                case 8:
+                    get_pokemon_types_data(path, pokemon_types_vec);
             }
+            
         }  
+        else
+            {
+                cerr << filenames[i] << ".csv not found in either of the expected places"
+                    << "\n/share/cs327/pokedex/pokedex/data/csv/"<< 
+                    "\nor\n$HOME/.poke327/pokedex/pokedex/data/csv/ \n\n";
+                exit(1);
+            }
     }
 
 
-
-        print_pokemon_moves_data(pokemon_moves_vec);
-
-    
+   // int npc_count = 10;
+    for(int i = 0; i < argc; i++)
+    {
+        if(strcmp(argv[i],"--numtrainers") == 0)
+        {
+    //        npc_count = atoi(argv[i+1]);
+        }
+        else if(strcmp(argv[i],"--pokemon") == 0)
+        {
+            print_pokemon_data(pokemon_vec);
+        }
+        else if(strcmp(argv[i],"--moves") == 0)
+        { 
+            print_moves_data(moves_vec);
+        }
+        else if(strcmp(argv[i],"--pokemon_moves") == 0)
+        {
+            print_pokemon_moves_data(pokemon_moves_vec);
+        }
+        else if(strcmp(argv[i],"--pokemon_species") == 0)
+        {
+            print_pokemon_species_data(species_vec);
+        }
+        else if(strcmp(argv[i],"--experience") == 0)
+        {
+            print_exp_data(exp_vec);
+        }
+        else if(strcmp(argv[i],"--type_names") == 0)
+        {
+            print_type_name_data(type_name_vec);
+        }
+        else if(strcmp(argv[i],"--pokemon_stats") == 0)
+        {
+            print_pokemon_stats_data(pokemon_stat_vec);
+        }
+        else if(strcmp(argv[i],"--stats") == 0)
+        {
+            print_stats_data(stats_vec);
+        }
+        else if(strcmp(argv[i],"--pokemon_types") == 0)
+        {
+            print_pokemon_types_data(pokemon_types_vec);
+        }
+    }
 
 
     //setting board values at null and setting first square/coord

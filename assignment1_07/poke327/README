@@ -1,4 +1,4 @@
-Hello and welcome to my assignment 1.02.
+Hello and welcome to my assignment 1.07.
 
 There are a few simple things that make this program possible and I'm going to list out what
 makes this program tick.
@@ -24,14 +24,51 @@ DJ:
 
 Turn:
     handles npc function
-    *NEW*
     Turn has also evolved to handle and turnbased movement, battles, and other
     interfaces for the game, This file right here is becoming a very large part
     of this game
 
+*NEW*
+Data:
+    This handles all data from the csv databases, both population and printing
 
 CONTROLS:
 
 Map to map travel: type W,E,S,N when on correct gate
 
 Flying: hit F then where you would like to go ("enter" between numbers is needed)
+
+
+OPTIONAL FLAGS:
+
+--numtrainers <int>
+    The int determines number of trainers on each map
+
+--pokemon
+    prints all pokemon data from database
+
+--moves
+    prints all move data from database
+
+--pokemon_moves
+    prints all pokemon moves from database
+
+--pokemon_species
+    prints all pokemon species from database
+
+--experience
+    prints all exp from database
+
+--type_names
+    prints all type names from database
+
+--pokemon_stats
+    prints all pokemon stats from database
+
+--stats
+    prints all stats from database
+
+--pokemon_types
+    prints all pokemon types from database
+
+

@@ -1,3 +1,15 @@
+commit 5813b1fbbddefdf0c648e2d33f5eae9ed39996b7
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Wed Apr 3 14:09:09 2024 -0500
+
+    2 full functions done
+
+commit d01dd3f77b704960e7327e987d2329c31ec75895
+Author: Eli Newlin <elinewlin@gmail.com>
+Date:   Mon Apr 1 19:59:52 2024 -0500
+
+    added file reading capablility
+
 commit cbfa73bc10388a78b12f3c1b50b150f745926541
 Author: Eli Newlin <elinewlin@gmail.com>
 Date:   Wed Mar 27 20:45:53 2024 -0500

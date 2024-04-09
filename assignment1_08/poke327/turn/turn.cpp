@@ -880,6 +880,10 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             {
                 sq->py += 1;
             }
+            else if(sq->px == sq->s && sq->py == 19)
+            {
+                return 'S';
+            }
             else
             {
                 error_caught = 1;
@@ -921,6 +925,10 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             {
                 sq->px -= 1;
             }
+            else if(sq->py == sq->w && sq->px == 1)
+            {
+                return 'W';
+            }
             else
             {
                 error_caught = 1;
@@ -945,6 +953,10 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             if (cost_map[sq->px+1][sq->py] != INT16_MAX)
             {
                 sq->px += 1;
+            }
+            else if(sq->py == sq->e && sq->px == 78)
+            {
+                return 'E';
             }
             else
             {
@@ -987,6 +999,10 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             {
                 sq->py -= 1;
             }
+            else if(sq->px == sq->n && sq->py == 1)
+            {
+                return 'N';
+            }
             else
             {
                 error_caught = 1;
@@ -1018,50 +1034,6 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
                 {
                     return 2;
                 }
-            }
-        }
-        else if(c == 'N')
-        {
-            if(sq->px == sq->n && sq->py == 1)
-            {
-                return c;
-            }
-            else
-            {
-                return 4;
-            }
-        }
-        else if(c == 'W')
-        {
-            if(sq->py == sq->w && sq->px == 1)
-            {
-                return c;
-            }
-            else
-            {
-                return 4;
-            }
-        }
-        else if(c == 'E')
-        {
-            if(sq->py == sq->e && sq->px == 78)
-            {
-                return c;
-            }
-            else
-            {
-                return 4;
-            }
-        }
-        else if(c == 'S')
-        {
-            if(sq->px == sq->s && sq->py == 19)
-            {
-                return c;
-            }
-            else
-            {
-                return 4;
             }
         }
         else if(c =='F')

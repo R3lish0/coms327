@@ -3,11 +3,13 @@
 #include <ncurses.h>
 #include <vector>
 #include <string.h>
+#include <algorithm>
 
 #include "../terrain/terrain.h"
 #include "../turn/turn.h"
 #include "../data/data.h"
 #include "../dj/dj.h"
+#include "../main/main.h"
 
 using namespace std;
 
@@ -16,6 +18,109 @@ using namespace std;
 #define BOARD_Y 401
 #define WIDTH 80
 #define HEIGHT 24
+
+
+int gen_pokemon(std::vector<saved_poke*>& poke_list,
+        vector<moves*>& moves_vec, vector<pokemon_moves*>& pokemon_moves_vec,
+        vector<pokemon*>& pokemon_vec, vector<pokemon_stats*>& pokemon_stats_vec,
+        int level)
+{
+    saved_poke* new_poke = new saved_poke();
+
+    new_poke->index = poke_list.size();
+    new_poke->level = level;
+    new_poke->iv_hp = rand() % 15 + 1;
+    new_poke->iv_attack = rand() % 15 + 1;
+    new_poke->iv_defense = rand() % 15 + 1;
+    new_poke->iv_speed = rand() % 15 + 1;
+    new_poke->iv_special_attack = rand() % 15 + 1;
+    new_poke->iv_special_defense = rand() % 15 + 1;
+    new_poke->is_shiny = (rand() % 8192 == 0) ? 0 : 1;
+    new_poke->gender = (rand()%2 == 1 ? 'M' : 'F');
+    
+    //gen the pokemon
+    new_poke->poke = pokemon_vec.at(rand() % pokemon_vec.size());
+
+    for(long unsigned int i = 0; i < pokemon_stats_vec.size(); i++)
+    {
+        if(pokemon_stats_vec.at(i)->pokemon_id == new_poke->poke->id)
+        {
+            new_poke->hp = pokemon_stats_vec.at(i)->base_stat;
+            new_poke->attack = pokemon_stats_vec.at(i+1)->base_stat;
+            new_poke->defense = pokemon_stats_vec.at(i+2)->base_stat;
+            new_poke->special_attack = pokemon_stats_vec.at(i+3)->base_stat;
+            new_poke->special_defense = pokemon_stats_vec.at(i+4)->base_stat;
+            new_poke->speed = pokemon_stats_vec.at(i+5)->base_stat;
+            i = pokemon_stats_vec.size();
+        }
+    }
+
+    
+    
+    //gen the movelist
+    vector<int> viable_moves;
+    long unsigned int i;
+    for(i = 0; i < pokemon_moves_vec.size(); i++)
+    {
+        pokemon_moves* curr_move = pokemon_moves_vec.at(i);  
+
+      if(curr_move->pokemon_id == new_poke->poke->species_id)
+      {
+          if(curr_move->pokemon_move_method_id == 1)
+          {
+              if(curr_move->level <= new_poke->level)
+              {
+                  int cnt = count(viable_moves.begin(),viable_moves.end(), pokemon_moves_vec.at(i)->move_id);
+                  if (cnt == 0)
+                  {
+                      viable_moves.push_back(pokemon_moves_vec.at(i)->move_id);
+                  }
+              }
+          }
+      }
+
+    }
+    
+    if(viable_moves.size() == 0)
+    {
+        //little rat gets struggle
+        new_poke->move_list.push_back(moves_vec.at(165));
+    }
+    else if(viable_moves.size() == 1)
+    {
+        new_poke->move_list.push_back(moves_vec.at(viable_moves.at(0) + 1));
+    }
+    else
+    {
+        int moves = 0;
+        int taken[2];
+        while(moves != 2)
+        {
+            int viable_index = rand() % viable_moves.size();
+            if(moves != 0)
+            {
+                if(viable_moves.at(viable_index) != taken[0])
+                {
+                    new_poke->move_list.push_back(moves_vec.at(viable_moves.at(viable_index)+ 1));
+                    moves++;
+                }
+                
+            }
+            else
+                {
+                    
+                    taken[0] = viable_moves.at(viable_index);
+                    new_poke->move_list.push_back(moves_vec.at(viable_moves.at(viable_index)+ 1));
+                    moves++;
+                }
+        }
+    }
+    poke_list.push_back(new_poke);
+    return  new_poke->index;
+}
+
+
+    
 
 
 
@@ -75,6 +180,7 @@ int main(int argc, char *argv[])
     vector<pokemon_stats*> pokemon_stat_vec;
     vector<stats*>  stats_vec;
     vector<pokemon_types*> pokemon_types_vec;
+    vector<saved_poke*> saved_poke_list;
 
 
     int i;
@@ -201,7 +307,7 @@ int main(int argc, char *argv[])
         }
         else if(strcmp(argv[i],"--pokemon_types") == 0)
         {
-            print_pokemon_types_data(pokemon_types_vec);
+             print_pokemon_types_data(pokemon_types_vec);
         }
     }
 
@@ -218,10 +324,28 @@ int main(int argc, char *argv[])
     add_npc(queue_array[bd.curX][bd.curY],npc_arr_board[bd.curX][bd.curY][0]);
     
     
-    
     printSquare(bd.board[bd.curX][bd.curY]);
 
-    mvprintw(22,0,"%d, %d", bd.curX,bd.curY); 
+    for(int i = 0; i < 3; i++)
+    {
+        gen_pokemon(saved_poke_list,
+                moves_vec, pokemon_moves_vec,
+                pokemon_vec, pokemon_stat_vec,
+                5);
+    
+    }
+       
+
+    
+
+
+
+
+
+
+
+
+    mvprintw(22,0,"%d, %d", bd.curX-200,bd.curY-200); 
     const char *responses[6];
     responses[0] = "Wrong input pal, looks like you lose a turn";
     responses[1] = "You can't go there, thats water, you'll drown!";
@@ -230,6 +354,67 @@ int main(int argc, char *argv[])
     responses[4] = "You need to be at a gate to travel";
     responses[5] = "";
     int response;
+
+
+    refresh();
+
+    int pokemon_choice = '1';
+    int cur_pokemon = 1;
+
+    WINDOW * pick = newwin(15,52,5,15);
+    int in_menu = 1;
+    while(in_menu)
+    {
+        if(pokemon_choice - '0' <= 3 && pokemon_choice - '0' > 0) 
+        {
+            cur_pokemon = pokemon_choice - '0';
+            wclear(pick);
+            wprintw(pick, "Choose Your Pokemon!! "); 
+            wprintw(pick, "Press Y to accept \nAnd 1,2,3 to view possible Pokemon");     
+            pokemon_choice = pokemon_choice - '0';
+            mvwprintw(pick, 3,0,"%s", saved_poke_list.at(pokemon_choice - 1)->poke->identifier.c_str());     
+            mvwprintw(pick, 3,20,"Level: %d", saved_poke_list.at(pokemon_choice - 1)->level);     
+            mvwprintw(pick, 4,20,"Gender: %c", saved_poke_list.at(pokemon_choice - 1)->gender);     
+            mvwprintw(pick, 4,0,"Shiny: %s", saved_poke_list.at(pokemon_choice - 1)->is_shiny != 0 ? "no" : "yes");     
+            mvwprintw(pick, 5,20,"Hp: %d", saved_poke_list.at(pokemon_choice - 1)->hp);     
+            mvwprintw(pick, 5,0,"Attack: %d", saved_poke_list.at(pokemon_choice - 1)->attack);     
+            mvwprintw(pick, 6,20,"Defense: %d", saved_poke_list.at(pokemon_choice - 1)->defense);     
+            mvwprintw(pick, 6,0,"Speed: %d", saved_poke_list.at(pokemon_choice - 1)->speed);     
+            mvwprintw(pick, 7,20,"Special Attack: %d", saved_poke_list.at(pokemon_choice - 1)->special_attack);     
+            mvwprintw(pick, 7,0,"Special Defense: %d", saved_poke_list.at(pokemon_choice - 1)->special_defense);     
+
+            wprintw(pick, "\n\nMoves:");     
+            for(long unsigned int i = 0; i < saved_poke_list.at(pokemon_choice -1)->
+                    move_list.size(); i++)
+            {
+                wprintw(pick, "\n%s", saved_poke_list.at(pokemon_choice - 1)->move_list.at(i)->identifier.c_str());     
+            }
+            pokemon_choice = wgetch(pick);
+
+        }
+        else if(pokemon_choice == 'y' || pokemon_choice == 'Y')
+        {
+
+            npc_arr_board[bd.curX][bd.curY][0]->h_npc->team[0] = cur_pokemon-1;
+
+            in_menu = 0;
+            endwin();
+        }
+        else
+        {
+            pokemon_choice = wgetch(pick);
+        }
+
+
+    }
+
+
+
+
+    printSquare(bd.board[bd.curX][bd.curY]);
+    mvprintw(22,0,"%d, %d", bd.curX-200,bd.curY-200); 
+    refresh();
+
 
     while(1)
     {
@@ -247,19 +432,21 @@ int main(int argc, char *argv[])
                     npc_arr_board,
                     npc_count,
                     &bd,
-                    queue_array);
+                    queue_array,saved_poke_list,
+                    moves_vec, pokemon_moves_vec,
+                    pokemon_vec, pokemon_stat_vec);
+
             dijkstra(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map,
                     rival_dij_map, hiker_dij_map);
-
-            add_npc(queue_array[bd.curX][bd.curY],npc_arr_board[bd.curX][bd.curY][0]);
-            printSquare(bd.board[bd.curX][bd.curY]);
-            mvprintw(22,0,"%d, %d", bd.curX,bd.curY); 
+             
             if(response != -1)
             {
                     mvprintw(0,0,"%s", responses[response]); 
                     refresh();
             }
-            
+            add_npc(queue_array[bd.curX][bd.curY],npc_arr_board[bd.curX][bd.curY][0]);
+            printSquare(bd.board[bd.curX][bd.curY]);
+            mvprintw(22,0,"%d, %d", bd.curX-200,bd.curY-200);
             //turn over here
            
         }
@@ -275,7 +462,9 @@ int main(int argc, char *argv[])
                     npc_arr_board, 
                     npc_count,
                     &bd,
-                    queue_array);
+                    queue_array ,saved_poke_list,
+                    moves_vec, pokemon_moves_vec,
+                    pokemon_vec, pokemon_stat_vec);
         } 
 //        switch (c)
 //        {

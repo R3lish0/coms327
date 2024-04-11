@@ -28,7 +28,7 @@ typedef class moves {
     int power;
     int pp;
     int accuracy;
-    int priority;
+    int priority; 
     int target_id;
     int damage_class_id;
     int effect_id;

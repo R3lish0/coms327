@@ -22,6 +22,7 @@
 
 
 #include "../terrain/terrain.h"
+#include "../main/main.h"
 #include <string>
 
 #ifndef TURN_H 
@@ -42,6 +43,7 @@ typedef class npc {
     char type;
     char terrain;
     char cur_dir;    
+    int team[6];
 } npc;
 
 
@@ -106,7 +108,10 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
          heapNode_t** npc_arr_board[BOARD_X][BOARD_Y],
          int n,
          board* bd,
-         heap_t* queue_array[401][401]);
+         heap_t* queue_array[401][401],
+        std::vector<saved_poke*>& saved_poke_list,
+        std::vector<moves*>& moves_vec, std::vector<pokemon_moves*>& pokemon_moves_vec,
+        std::vector<pokemon*>& pokemon_vec, std::vector<pokemon_stats*>& pokemon_stats_vec);
 
 
 void init_new_square(board *bd,int hiker_cost_map[X_MAG][Y_MAG], 

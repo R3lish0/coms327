@@ -26,6 +26,7 @@
 #include "../turn/turn.h"
 #include "../terrain/terrain.h"
 #include "../dj/dj.h"
+#include "../data/data.h"
 
 using namespace std;
 
@@ -156,29 +157,117 @@ void insert_t(heap_t* h, heapNode_t* hn)
 
 
 
-void battle(npc* p, npc* n, int character_map[X_MAG][Y_MAG])
+void battle(npc* p, npc* n, int character_map[X_MAG][Y_MAG],
+        vector<saved_poke*>& saved_poke_list,
+        std::vector<moves*>& moves_vec, std::vector<pokemon_moves*>& pokemon_moves_vec,
+        std::vector<pokemon*>& pokemon_vec, std::vector<pokemon_stats*>& pokemon_stats_vec,
+        vector<int>& levels)
 {
-    int battle_choice;
-    WINDOW * menu = newwin(10,52,5,15);
-    wprintw(menu, "escape (e)"); 
+    WINDOW * menu = newwin(15,52,5,15);
+    
+    for(long unsigned int i = 0; i < levels.size(); i++)
+    {
+        n->team[i] = gen_pokemon(saved_poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
+            pokemon_stats_vec, levels.at(i));
+
+
+    }
+
     int in_menu = 1;
+    long unsigned int pokemon_choice = '1';
     while(in_menu)
     {
-        battle_choice = wgetch(menu);
-        if(battle_choice == 'e')
+        if(pokemon_choice - '0' <= levels.size() && pokemon_choice - '0' > 0) 
+        {
+            pokemon_choice = pokemon_choice - '0';
+            wclear(menu);
+            wprintw(menu, "You have been challenged to a battle!!\n"); 
+            wprintw(menu, "Trainer has %lu pokemon\nCycle through with number keys 1-n", levels.size());     
+            mvwprintw(menu, 4,0,"%s", saved_poke_list.at(n->team[pokemon_choice-1])->poke->identifier.c_str());     
+            mvwprintw(menu, 4,30,"Level: %d", saved_poke_list.at(n->team[pokemon_choice-1])->level);     
+            mvwprintw(menu, 5,30,"Gender: %c", saved_poke_list.at(n->team[pokemon_choice-1])->gender);     
+            mvwprintw(menu, 5,0,"Shiny: %s", saved_poke_list.at(n->team[pokemon_choice-1])->is_shiny != 0 ? "no" : "yes");     
+            mvwprintw(menu, 6,30,"Hp: %d", saved_poke_list.at(n->team[pokemon_choice-1])->hp);     
+            mvwprintw(menu, 6,0,"Attack: %d", saved_poke_list.at(n->team[pokemon_choice-1])->attack);     
+            mvwprintw(menu, 7,30,"Defense: %d", saved_poke_list.at(n->team[pokemon_choice-1])->defense);     
+            mvwprintw(menu, 7,0,"Speed: %d", saved_poke_list.at(n->team[pokemon_choice-1])->speed);     
+            mvwprintw(menu, 8,30,"Special Attack: %d", saved_poke_list.at(n->team[pokemon_choice-1])->special_attack);     
+            mvwprintw(menu, 8,0,"Special Defense: %d", saved_poke_list.at(n->team[pokemon_choice-1])->special_defense);     
+
+            wprintw(menu, "\n\nMoves:");     
+            for(long unsigned int i = 0; i < saved_poke_list.at(n->team[pokemon_choice-1])->
+                    move_list.size(); i++)
+            {
+                wprintw(menu, "\n%s", saved_poke_list.at(n->team[pokemon_choice-1])->move_list.at(i)->identifier.c_str());     
+            }
+            wprintw(menu, "\n\nPress e to exit");     
+            pokemon_choice = wgetch(menu);
+        }
+        else if(pokemon_choice == 'E' || pokemon_choice == 'e')
         {
             in_menu = 0;
             n->is_defeated = 1;
             character_map[n->x][n->y] = -1;
             endwin();
         }
+        else
+        {
+            pokemon_choice = wgetch(menu);
+        }
+    }
+}
+
+
+void pokemon_encounter(vector<saved_poke*>& saved_poke_list,
+        std::vector<moves*>& moves_vec, std::vector<pokemon_moves*>& pokemon_moves_vec,
+        std::vector<pokemon*>& pokemon_vec, std::vector<pokemon_stats*>& pokemon_stats_vec,
+        int level)  
+{
+    int cur_pokemon = gen_pokemon(saved_poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
+            pokemon_stats_vec, level);
+
+    WINDOW * pick = newwin(15,52,5,15);
+    int in_menu = 1;
+    char exit;
+    while(in_menu)
+    {
+            wclear(pick);
+            const char* pokemon = saved_poke_list.at(cur_pokemon)->poke->identifier.c_str();     
+
+            mvwprintw(pick, 0,0,"%s%s%s", "You have encountered a ", pokemon, "!!");     
+
+            mvwprintw(pick, 3,0,"Level: %d", saved_poke_list.at(cur_pokemon)->level);     
+            mvwprintw(pick, 4,20,"Gender: %c", saved_poke_list.at(cur_pokemon)->gender);     
+            mvwprintw(pick, 4,0,"Shiny: %s", saved_poke_list.at(cur_pokemon)->is_shiny != 0 ? "no" : "yes");     
+            mvwprintw(pick, 5,20,"Hp: %d", saved_poke_list.at(cur_pokemon)->hp);     
+            mvwprintw(pick, 5,0,"Attack: %d", saved_poke_list.at(cur_pokemon)->attack);     
+            mvwprintw(pick, 6,20,"Defense: %d", saved_poke_list.at(cur_pokemon)->defense);     
+            mvwprintw(pick, 6,0,"Speed: %d", saved_poke_list.at(cur_pokemon)->speed);     
+            mvwprintw(pick, 7,20,"Special Attack: %d", saved_poke_list.at(cur_pokemon)->special_attack);     
+            mvwprintw(pick, 7,0,"Special Defense: %d", saved_poke_list.at(cur_pokemon)->special_defense);     
+
+            wprintw(pick, "\n\nMoves:");     
+            for(long unsigned int i = 0; i < saved_poke_list.at(cur_pokemon)->
+                    move_list.size(); i++)
+            {
+                wprintw(pick, "\n%s", saved_poke_list.at(cur_pokemon)->move_list.at(i)->identifier.c_str());     
+            }
+            wprintw(pick, "\n\nPress e to exit");     
+            exit = wgetch(pick);
+            if(exit == 'e' || exit == 'E')
+            {
+                in_menu = 0;
+                endwin();
+            }
+
+
     }
 }
 
 void fly(int pair[2])
 {
-    char x[] = "123";
-    char y[] = "123";
+    char x[] = "-123";
+    char y[] = "-123";
     echo();
     WINDOW * menu = newwin(10,52,5,15);
     wprintw(menu, "Where to?\n\n");
@@ -204,6 +293,7 @@ void fly(int pair[2])
     delwin(menu);
     
 }
+
 
 
 void show_trainers(npc* p, heapNode_t** npc_arr, int n)
@@ -248,7 +338,6 @@ void show_trainers(npc* p, heapNode_t** npc_arr, int n)
         }
         const char* x_dir_c = x_dir.c_str();
         const char* y_dir_c = y_dir.c_str();
-        const char* status_c = status.c_str();
 
         mv++;
         mvwprintw(trainer_pad,mv,0,"%s", "Distance from player:");
@@ -261,6 +350,7 @@ void show_trainers(npc* p, heapNode_t** npc_arr, int n)
         {status = "Defeated";}
         else
         {status = "Ready for battle";}
+        const char* status_c = status.c_str();
         mvwprintw(trainer_pad,mv,0,"Status : %s", status_c);
         mv+=2;
 
@@ -289,8 +379,8 @@ void show_trainers(npc* p, heapNode_t** npc_arr, int n)
        }
 
     }
-   
-    endwin();
+    endwin(); 
+    delwin(trainer_pad);
 
 
 
@@ -845,8 +935,46 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG],
         square* sq,
         heapNode_t** npc_arr,
-        int n)
+        int n,
+        std::vector<saved_poke*>& poke_list,
+        std::vector<moves*>& moves_vec, std::vector<pokemon_moves*>& pokemon_moves_vec,
+        std::vector<pokemon*>& pokemon_vec, std::vector<pokemon_stats*>& pokemon_stats_vec,
+        board* bd)
 {
+
+        int level;
+        vector<int> levels;
+        int manhat = abs(bd->curX - 200) + abs(bd->curY - 200);
+        int min;
+        int max;
+
+        if(manhat <= 200)
+        {
+            min = 1;
+            max = manhat / 2;
+        }
+        else
+        {
+            max = 100;
+            min = (manhat - 200)/2;
+             
+        }
+        
+        int no_fail = 1;
+        int num_trainer_pokemon = 1;
+        while(num_trainer_pokemon <= 6 && no_fail) 
+        {
+        rand() % 101 <= 60 ? num_trainer_pokemon++ : no_fail = 0;
+        }
+
+        for(int i = 0; i < num_trainer_pokemon; i++)
+        {
+            level = max == 0 ? min : rand() % max;
+            level = level <= min ? min : level;
+            levels.push_back(level);
+        }
+        
+
 
         int error_caught = 0;
         int collision;
@@ -859,6 +987,12 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             {
                 sq->px -= 1;
                 sq->py += 1;
+                if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
+                {
+
+                    pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level);
+                }
             }
             else
             {
@@ -879,6 +1013,11 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             if (cost_map[sq->px][sq->py+1] != INT16_MAX)
             {
                 sq->py += 1;
+                if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
+                {
+                pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level);
+                }
             }
             else if(sq->px == sq->s && sq->py == 19)
             {
@@ -904,6 +1043,11 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             {
                 sq->px += 1;
                 sq->py += 1;
+                if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
+                {
+                pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level);
+                }
             }
             else
             {
@@ -924,6 +1068,11 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             if (cost_map[sq->px-1][sq->py] != INT16_MAX)
             {
                 sq->px -= 1;
+                if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
+                {
+                pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level);
+                }
             }
             else if(sq->py == sq->w && sq->px == 1)
             {
@@ -946,6 +1095,11 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
         else if(c == '5' || c == ' ' || c == '.')
         {
             hn->h_npc->cost += 10;
+            if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
+                {
+                pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level);
+                }
         }
         //move one cell to the right
         else if(c == '6' || c == 'l')
@@ -953,6 +1107,11 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             if (cost_map[sq->px+1][sq->py] != INT16_MAX)
             {
                 sq->px += 1;
+                if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
+                {
+                pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level);
+                }
             }
             else if(sq->py == sq->e && sq->px == 78)
             {
@@ -978,6 +1137,11 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             {
                 sq->px -= 1;
                 sq->py -= 1;
+                if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
+                {
+                pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level);
+                }
             }
             else
             {
@@ -998,6 +1162,11 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             if (cost_map[sq->px][sq->py-1] != INT16_MAX)
             {
                 sq->py -= 1;
+                if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
+                {
+                pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level);
+                } 
             }
             else if(sq->px == sq->n && sq->py == 1)
             {
@@ -1022,6 +1191,11 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             {
                 sq->py -= 1;
                 sq->px += 1;
+                if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
+                {
+                    pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level);
+                }
             }
             else
             {
@@ -1051,7 +1225,8 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             if(winchar == '<')
             {
             menu_open = 0;
-            endwin();
+            endwin(); 
+            delwin(menu);
             }
         }
         else if (c == 't')
@@ -1071,7 +1246,9 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             collision = move_npc(hn->h_npc, map, cost_map, character_map, sq->px, sq->py); 
             if(collision != -1 && collision != 0)
             {
-                battle(hn->h_npc,npc_arr[collision]->h_npc,character_map);
+                battle(hn->h_npc,npc_arr[collision]->h_npc,character_map,
+                        poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
+            pokemon_stats_vec, levels);
 
             }
             return 0; 
@@ -1084,8 +1261,9 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             collision = move_npc(hn->h_npc, map, cost_map, character_map, sq->px, sq->py); 
             if (collision != -1 && collision != 0) 
             {
-                battle(hn->h_npc,npc_arr[collision]->h_npc,character_map);
-            }
+                battle(hn->h_npc,npc_arr[collision]->h_npc,character_map,
+                        poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
+                        pokemon_stats_vec, levels);}
             return -1;
         }
         return -1;
@@ -1107,10 +1285,47 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
         heapNode_t** npc_arr_board[BOARD_X][BOARD_Y],
         int n,
         board* bd,
-        heap_t* queue_array[401][401])
+        heap_t* queue_array[401][401],
+        std::vector<saved_poke*>& poke_list,
+        std::vector<moves*>& moves_vec, std::vector<pokemon_moves*>& pokemon_moves_vec,
+        std::vector<pokemon*>& pokemon_vec, std::vector<pokemon_stats*>& pokemon_stats_vec)
 {
     heapNode_t* hn = extractMin_t(queue_array[bd->curX][bd->curY]); 
     int response = -1; 
+
+    int level;
+        vector<int> levels;
+        int manhat = abs(bd->curX - 200) + abs(bd->curY - 200);
+        int min;
+        int max;
+
+        if(manhat <= 200)
+        {
+            min = 1;
+            max = manhat / 2;
+        }
+        else
+        {
+            max = 100;
+            min = (manhat - 200)/2;
+             
+        }
+        
+        int no_fail = 1;
+        int num_trainer_pokemon = 1;
+        while(num_trainer_pokemon <= 6 && no_fail) 
+        {
+        rand() % 101 <= 60 ? num_trainer_pokemon++ : no_fail = 0;
+        }
+
+        for(int i = 0; i < num_trainer_pokemon; i++)
+        {
+            level = max == 0 ? min : rand() % max;
+            level = level <= min ? min : level;
+            levels.push_back(level);
+        }
+
+
     if(!hn->h_npc->is_defeated)
     {
         int c;
@@ -1118,45 +1333,68 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
         switch(hn->h_npc->type)
         {
             case 'h':
+                add_npc(queue_array[bd->curX][bd->curY], hn);
                 collision = chase(hn->h_npc, map, hiker_cost_map, bd->board[bd->curX][bd->curY]->char_map, hiker_dij);
                 if(collision == 0)
                 {
-                    battle(npc_arr_board[bd->curX][bd->curY][collision]->h_npc, hn->h_npc, bd->board[bd->curX][bd->curY]->char_map);
+                    battle(npc_arr_board[bd->curX][bd->curY][collision]->h_npc,hn->h_npc,
+                            bd->board[bd->curX][bd->curY]->char_map,
+                        poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
+                        pokemon_stats_vec, levels);
                 }
                 break;
             case 'w':
+                add_npc(queue_array[bd->curX][bd->curY], hn);
                 collision = wander(hn->h_npc, map, rival_cost_map, bd->board[bd->curX][bd->curY]->char_map);
                 if(collision == 0)
                 {
-                    battle(npc_arr_board[bd->curX][bd->curY][collision]->h_npc, hn->h_npc, bd->board[bd->curX][bd->curY]->char_map);
+                battle(npc_arr_board[bd->curX][bd->curY][collision]->h_npc,hn->h_npc,
+                            bd->board[bd->curX][bd->curY]->char_map,
+                        poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
+                        pokemon_stats_vec, levels);
                 }
                 break;
             case 'p':
+                add_npc(queue_array[bd->curX][bd->curY], hn);
                 collision = pace(hn->h_npc, map, rival_cost_map, bd->board[bd->curX][bd->curY]->char_map);
                 if(collision == 0)
                 {
-                    battle(npc_arr_board[bd->curX][bd->curY][collision]->h_npc, hn->h_npc, bd->board[bd->curX][bd->curY]->char_map);
+                    battle(npc_arr_board[bd->curX][bd->curY][collision]->h_npc,hn->h_npc,
+                            bd->board[bd->curX][bd->curY]->char_map,
+                        poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
+                        pokemon_stats_vec, levels);
                 }
                 break;
             case 'e':
+                add_npc(queue_array[bd->curX][bd->curY], hn);
                 collision = explore(hn->h_npc, map, rival_cost_map, bd->board[bd->curX][bd->curY]->char_map);
                 if(collision == 0)
                 {
-                    battle(npc_arr_board[bd->curX][bd->curY][collision]->h_npc, hn->h_npc, bd->board[bd->curX][bd->curY]->char_map);
+                    battle(npc_arr_board[bd->curX][bd->curY][collision]->h_npc,hn->h_npc,
+                            bd->board[bd->curX][bd->curY]->char_map,
+                        poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
+                        pokemon_stats_vec, levels);
                 }
                 break;
             case 'r':
+                add_npc(queue_array[bd->curX][bd->curY], hn);
                 collision = chase(hn->h_npc, map, rival_cost_map, 
                         bd->board[bd->curX][bd->curY]->char_map, rival_dij);
                 if(collision == 0)
                 {
-                    battle(npc_arr_board[bd->curX][bd->curY][collision]->h_npc, hn->h_npc, bd->board[bd->curX][bd->curY]->char_map);
+                    battle(npc_arr_board[bd->curX][bd->curY][collision]->h_npc,hn->h_npc,
+                            bd->board[bd->curX][bd->curY]->char_map,
+                        poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
+                        pokemon_stats_vec, levels);
                 }
                 break;
             case '@':
                 c = getch();
                 response = next_player_turn(hn, c, map, pc_cost_map,
-                        bd->board[bd->curX][bd->curY]->char_map, sq, npc_arr_board[bd->curX][bd->curY], n);
+                        bd->board[bd->curX][bd->curY]->char_map, sq, npc_arr_board[bd->curX][bd->curY], n,
+                        poke_list,
+                        moves_vec, pokemon_moves_vec,
+                        pokemon_vec, pokemon_stats_vec, bd);
                 if(response == 78)
                 {
                     //north
@@ -1204,7 +1442,7 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
                     {
                         mvprintw(0,0,"%s", "You can't move farther in that direction");
                     }
-                    return -1;
+                    response =  -1;
                 }
                 else if(response == 87)
                 {
@@ -1255,7 +1493,7 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
                     {
                         mvprintw(0,0,"%s", "You can't move farther in that direction");
                     }
-                    return -1;
+                    response =  -1;
                 }
                 else if(response == 69)
                 {
@@ -1306,7 +1544,7 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
                     {
                         mvprintw(0,0,"%s", "You can't move farther in that direction");
                     }
-                    return -1;
+                    response =  -1;
                 }
                 else if(response == 83)
                 {
@@ -1356,14 +1594,14 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
                     {
                         mvprintw(0,0,"%s", "You can't move farther in that direction");
                     }
-                    return -1;
+                    response = -1;
                 }
                 else if(response == 'F')
                 {
                     int pair[] = {0,0};
                     fly(pair); 
 
-                    if(!(pair[0]+200 >= 0 && pair[0]+200 <= 400 && pair[1]+200 >= 0 && pair[1]+200 <= 400))
+                    if(!(pair[0]+200 >= 0 && pair[1]+200 >= 0  && pair[0]+200 <= 400 && pair[1]+200 <= 400))
                     {
                         return 0;
                     }
@@ -1408,13 +1646,12 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
 
 
 
-                    return -1;
+                    response =  -1;
 
                 }
-                return -1;
+                response =  -1;
                 break;
         }
-        add_npc(queue_array[bd->curX][bd->curY], hn);
     }
     return response;
 }

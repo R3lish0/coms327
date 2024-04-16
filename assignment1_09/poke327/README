@@ -1,0 +1,74 @@
+Hello and welcome to my assignment 1.07.
+
+There are a few simple things that make this program possible and I'm going to list out what
+makes this program tick.
+
+First off building the project is easy, just a simple "make" is all you need to get started,
+then there should be a terrain_out you can use to run the program.
+
+The program is split into multiple directories: Queue, Terrain, and Main.
+
+Main:
+    This only has the main function, this function is responsible for
+    making the call to the initialize the board and handle user input
+
+Terrain:
+    Terrain is the heavy lifter of the project, it handles structs: board,seed,
+    and square. It is also responsible for initializing the board, printing current square, checking tiles, generating a map, and a lot more.
+
+Queue:
+    Simple queue nothing more nothing less.
+
+DJ:
+    does the Dijkstra's as it should
+
+Turn:
+    handles npc function
+    Turn has also evolved to handle and turnbased movement, battles, and other
+    interfaces for the game, This file right here is becoming a very large part
+    of this game
+
+Data:
+    This handles all data from the csv databases, both population and printing
+
+CONTROLS:
+
+
+Flying: hit F then where you would like to go ("enter" between numbers is needed)
+
+KEEP IN MIND: It's best not to hold down keys (that sometimes messes with the program)
+
+
+OPTIONAL FLAGS:
+
+--numtrainers <int>
+    The int determines number of trainers on each map
+
+--pokemon
+    prints all pokemon data from database
+
+--moves
+    prints all move data from database
+
+--pokemon_moves
+    prints all pokemon moves from database
+
+--pokemon_species
+    prints all pokemon species from database
+
+--experience
+    prints all exp from database
+
+--type_names
+    prints all type names from database
+
+--pokemon_stats
+    prints all pokemon stats from database
+
+--stats
+    prints all stats from database
+
+--pokemon_types
+    prints all pokemon types from database
+
+

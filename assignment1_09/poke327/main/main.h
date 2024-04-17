@@ -25,6 +25,12 @@ typedef class saved_poke {
         int speed;
         int special_attack;
         int special_defense;
+        int curr_hp;
+        int curr_attack;
+        int curr_defense;
+        int curr_speed;
+        int curr_special_attack;
+        int curr_special_defense;
 
 } saved_poke;
 

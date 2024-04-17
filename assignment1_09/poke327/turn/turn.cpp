@@ -30,6 +30,7 @@
 
 using namespace std;
 
+
 // Define a createHeap function
 heap_t* createHeap_t(int capacity)
 {
@@ -156,6 +157,42 @@ void insert_t(heap_t* h, heapNode_t* hn)
 }
 
 
+void print_pokemon_card(WINDOW* win, vector<saved_poke*>& saved_poke_list,
+        vector<moves*>& moves_vec,std::vector<pokemon_moves*>& pokemon_moves_vec,
+        std::vector<pokemon*>& pokemon_vec, std::vector<pokemon_stats*>& pokemon_stats_vec,
+        int pokemon)
+{
+    
+    init_pair(1, COLOR_GREEN, COLOR_GREEN);
+    init_pair(2, COLOR_RED, COLOR_RED);
+    saved_poke* curr_pokemon = saved_poke_list.at(pokemon);
+    mvwprintw(win, 1,2,"%s", curr_pokemon->poke->identifier.c_str());     
+    mvwprintw(win, 2,2,"Lvl: %d", curr_pokemon->level);     
+    mvwprintw(win, 3,12,"HP: %d/%d", curr_pokemon->curr_hp, curr_pokemon->hp);     
+    int i;
+    int health = (curr_pokemon->curr_hp * 20)/curr_pokemon->hp;
+    wattron(win, COLOR_PAIR(1));
+    for(i = 0; i <= health; i++)
+    {
+        mvwprintw(win, 4,i+2,"=");     
+    }
+    wattroff(win, COLOR_PAIR(1));
+
+    wattron(win,  COLOR_PAIR(2));
+    for(i = health; i < (20-health); i++)
+    {
+        mvwprintw(win, 4,i+2,"=");     
+    }
+    wattroff(win,  COLOR_PAIR(2));
+
+
+}
+
+
+ 
+
+
+
 
 void battle(npc* p, npc* n, int character_map[X_MAG][Y_MAG],
         vector<saved_poke*>& saved_poke_list,
@@ -163,7 +200,38 @@ void battle(npc* p, npc* n, int character_map[X_MAG][Y_MAG],
         std::vector<pokemon*>& pokemon_vec, std::vector<pokemon_stats*>& pokemon_stats_vec,
         vector<int>& levels)
 {
-    WINDOW * menu = newwin(15,52,5,15);
+
+    WINDOW * main = newwin(23,80,0,0);
+    WINDOW * player = subwin(main,6,25,8,6); 
+    WINDOW * opponent = subwin(main,6,25,2,50); 
+    WINDOW * menu = subwin(main,7,56,15,1);
+    WINDOW * options = subwin(main,7,22,15,57);
+    box(opponent, '|', '-');
+    box(menu, '|', '-');
+    box(player,'|','-');
+    box(main, '|', '-');
+    box(options, '|', '-');
+
+
+    int valid_player_poke = -1;
+    int i = 0;
+
+    while(valid_player_poke == -1)
+    {
+        if(saved_poke_list.at(p->team[i])->curr_hp != 0)
+        {
+            valid_player_poke = i;    
+        }
+        i++;
+    }
+
+//    print_pokemon_card(player, saved_poke_list,
+//        moves_vec,pokemon_moves_vec,
+//        pokemon_vec,pokemon_stats_vec,
+//        p->team[valid_player_poke]);
+//
+
+
     
     for(long unsigned int i = 0; i < levels.size(); i++)
     {
@@ -171,72 +239,64 @@ void battle(npc* p, npc* n, int character_map[X_MAG][Y_MAG],
             pokemon_stats_vec, levels.at(i));
     }
 
+//    print_pokemon_card(opponent, saved_poke_list,
+//        moves_vec,pokemon_moves_vec,
+//        pokemon_vec,pokemon_stats_vec,
+//        n->team[0]);
+//
     int in_menu = 1;
-    long unsigned int pokemon_choice = '1';
 
-    pokemon_choice = pokemon_choice - '0';
-    werase(menu);
-    wprintw(menu, "You have been challenged to a battle!!\n"); 
-    wprintw(menu, "Trainer has %lu pokemon\nCycle through with number keys 1-n", levels.size());     
-    mvwprintw(menu, 4,0,"%s", saved_poke_list.at(n->team[pokemon_choice-1])->poke->identifier.c_str());     
-    mvwprintw(menu, 4,30,"Level: %d", saved_poke_list.at(n->team[pokemon_choice-1])->level);     
-    mvwprintw(menu, 5,30,"Gender: %c", saved_poke_list.at(n->team[pokemon_choice-1])->gender);     
-    mvwprintw(menu, 5,0,"Shiny: %s", saved_poke_list.at(n->team[pokemon_choice-1])->is_shiny != 0 ? "no" : "yes");     
-    mvwprintw(menu, 6,30,"Hp: %d", saved_poke_list.at(n->team[pokemon_choice-1])->hp);     
-    mvwprintw(menu, 6,0,"Attack: %d", saved_poke_list.at(n->team[pokemon_choice-1])->attack);     
-    mvwprintw(menu, 7,30,"Defense: %d", saved_poke_list.at(n->team[pokemon_choice-1])->defense);     
-    mvwprintw(menu, 7,0,"Speed: %d", saved_poke_list.at(n->team[pokemon_choice-1])->speed);     
-    mvwprintw(menu, 8,30,"Special Attack: %d", saved_poke_list.at(n->team[pokemon_choice-1])->special_attack);     
-    mvwprintw(menu, 8,0,"Special Defense: %d", saved_poke_list.at(n->team[pokemon_choice-1])->special_defense);     
-
-    wprintw(menu, "\n\nMoves:");     
-    for(long unsigned int i = 0; i < saved_poke_list.at(n->team[pokemon_choice-1])->
-            move_list.size(); i++)
-    {
-        wprintw(menu, "\n%s", saved_poke_list.at(n->team[pokemon_choice-1])->move_list.at(i)->identifier.c_str());     
-    }
-    wprintw(menu, "\n\nPress e to exit");
-
-
-
+    int selection; 
+    int current_player_poke = valid_player_poke;
+    int current_opponent_poke = n->team[0];
+    int execute = 0;
     while(in_menu)
     {
 
-        pokemon_choice = wgetch(menu);
-        if(pokemon_choice - '0' <= levels.size() && pokemon_choice - '0' > 0) 
+        selection = wgetch(menu);
+
+        if(execute == 1)
         {
-            pokemon_choice = pokemon_choice - '0';
-            werase(menu);
-            wprintw(menu, "You have been challenged to a battle!!\n"); 
-            wprintw(menu, "Trainer has %lu pokemon\nCycle through with number keys 1-n", levels.size());     
-            mvwprintw(menu, 4,0,"%s", saved_poke_list.at(n->team[pokemon_choice-1])->poke->identifier.c_str());     
-            mvwprintw(menu, 4,30,"Level: %d", saved_poke_list.at(n->team[pokemon_choice-1])->level);     
-            mvwprintw(menu, 5,30,"Gender: %c", saved_poke_list.at(n->team[pokemon_choice-1])->gender);     
-            mvwprintw(menu, 5,0,"Shiny: %s", saved_poke_list.at(n->team[pokemon_choice-1])->is_shiny != 0 ? "no" : "yes");     
-            mvwprintw(menu, 6,30,"Hp: %d", saved_poke_list.at(n->team[pokemon_choice-1])->hp);     
-            mvwprintw(menu, 6,0,"Attack: %d", saved_poke_list.at(n->team[pokemon_choice-1])->attack);     
-            mvwprintw(menu, 7,30,"Defense: %d", saved_poke_list.at(n->team[pokemon_choice-1])->defense);     
-            mvwprintw(menu, 7,0,"Speed: %d", saved_poke_list.at(n->team[pokemon_choice-1])->speed);     
-            mvwprintw(menu, 8,30,"Special Attack: %d", saved_poke_list.at(n->team[pokemon_choice-1])->special_attack);     
-            mvwprintw(menu, 8,0,"Special Defense: %d", saved_poke_list.at(n->team[pokemon_choice-1])->special_defense);     
+            //this is where a move or something gets applied to change fight
 
-            wprintw(menu, "\n\nMoves:");     
-            for(long unsigned int i = 0; i < saved_poke_list.at(n->team[pokemon_choice-1])->
-                    move_list.size(); i++)
-            {
-                wprintw(menu, "\n%s", saved_poke_list.at(n->team[pokemon_choice-1])->move_list.at(i)->identifier.c_str());     
-            }
-            wprintw(menu, "\n\nPress e to exit");
+        print_pokemon_card(player, saved_poke_list,
+        moves_vec,pokemon_moves_vec,
+        pokemon_vec,pokemon_stats_vec,
+        p->team[valid_player_poke]);
 
+        print_pokemon_card(opponent, saved_poke_list,
+                moves_vec,pokemon_moves_vec,
+                pokemon_vec,pokemon_stats_vec,
+                n->team[0]);
+
+        }
+        else
+        {
             
+
+
+
+
+
+
+
+
         }
-        else if(pokemon_choice == 'E' || pokemon_choice == 'e')
-        {
-            in_menu = 0;
-            n->is_defeated = 1;
-            character_map[n->x][n->y] = -1;
-            delwin(menu);
-        }
+        selection = wgetch(menu);
+
+//            wprintw(main, "\n\nMoves:");     
+//            for(long unsigned int i = 0; i < saved_poke_list.at(n->team[pokemon_choice-1])->
+//                    move_list.size(); i++)
+//            {
+//                wprintw(main, "\n%s", saved_poke_list.at(n->team[pokemon_choice-1])->move_list.at(i)->identifier.c_str());     
+//            }
+//        else if(pokemon_choice == 'E' || pokemon_choice == 'e')
+//        {
+//            in_menu = 0;
+//            n->is_defeated = 1;
+//            character_map[n->x][n->y] = -1;
+//            delwin(main);
+//        }
     }
 }
 

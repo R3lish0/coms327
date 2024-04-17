@@ -26,7 +26,6 @@ void printSquare(struct square *sq)
 //    clear();
     erase();
     refresh();
-    start_color();
     init_pair(S_GRASS, COLOR_GREEN, COLOR_GREEN);
     init_pair(T_GRASS, COLOR_YELLOW, COLOR_YELLOW);
     init_pair(PATH, COLOR_WHITE, COLOR_WHITE);

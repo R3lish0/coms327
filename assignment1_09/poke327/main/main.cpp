@@ -51,6 +51,14 @@ int gen_pokemon(std::vector<saved_poke*>& poke_list,
             new_poke->special_attack = pokemon_stats_vec.at(i+3)->base_stat;
             new_poke->special_defense = pokemon_stats_vec.at(i+4)->base_stat;
             new_poke->speed = pokemon_stats_vec.at(i+5)->base_stat;
+
+            new_poke->curr_hp = pokemon_stats_vec.at(i)->base_stat;
+            new_poke->curr_attack = pokemon_stats_vec.at(i+1)->base_stat;
+            new_poke->curr_defense = pokemon_stats_vec.at(i+2)->base_stat;
+            new_poke->curr_special_attack = pokemon_stats_vec.at(i+3)->base_stat;
+            new_poke->curr_special_defense = pokemon_stats_vec.at(i+4)->base_stat;
+            new_poke->curr_speed = pokemon_stats_vec.at(i+5)->base_stat;
+
             i = pokemon_stats_vec.size();
         }
     }
@@ -133,6 +141,7 @@ int main(int argc, char *argv[])
     noecho();
     //    nodelay(stdscr, TRUE);
     refresh();
+    start_color();
     set_escdelay(0);
    
     

@@ -20,10 +20,12 @@ using namespace std;
 #define HEIGHT 24
 
 
+ 
+
 int gen_pokemon(std::vector<saved_poke*>& poke_list,
         vector<moves*>& moves_vec, vector<pokemon_moves*>& pokemon_moves_vec,
         vector<pokemon*>& pokemon_vec, vector<pokemon_stats*>& pokemon_stats_vec,
-        int level)
+        int level, vector<pokemon_types*>& pokemon_types_vec)
 {
     saved_poke* new_poke = new saved_poke();
 
@@ -45,21 +47,30 @@ int gen_pokemon(std::vector<saved_poke*>& poke_list,
     {
         if(pokemon_stats_vec.at(i)->pokemon_id == new_poke->poke->id)
         {
-            new_poke->hp = pokemon_stats_vec.at(i)->base_stat;
-            new_poke->attack = pokemon_stats_vec.at(i+1)->base_stat;
-            new_poke->defense = pokemon_stats_vec.at(i+2)->base_stat;
-            new_poke->special_attack = pokemon_stats_vec.at(i+3)->base_stat;
-            new_poke->special_defense = pokemon_stats_vec.at(i+4)->base_stat;
-            new_poke->speed = pokemon_stats_vec.at(i+5)->base_stat;
+            new_poke->hp = pokemon_stats_vec.at(i)->base_stat + new_poke->iv_hp;
+            new_poke->attack = pokemon_stats_vec.at(i+1)->base_stat + new_poke->iv_attack;
+            new_poke->defense = pokemon_stats_vec.at(i+2)->base_stat + new_poke->iv_defense;
+            new_poke->special_attack = pokemon_stats_vec.at(i+3)->base_stat + new_poke->iv_special_attack;
+            new_poke->special_defense = pokemon_stats_vec.at(i+4)->base_stat + new_poke->iv_special_defense;
+            new_poke->speed = pokemon_stats_vec.at(i+5)->base_stat + new_poke->iv_speed;
 
-            new_poke->curr_hp = pokemon_stats_vec.at(i)->base_stat;
-            new_poke->curr_attack = pokemon_stats_vec.at(i+1)->base_stat;
-            new_poke->curr_defense = pokemon_stats_vec.at(i+2)->base_stat;
-            new_poke->curr_special_attack = pokemon_stats_vec.at(i+3)->base_stat;
-            new_poke->curr_special_defense = pokemon_stats_vec.at(i+4)->base_stat;
-            new_poke->curr_speed = pokemon_stats_vec.at(i+5)->base_stat;
+            new_poke->curr_hp = new_poke->hp;
+            new_poke->curr_attack = new_poke->attack;
+            new_poke->curr_defense = new_poke->defense;
+            new_poke->curr_special_attack = new_poke->special_attack;
+            new_poke->curr_special_defense = new_poke->special_defense;
+            new_poke->curr_speed = new_poke->speed;
+
+            
 
             i = pokemon_stats_vec.size();
+        }
+    }
+    for(long unsigned int j = 0; j < pokemon_types_vec.size(); j++)
+    {
+        if(new_poke->poke->id == pokemon_types_vec.at(j)->pokemon_id)
+        {
+            new_poke->type_id.push_back(pokemon_types_vec.at(j)->type_id);
         }
     }
 
@@ -193,6 +204,7 @@ int main(int argc, char *argv[])
     vector<saved_poke*> saved_poke_list;
 
 
+   
     int i;
     string path;
     for(i = 0; i < 9; i++)
@@ -341,7 +353,7 @@ int main(int argc, char *argv[])
         gen_pokemon(saved_poke_list,
                 moves_vec, pokemon_moves_vec,
                 pokemon_vec, pokemon_stat_vec,
-                5);
+                5, pokemon_types_vec);
     
     }
        
@@ -448,7 +460,8 @@ int main(int argc, char *argv[])
                     &bd,
                     queue_array,saved_poke_list,
                     moves_vec, pokemon_moves_vec,
-                    pokemon_vec, pokemon_stat_vec);
+                    pokemon_vec, pokemon_stat_vec,
+                    pokemon_types_vec);
 
 
             dijkstra(bd.board[bd.curX][bd.curY], hiker_cost_map, rival_cost_map,
@@ -478,7 +491,8 @@ int main(int argc, char *argv[])
                     &bd,
                     queue_array ,saved_poke_list,
                     moves_vec, pokemon_moves_vec,
-                    pokemon_vec, pokemon_stat_vec);
+                    pokemon_vec, pokemon_stat_vec,
+                    pokemon_types_vec);
         } 
     }
 

@@ -31,6 +31,7 @@ typedef class saved_poke {
         int curr_speed;
         int curr_special_attack;
         int curr_special_defense;
+        std::vector<int> type_id; 
 
 } saved_poke;
 
@@ -39,7 +40,7 @@ typedef class saved_poke {
 int gen_pokemon(std::vector<saved_poke*>& poke_list,
         std::vector<moves*>& moves_vec, std::vector<pokemon_moves*>& pokemon_moves_vec,
         std::vector<pokemon*>& pokemon_vec, std::vector<pokemon_stats*>& pokemon_stats_vec,
-        int level);
+        int level, std::vector<pokemon_types*>& pokemon_types_vec);
 
 
 #endif 

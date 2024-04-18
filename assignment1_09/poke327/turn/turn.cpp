@@ -22,6 +22,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <string>
+#include <limits.h>
 
 #include "../turn/turn.h"
 #include "../terrain/terrain.h"
@@ -163,56 +164,244 @@ void print_pokemon_card(WINDOW* win, vector<saved_poke*>& saved_poke_list,
         int pokemon)
 {
     
+    werase(win);
+    box(win, '|', '-');
     init_pair(1, COLOR_GREEN, COLOR_GREEN);
     init_pair(2, COLOR_RED, COLOR_RED);
     saved_poke* curr_pokemon = saved_poke_list.at(pokemon);
     mvwprintw(win, 1,2,"%s", curr_pokemon->poke->identifier.c_str());     
     mvwprintw(win, 2,2,"Lvl: %d", curr_pokemon->level);     
     mvwprintw(win, 3,12,"HP: %d/%d", curr_pokemon->curr_hp, curr_pokemon->hp);     
-    int i;
-    int health = (curr_pokemon->curr_hp * 20)/curr_pokemon->hp;
+    int health = curr_pokemon->curr_hp >= 0 ? (curr_pokemon->curr_hp * 20)/curr_pokemon->hp : 0;
+
+
+
     wattron(win, COLOR_PAIR(1));
-    for(i = 0; i <= health; i++)
+    for(int i = 0; i <= health; i++)
     {
         mvwprintw(win, 4,i+2,"=");     
     }
     wattroff(win, COLOR_PAIR(1));
 
     wattron(win,  COLOR_PAIR(2));
-    for(i = health; i < (20-health); i++)
+    for(int i = health; i < 20; i++)
     {
         mvwprintw(win, 4,i+2,"=");     
     }
     wattroff(win,  COLOR_PAIR(2));
 
+    wrefresh(win);
+
+
+}
+
+void print_moves(WINDOW* win, vector<saved_poke*>& saved_poke_list,
+        int poke)
+{
+    werase(win);
+    box(win, '|', '-');
+    mvwprintw(win, 1,2, "%s", "Choose an available move");
+    for(long unsigned int i = 0; i < saved_poke_list.at(poke)->
+            move_list.size(); i++)
+    {
+        
+        mvwprintw(win, 2+i, 2, "%lu: %s", i+1,  saved_poke_list.at(poke)->move_list.at(i)->identifier.c_str());     
+    }
+    wrefresh(win);
+}
+
+
+void print_options(WINDOW* win)
+{
+
+    werase(win);
+    box(win, '|', '-');
+
+    init_pair(5, COLOR_GREEN, COLOR_BLACK);
+    init_pair(6, COLOR_RED, COLOR_BLACK);
+    init_pair(7, COLOR_BLUE, COLOR_BLACK);
+    init_pair(8, COLOR_YELLOW, COLOR_BLACK);
+
+
+
+    wattron(win, COLOR_PAIR(5));
+    mvwprintw(win, 2, 2, "1: Attack");
+    wattroff(win, COLOR_PAIR(5));
+
+
+    wattron(win, COLOR_PAIR(6));
+    mvwprintw(win, 2, 13, "2: PKMN");
+    wattroff(win, COLOR_PAIR(6));
+
+
+    wattron(win, COLOR_PAIR(7));
+    mvwprintw(win, 4, 2, "3: Bag");
+    wattroff(win, COLOR_PAIR(7));
+
+
+    wattron(win, COLOR_PAIR(8));
+    mvwprintw(win, 4, 13, "4: Run");
+    wattroff(win, COLOR_PAIR(8));
+
+
 
 }
 
 
- 
+void make_move(int pp, int cp, moves* move, vector<saved_poke*>& saved_poke_list)
+{
+    
+    saved_poke* p1_poke = saved_poke_list.at(pp);
+    saved_poke* p2_poke = saved_poke_list.at(cp);
 
 
+    int hit = (rand() % 100 ) <= move->accuracy ? 1 : 0;
+
+    if(hit)
+    {
+        double crit = (rand() % 256) < (p1_poke->speed/2) ? 1.5 : 1;
+        double stab;
+        for(long unsigned int i = 0; i < p1_poke->type_id.size(); i++)
+        {
+            if(p1_poke->type_id.at(i) == move->type_id)
+            {
+                stab = 1.5;
+            }
+            else if(stab != 1.5)
+            {
+                stab = 1;
+            }
+        }
+        int damage;
+        if(move->power == INT_MAX)
+        {
+            damage = 1;
+        }
+        else
+        {
+            damage = 2*p1_poke->level;
+            damage = (damage/5)+2;
+            damage = damage * move->power;
+            damage = damage * (p1_poke->attack/p2_poke->defense);
+            damage = damage/50 + 2;
+            damage = damage * crit * (((rand() % 15) + 85)/100.00) * stab * 1; 
+        }
+
+        p2_poke->curr_hp = p2_poke->curr_hp - damage;
+
+        p2_poke->curr_hp = p2_poke->curr_hp < 0 ? 0 : p2_poke->curr_hp;
+
+    }
+
+
+
+}
+
+
+void attack(int pp, int cp, int chosen_move, vector<saved_poke*>& saved_poke_list)
+{
+
+    saved_poke* player_poke = saved_poke_list.at(pp);
+    saved_poke* trainer_poke = saved_poke_list.at(cp);
+
+    
+    moves* player_move = player_poke->move_list.at(chosen_move);
+    moves* trainer_move = trainer_poke->move_list.at(rand() % trainer_poke->
+            move_list.size());
+
+
+    int pfirst;
+
+    if(player_move->priority < trainer_move->priority)
+    {
+        pfirst = 0;
+    }
+    else if(player_move->priority > trainer_move->priority)
+    {
+        pfirst = 1;
+    }
+    else if(player_poke->curr_speed <= trainer_poke->curr_speed)
+    {
+           pfirst = 0; 
+    }
+    else
+    {
+        pfirst = 1;
+    }
+
+    if(pfirst)
+    {
+        make_move(pp, cp, player_move, saved_poke_list);
+        if (trainer_poke->curr_hp == 0)
+        {
+            return;
+        }
+        make_move(cp, pp, trainer_move, saved_poke_list);
+    }
+    else
+    {
+        make_move(cp, pp, trainer_move, saved_poke_list);
+        if (player_poke->curr_hp == 0)
+        {
+            return;
+        }
+        make_move(pp, cp, player_move, saved_poke_list);
+    }
+
+
+}
+
+
+int pokemon_menu(WINDOW* win, vector<saved_poke*>& saved_poke_list,
+        npc* p)
+{
+    werase(win);
+    box(win, '|', '-');
+    mvwprintw(win, 1, 2, "Choose a pokemon");
+    int num_valid_options = 0;
+    for(int i = 0; i < 6; i++)
+    {
+        if(p->team[i] != -1)
+        {
+            saved_poke* sp = saved_poke_list.at(p->team[i]);
+            mvwprintw(win, 2+i, 2, "%d: %s", 
+                    i+1, sp->poke->identifier.c_str());
+            mvwprintw(win, 2+i, 25, "HP %d/%d", sp->curr_hp, sp->hp); 
+            mvwprintw(win, 2+i, 40, "LVL %d", sp->level);
+            num_valid_options++;
+        }
+    }
+    wrefresh(win);
+
+    int choice = wgetch(win);
+    if(choice - '0' <= num_valid_options && choice - '0' > 0)
+    {
+        return (choice - '0' - 1);
+    }
+    return -1;
+
+}
 
 
 void battle(npc* p, npc* n, int character_map[X_MAG][Y_MAG],
         vector<saved_poke*>& saved_poke_list,
         std::vector<moves*>& moves_vec, std::vector<pokemon_moves*>& pokemon_moves_vec,
         std::vector<pokemon*>& pokemon_vec, std::vector<pokemon_stats*>& pokemon_stats_vec,
-        vector<int>& levels)
+        vector<int>& levels, std::vector<pokemon_types*>& pokemon_types_vec)
 {
 
     WINDOW * main = newwin(23,80,0,0);
-    WINDOW * player = subwin(main,6,25,8,6); 
-    WINDOW * opponent = subwin(main,6,25,2,50); 
-    WINDOW * menu = subwin(main,7,56,15,1);
-    WINDOW * options = subwin(main,7,22,15,57);
-    box(opponent, '|', '-');
-    box(menu, '|', '-');
-    box(player,'|','-');
     box(main, '|', '-');
+    WINDOW * player = subwin(main,6,25,7,6); 
+    box(player,'|','-');
+    WINDOW * opponent = subwin(main,6,25,2,50); 
+    box(opponent, '|', '-');
+    WINDOW * menu = subwin(main,9,56,13,1);
+    box(menu, '|', '-');
+    WINDOW * options = subwin(main,9,22,13,57);
     box(options, '|', '-');
 
-
+    
     int valid_player_poke = -1;
     int i = 0;
 
@@ -225,126 +414,748 @@ void battle(npc* p, npc* n, int character_map[X_MAG][Y_MAG],
         i++;
     }
 
-//    print_pokemon_card(player, saved_poke_list,
-//        moves_vec,pokemon_moves_vec,
-//        pokemon_vec,pokemon_stats_vec,
-//        p->team[valid_player_poke]);
-//
-
-
-    
-    for(long unsigned int i = 0; i < levels.size(); i++)
-    {
-        n->team[i] = gen_pokemon(saved_poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
-            pokemon_stats_vec, levels.at(i));
-    }
-
-//    print_pokemon_card(opponent, saved_poke_list,
-//        moves_vec,pokemon_moves_vec,
-//        pokemon_vec,pokemon_stats_vec,
-//        n->team[0]);
-//
-    int in_menu = 1;
-
-    int selection; 
-    int current_player_poke = valid_player_poke;
-    int current_opponent_poke = n->team[0];
-    int execute = 0;
-    while(in_menu)
-    {
-
-        selection = wgetch(menu);
-
-        if(execute == 1)
-        {
-            //this is where a move or something gets applied to change fight
-
-        print_pokemon_card(player, saved_poke_list,
+    print_pokemon_card(player, saved_poke_list,
         moves_vec,pokemon_moves_vec,
         pokemon_vec,pokemon_stats_vec,
         p->team[valid_player_poke]);
 
-        print_pokemon_card(opponent, saved_poke_list,
-                moves_vec,pokemon_moves_vec,
-                pokemon_vec,pokemon_stats_vec,
-                n->team[0]);
-
-        }
-        else
-        {
-            
-
-
-
-
-
-
-
-
-        }
-        selection = wgetch(menu);
-
-//            wprintw(main, "\n\nMoves:");     
-//            for(long unsigned int i = 0; i < saved_poke_list.at(n->team[pokemon_choice-1])->
-//                    move_list.size(); i++)
-//            {
-//                wprintw(main, "\n%s", saved_poke_list.at(n->team[pokemon_choice-1])->move_list.at(i)->identifier.c_str());     
-//            }
-//        else if(pokemon_choice == 'E' || pokemon_choice == 'e')
-//        {
-//            in_menu = 0;
-//            n->is_defeated = 1;
-//            character_map[n->x][n->y] = -1;
-//            delwin(main);
-//        }
+    
+    
+    for(long unsigned int i = 0; i < levels.size(); i++)
+    {
+        n->team[i] = gen_pokemon(saved_poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
+            pokemon_stats_vec, levels.at(i), pokemon_types_vec);
     }
+
+    print_pokemon_card(opponent, saved_poke_list,
+        moves_vec,pokemon_moves_vec,
+        pokemon_vec,pokemon_stats_vec,
+        n->team[0]);
+
+    mvwprintw(menu, 1, 2, "%s", "You have been challenged to a battle!");
+    
+
+    print_options(options);
+
+
+    int current_player_poke = p->team[valid_player_poke];
+    int current_opponent_poke = n->team[0];
+
+
+
+
+    int in_menu = 1;
+    long unsigned int pokemon_choice = '0';
+    while(in_menu)
+    {
+        wclear(menu);
+        box(menu, '|', '-');
+        mvwprintw(menu, 1, 2, "You have been challenged to a battle!");
+        mvwprintw(menu, 2, 2, "What will you do?");
+        wrefresh(menu);
+
+        print_pokemon_card(player, saved_poke_list,
+        moves_vec,pokemon_moves_vec,
+        pokemon_vec,pokemon_stats_vec,
+        current_player_poke);
+
+        print_pokemon_card(opponent, saved_poke_list,
+        moves_vec,pokemon_moves_vec,
+        pokemon_vec,pokemon_stats_vec,
+        current_opponent_poke);
+
+
+        wrefresh(options);
+
+
+
+        pokemon_choice = wgetch(main);
+
+        if(pokemon_choice == '1')
+        {
+            print_moves(menu, saved_poke_list, current_player_poke);
+            saved_poke* cp = saved_poke_list.at(current_player_poke);
+            saved_poke* cnp = saved_poke_list.at(current_opponent_poke);
+            int num_moves = cp->move_list.size();
+            pokemon_choice = wgetch(main);
+
+            if(pokemon_choice == '1')
+            {
+                //player selected move 1
+                attack(current_player_poke,
+                        current_opponent_poke, 0,
+                        saved_poke_list);
+            }
+            else if(pokemon_choice == '2' && 
+                    num_moves >= 2)
+            {
+                //player selected move 2
+            attack(current_player_poke,
+                        current_opponent_poke, 1,
+                        saved_poke_list);
+            }
+            else if(pokemon_choice == '3' &&
+                    num_moves >= 3)
+            {
+                //player selected move 3
+
+                attack(current_player_poke,
+                        current_opponent_poke, 2,
+                        saved_poke_list);
+
+            }
+            else if(pokemon_choice == '4' &&
+                    num_moves == 4)
+            {
+                //player selected move 4
+                attack(current_player_poke,
+                        current_opponent_poke, 3,
+                        saved_poke_list);               
+
+            }
+
+            print_pokemon_card(player, saved_poke_list,
+                    moves_vec,pokemon_moves_vec,
+                    pokemon_vec,pokemon_stats_vec,
+                    current_player_poke);
+
+            print_pokemon_card(opponent, saved_poke_list,
+                    moves_vec,pokemon_moves_vec,
+                    pokemon_vec,pokemon_stats_vec,
+                    current_opponent_poke);
+
+
+            if(cp->curr_hp == 0)
+            {
+                //check if there are other pokemon options
+                //
+                //
+                //trigger change pokemon menu
+                int valid_option = 0;
+                for(int i = 0; i < 6; i++)
+                {
+                    if(p->team[i] != -1)
+                    {
+                        saved_poke* po = saved_poke_list.at(p->team[i]);
+
+                        if(po->curr_hp != 0)
+                        {
+                           valid_option = 1; 
+                        }
+                    }
+                }
+                if(valid_option)
+                {
+                    int picked = 1;
+                    while(picked)
+                    {
+                        int val = pokemon_menu(menu, saved_poke_list, p); 
+                        if(val != -1)
+                        {
+                            saved_poke* po = saved_poke_list.at(p->team[val]);
+                            if(po->curr_hp > 0)
+                            {
+                                current_player_poke = p->team[val];
+                                picked = 0;
+                            }
+                            else
+                            {
+                                werase(menu);
+                                box(menu, '|', '-');
+                                mvwprintw(menu, 1, 2, "That pokemon is fainted");
+                                wrefresh(menu);
+                                sleep(2);
+                                flushinp();
+                            }
+
+                        }
+                    }
+                }
+                else
+                {
+                    WINDOW * game_over = newwin(0,0,0,0);
+                    werase(main);
+                    mvwprintw(game_over, 10, 25, "As your last pokemon faints");
+                    mvwprintw(game_over, 11, 25, "You feel yourself black out");
+                    wrefresh(game_over);
+                    sleep(3);
+                    delwin(game_over);
+                    delwin(main);
+                    endwin();
+                    exit(1);
+                }
+
+
+            }
+            else if(cnp->curr_hp == 0)
+            {
+                for(int i = 0; i < 6; i++)
+                {
+                    if(n->team[i] != -1)
+                    {
+                        saved_poke* po = saved_poke_list.at(n->team[i]);
+                        if(po->curr_hp != 0)
+                        {
+                            current_opponent_poke = n->team[i];
+                        }
+                    }
+                    else
+                    {
+                        in_menu = 0;
+                        i = 6;
+                        werase(menu);
+                        box(menu, '|', '-');
+                        mvwprintw(menu, 1, 2, "YOU WIN!!!");
+                        wrefresh(menu);
+                        sleep(2);
+                        flushinp();
+                    }
+                }
+            }
+        }
+        else if(pokemon_choice == '2')
+        {
+            int val = pokemon_menu(menu, saved_poke_list, p); 
+            if(val != -1)
+            {
+                current_player_poke = p->team[val];
+            }
+            else if(val == -1)
+            {
+                werase(menu);
+                box(menu, '|', '-');
+                mvwprintw(menu, 1, 2, "That is not a valid option");
+                wrefresh(menu);
+                sleep(2);
+                flushinp();
+            }
+            else if(saved_poke_list.at(p->team[val])->curr_hp <= 0)
+            {
+                werase(menu);
+                box(menu, '|', '-');
+                mvwprintw(menu, 1, 2, "That pokemon has fainted");
+                wrefresh(menu);
+                sleep(2);
+                flushinp();
+            }
+            
+        }
+        else if(pokemon_choice == '3')
+        {
+            werase(menu);
+            box(menu, '|', '-');
+            mvwprintw(menu, 1, 2, "Choose an item");
+
+            mvwprintw(menu, 2, 2, "1: %s - %d", 
+                    "Pokeball" , p->bag[0]);
+            mvwprintw(menu, 3, 2, "2: %s - %d", 
+                    "Potion" , p->bag[1]);
+            mvwprintw(menu, 4, 2, "3: %s - %d", 
+                    "Revive" , p->bag[2]);
+
+            wrefresh(menu);
+
+            int choice = wgetch(main);
+            choice = choice - '0' - 1;
+            if(choice == 0)
+            {
+                werase(menu);
+                box(menu, '|', '-');
+                mvwprintw(menu, 1, 2, "You cannot catch another trainer's pokemon");
+                wrefresh(menu);
+                sleep(2);
+                flushinp();
+            }
+            else if(choice == 1)
+            {
+
+                int val = pokemon_menu(menu, saved_poke_list, p); 
+                if(val == -1)
+                {
+                    werase(menu);
+                    box(menu, '|', '-');
+                    mvwprintw(menu, 1, 2, "That is not a valid choice");
+                    wrefresh(menu);
+                    sleep(2);
+                    flushinp();
+                }
+                else if(p->bag[1] == 0)
+                {
+                    werase(menu);
+                    box(menu, '|', '-');
+                    mvwprintw(menu, 1, 2, "You don't have any more of these");
+                    wrefresh(menu);
+                    sleep(2);
+                    flushinp();
+                }
+                else
+                {
+                    p->bag[1] -= 1;
+                    saved_poke* pc = saved_poke_list.at(p->team[val]);
+                    if(pc->curr_hp + 20 >= pc->hp)
+                    {
+                        pc->curr_hp = pc->hp;
+                    }
+                    else
+                    {
+                        pc->curr_hp += 20;
+                    }
+                }
+            }
+            else if(choice == 2)
+            {
+                int val = pokemon_menu(menu, saved_poke_list, p); 
+                if(val == -1)
+                {
+                    werase(menu);
+                    box(menu, '|', '-');
+                    mvwprintw(menu, 1, 2, "That is not a valid choice");
+                    wrefresh(menu);
+                    sleep(2);
+                    flushinp();
+                }
+                else if(p->bag[1] == 0)
+                {
+                    werase(menu);
+                    box(menu, '|', '-');
+                    mvwprintw(menu, 1, 2, "You don't have any more of these");
+                    wrefresh(menu);
+                    sleep(2);
+                    flushinp();
+                }
+                else
+                {
+                    saved_poke* pc = saved_poke_list.at(p->team[val]);
+                    if(pc->curr_hp == 0)
+                    {
+                        p->bag[2] -= 1;
+                        pc->curr_hp = pc->hp/2;
+                    }
+                    else
+                    {
+                        werase(menu);
+                        box(menu, '|', '-');
+                        mvwprintw(menu, 1, 2, "You cannot revive a non-fainted pokemon");
+                        wrefresh(menu);
+                        sleep(2);
+                        flushinp();
+                    }
+                }
+            }
+        }
+        else if(pokemon_choice == '4')
+        {
+            werase(menu);
+            box(menu, '|', '-');
+            mvwprintw(menu, 1, 2,"You can't run from a trainer battle"); 
+            wrefresh(menu);
+            sleep(2);
+            flushinp();
+        }
+
+    }
+    n->is_defeated = 1;
+    character_map[n->x][n->y] = -1;
+    delwin(main);
+
 }
 
 
-void pokemon_encounter(vector<saved_poke*>& saved_poke_list,
+void pokemon_encounter(npc* p, vector<saved_poke*>& saved_poke_list,
         std::vector<moves*>& moves_vec, std::vector<pokemon_moves*>& pokemon_moves_vec,
         std::vector<pokemon*>& pokemon_vec, std::vector<pokemon_stats*>& pokemon_stats_vec,
-        int level)  
+        int level, std::vector<pokemon_types*>& pokemon_types_vec)  
 {
     int cur_pokemon = gen_pokemon(saved_poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
-            pokemon_stats_vec, level);
+            pokemon_stats_vec, level, pokemon_types_vec);
 
-    WINDOW * pick = newwin(15,52,5,15);
+    WINDOW * main = newwin(23,80,0,0);
+    box(main, '|', '-');
+    WINDOW * player = subwin(main,6,25,7,6); 
+    box(player,'|','-');
+    WINDOW * opponent = subwin(main,6,25,2,50); 
+    box(opponent, '|', '-');
+    WINDOW * menu = subwin(main,9,56,13,1);
+    box(menu, '|', '-');
+    WINDOW * options = subwin(main,9,22,13,57);
+    box(options, '|', '-');
+
+    
+    int valid_player_poke = -1;
+    int i = 0;
+
+    while(valid_player_poke == -1)
+    {
+        if(saved_poke_list.at(p->team[i])->curr_hp != 0)
+        {
+            valid_player_poke = i;    
+        }
+        i++;
+    }
+
+    print_pokemon_card(player, saved_poke_list,
+        moves_vec,pokemon_moves_vec,
+        pokemon_vec,pokemon_stats_vec,
+        p->team[valid_player_poke]);
+
+
+    print_pokemon_card(opponent, saved_poke_list,
+        moves_vec,pokemon_moves_vec,
+        pokemon_vec,pokemon_stats_vec,
+        cur_pokemon);
+
+
+    
+    print_options(options);
+
+
+    int current_player_poke = p->team[valid_player_poke];
+    int current_opponent_poke = cur_pokemon;
+
+
+
+
     int in_menu = 1;
-    char exit;
+    long unsigned int pokemon_choice = '0';
     while(in_menu)
     {
-            werase(pick);
-            const char* pokemon = saved_poke_list.at(cur_pokemon)->poke->identifier.c_str();     
+        wclear(menu);
+        box(menu, '|', '-');
+        mvwprintw(menu, 1, 2, "You have found a wild pokemon!");
+        mvwprintw(menu, 2, 2, "What will you do?");
+        wrefresh(menu);
 
-            mvwprintw(pick, 0,0,"%s%s%s", "You have encountered a ", pokemon, "!!");     
+        print_pokemon_card(player, saved_poke_list,
+        moves_vec,pokemon_moves_vec,
+        pokemon_vec,pokemon_stats_vec,
+        current_player_poke);
 
-            mvwprintw(pick, 3,0,"Level: %d", saved_poke_list.at(cur_pokemon)->level);     
-            mvwprintw(pick, 4,20,"Gender: %c", saved_poke_list.at(cur_pokemon)->gender);     
-            mvwprintw(pick, 4,0,"Shiny: %s", saved_poke_list.at(cur_pokemon)->is_shiny != 0 ? "no" : "yes");     
-            mvwprintw(pick, 5,20,"Hp: %d", saved_poke_list.at(cur_pokemon)->hp);     
-            mvwprintw(pick, 5,0,"Attack: %d", saved_poke_list.at(cur_pokemon)->attack);     
-            mvwprintw(pick, 6,20,"Defense: %d", saved_poke_list.at(cur_pokemon)->defense);     
-            mvwprintw(pick, 6,0,"Speed: %d", saved_poke_list.at(cur_pokemon)->speed);     
-            mvwprintw(pick, 7,20,"Special Attack: %d", saved_poke_list.at(cur_pokemon)->special_attack);     
-            mvwprintw(pick, 7,0,"Special Defense: %d", saved_poke_list.at(cur_pokemon)->special_defense);     
+        print_pokemon_card(opponent, saved_poke_list,
+        moves_vec,pokemon_moves_vec,
+        pokemon_vec,pokemon_stats_vec,
+        current_opponent_poke);
 
-            wprintw(pick, "\n\nMoves:");     
-            for(long unsigned int i = 0; i < saved_poke_list.at(cur_pokemon)->
-                    move_list.size(); i++)
+
+        wrefresh(options);
+
+        int num_escape_attemps = 0;
+
+
+
+        pokemon_choice = wgetch(main);
+
+        if(pokemon_choice == '1')
+        {
+            print_moves(menu, saved_poke_list, current_player_poke);
+            saved_poke* cp = saved_poke_list.at(current_player_poke);
+            saved_poke* cnp = saved_poke_list.at(current_opponent_poke);
+            int num_moves = cp->move_list.size();
+            pokemon_choice = wgetch(main);
+
+            if(pokemon_choice == '1')
             {
-                wprintw(pick, "\n%s", saved_poke_list.at(cur_pokemon)->move_list.at(i)->identifier.c_str());     
+                //player selected move 1
+                attack(current_player_poke,
+                        current_opponent_poke, 0,
+                        saved_poke_list);
             }
-            wprintw(pick, "\n\nPress e to exit");     
-            exit = wgetch(pick);
-            if(exit == 'e' || exit == 'E')
+            else if(pokemon_choice == '2' && 
+                    num_moves >= 2)
+            {
+                //player selected move 2
+            attack(current_player_poke,
+                        current_opponent_poke, 1,
+                        saved_poke_list);
+            }
+            else if(pokemon_choice == '3' &&
+                    num_moves >= 3)
+            {
+                //player selected move 3
+
+                attack(current_player_poke,
+                        current_opponent_poke, 2,
+                        saved_poke_list);
+
+            }
+            else if(pokemon_choice == '4' &&
+                    num_moves == 4)
+            {
+                //player selected move 4
+                attack(current_player_poke,
+                        current_opponent_poke, 3,
+                        saved_poke_list);               
+
+            }
+            print_pokemon_card(player, saved_poke_list,
+                    moves_vec,pokemon_moves_vec,
+                    pokemon_vec,pokemon_stats_vec,
+                    current_player_poke);
+
+            print_pokemon_card(opponent, saved_poke_list,
+                    moves_vec,pokemon_moves_vec,
+                    pokemon_vec,pokemon_stats_vec,
+                    current_opponent_poke);
+
+
+            if(cp->curr_hp == 0)
+            {
+                //check if there are other pokemon options
+                //
+                //
+                //trigger change pokemon menu
+                int valid_option = 0;
+                for(int i = 0; i < 6; i++)
+                {
+                    if(p->team[i] != -1)
+                    {
+                        saved_poke* po = saved_poke_list.at(p->team[i]);
+
+                        if(po->curr_hp != 0)
+                        {
+                           valid_option = 1; 
+                        }
+                    }
+                }
+                if(valid_option)
+                {
+                    int picked = 1;
+                    while(picked);
+                    int val = pokemon_menu(menu, saved_poke_list, p); 
+                    if(val != -1)
+                    {
+                        saved_poke* po = saved_poke_list.at(p->team[val]);
+                        if(po->curr_hp != 0)
+                        {
+                            current_player_poke = p->team[val];
+                            picked = 0;
+                        }
+                        else
+                        {
+                            werase(menu);
+                            box(menu, '|', '-');
+                            mvwprintw(menu, 1, 2, "That pokemon is fainted");
+                            wrefresh(menu);
+                            sleep(2);
+                            flushinp();
+                        }
+
+                    }
+                }
+                else
+                {
+                    WINDOW * game_over = newwin(0,0,0,0);
+                    werase(main);
+                    mvwprintw(game_over, 10, 25, "As your last pokemon faints");
+                    mvwprintw(game_over, 11, 25, "You feel yourself black out");
+                    wrefresh(game_over);
+                    sleep(3);
+                    delwin(game_over);
+                    delwin(main);
+                    endwin();
+                    exit(1);
+                }
+            }
+            else if(cnp->curr_hp == 0)
+            {
+                    in_menu = 0;
+                    werase(menu);
+                    box(menu, '|', '-');
+                    mvwprintw(menu, 1, 2, "YOU WIN!!!");
+                    wrefresh(menu);
+                    sleep(2);
+                    flushinp();
+            }
+        }
+        else if(pokemon_choice == '2')
+        {
+
+            //pokemon change
+            int val = pokemon_menu(menu, saved_poke_list, p); 
+            if(val != -1)
+            {
+                current_player_poke = p->team[val];
+            }
+            else if(val == -1)
+            {
+                werase(menu);
+                box(menu, '|', '-');
+                mvwprintw(menu, 1, 2, "That is not a valid option");
+                wrefresh(menu);
+                sleep(2);
+                flushinp();
+            }
+            else if(saved_poke_list.at(p->team[val])->curr_hp <= 0)
+            {
+                werase(menu);
+                box(menu, '|', '-');
+                mvwprintw(menu, 1, 2, "That pokemon has fainted");
+                wrefresh(menu);
+                sleep(2);
+                flushinp();
+            }
+        }
+        else if(pokemon_choice == '3')
+        {
+            werase(menu);
+            box(menu, '|', '-');
+            mvwprintw(menu, 1, 2, "choose an item");
+
+            mvwprintw(menu, 2, 2, "1: %s - %d", 
+                    "pokeball" , p->bag[0]);
+            mvwprintw(menu, 3, 2, "2: %s - %d", 
+                    "potion" , p->bag[1]);
+            mvwprintw(menu, 4, 2, "3: %s - %d", 
+                    "revive" , p->bag[2]);
+
+            wrefresh(menu);
+
+            int choice = wgetch(main);
+            choice = choice - '0' - 1;
+            if(choice == 0)
+            {
+                int empty_slot = -1;
+                for(int i = 0; i < 6; i++)
+                {
+
+                   if(p->team[i] == -1)
+                   {
+                      empty_slot = i; 
+                      i = 6;
+                   }
+
+                }
+                if(empty_slot != -1)
+                {
+                    p->team[empty_slot] = cur_pokemon; 
+                    p->bag[0] -= 1;
+                    in_menu = 0;
+                    werase(menu);
+                    box(menu, '|', '-');
+                    mvwprintw(menu, 1, 2, "you caught a new pokemon!");
+                    wrefresh(menu);
+                    sleep(2);
+                    flushinp();
+                }
+                else
+                {
+                    in_menu = 0;
+                    p->bag[0] -= 1;
+                    werase(menu);
+                    box(menu, '|', '-');
+                    mvwprintw(menu, 1, 2, "aargh it got away!");
+                    wrefresh(menu);
+                    sleep(2);
+                    flushinp();
+                }
+                
+            }
+            else if(choice == 1)
+            {
+
+                int val = pokemon_menu(menu, saved_poke_list, p); 
+                if(val == -1)
+                {
+                    werase(menu);
+                    box(menu, '|', '-');
+                    mvwprintw(menu, 1, 2, "that is not a valid choice");
+                    wrefresh(menu);
+                    sleep(2);
+                    flushinp();
+                }
+                else if(p->bag[1] == 0)
+                {
+                    werase(menu);
+                    box(menu, '|', '-');
+                    mvwprintw(menu, 1, 2, "you don't have any more of these");
+                    wrefresh(menu);
+                    sleep(2);
+                    flushinp();
+                }
+                else
+                {
+                    p->bag[1] -= 1;
+                    saved_poke* pc = saved_poke_list.at(p->team[val]);
+                    if(pc->curr_hp + 20 >= pc->hp)
+                    {
+                        pc->curr_hp = pc->hp;
+                    }
+                    else
+                    {
+                        pc->curr_hp += 20;
+                    }
+                }
+            }
+            else if(choice == 2)
+            {
+                int val = pokemon_menu(menu, saved_poke_list, p); 
+                if(val == -1)
+                {
+                    werase(menu);
+                    box(menu, '|', '-');
+                    mvwprintw(menu, 1, 2, "that is not a valid choice");
+                    wrefresh(menu);
+                    sleep(2);
+                    flushinp();
+                }
+                else if(p->bag[1] == 0)
+                {
+                    werase(menu);
+                    box(menu, '|', '-');
+                    mvwprintw(menu, 1, 2, "you don't have any more of these");
+                    wrefresh(menu);
+                    sleep(2);
+                    flushinp();
+                }
+                else
+                {
+                    saved_poke* pc = saved_poke_list.at(p->team[val]);
+                    if(pc->curr_hp == 0)
+                    {
+                        p->bag[2] -= 1;
+                        pc->curr_hp = pc->hp/2;
+                    }
+                    else
+                    {
+                        werase(menu);
+                        box(menu, '|', '-');
+                        mvwprintw(menu, 1, 2, "you cannot revive a non-fainted pokemon");
+                        wrefresh(menu);
+                        sleep(2);
+                        flushinp();
+                    }
+                }
+            }
+
+        }
+        else if(pokemon_choice == '4')
+        {
+            int escape = rand() % 10;
+
+            if(escape + num_escape_attemps >= 5)
             {
                 in_menu = 0;
-                delwin(pick);
+                werase(menu);
+                box(menu, '|', '-');
+                mvwprintw(menu, 1, 2,"You ran away"); 
+                wrefresh(menu);
+                sleep(2);
+                flushinp();
             }
-
+            else
+            {
+                werase(menu);
+                box(menu, '|', '-');
+                mvwprintw(menu, 1, 2,"You couldn't get away"); 
+                wrefresh(menu);
+                sleep(2);
+                flushinp();
+            }
+        }
 
     }
+    delwin(main);
+
+
 }
 
 void fly(int pair[2])
@@ -865,6 +1676,15 @@ heapNode_t* create_npc(int index, int x, int y, char type, int cost_map[X_MAG][Y
     npc->terrain = map[x][y];
     npc->index = index;
 
+    for(int i = 0; i < 6; i++)
+    {
+        npc->team[i] = -1;
+    }
+    for(int i = 0; i < 3; i++)
+    {
+        npc->bag[i] = 10;
+    }
+
     //gen our random direction (only matters for npcs we care about)
 
     switch ((rand() % 4) + 1)
@@ -1020,7 +1840,7 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
         std::vector<saved_poke*>& poke_list,
         std::vector<moves*>& moves_vec, std::vector<pokemon_moves*>& pokemon_moves_vec,
         std::vector<pokemon*>& pokemon_vec, std::vector<pokemon_stats*>& pokemon_stats_vec,
-        board* bd)
+        board* bd, std::vector<pokemon_types*>& pokemon_types_vec)
 {
 
         int level;
@@ -1071,8 +1891,8 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
                 if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
                 {
 
-                    pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
-                            pokemon_vec, pokemon_stats_vec, level);
+                    pokemon_encounter(hn->h_npc, poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level, pokemon_types_vec);
                 }
             }
             else
@@ -1096,8 +1916,8 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
                 sq->py += 1;
                 if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
                 {
-                pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
-                            pokemon_vec, pokemon_stats_vec, level);
+                pokemon_encounter(hn->h_npc, poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level, pokemon_types_vec);
                 }
             }
             else if(sq->px == sq->s && sq->py == 19)
@@ -1126,8 +1946,8 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
                 sq->py += 1;
                 if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
                 {
-                pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
-                            pokemon_vec, pokemon_stats_vec, level);
+                pokemon_encounter(hn->h_npc, poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level, pokemon_types_vec);
                 }
             }
             else
@@ -1151,8 +1971,8 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
                 sq->px -= 1;
                 if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
                 {
-                pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
-                            pokemon_vec, pokemon_stats_vec, level);
+                pokemon_encounter(hn->h_npc, poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level, pokemon_types_vec);
                 }
             }
             else if(sq->py == sq->w && sq->px == 1)
@@ -1178,8 +1998,8 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             hn->h_npc->cost += 10;
             if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
                 {
-                pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
-                            pokemon_vec, pokemon_stats_vec, level);
+                pokemon_encounter(hn->h_npc, poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level, pokemon_types_vec);
                 }
         }
         //move one cell to the right
@@ -1190,8 +2010,8 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
                 sq->px += 1;
                 if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
                 {
-                pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
-                            pokemon_vec, pokemon_stats_vec, level);
+                pokemon_encounter(hn->h_npc, poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level, pokemon_types_vec);
                 }
             }
             else if(sq->py == sq->e && sq->px == 78)
@@ -1220,8 +2040,8 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
                 sq->py -= 1;
                 if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
                 {
-                pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
-                            pokemon_vec, pokemon_stats_vec, level);
+                pokemon_encounter(hn->h_npc, poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level, pokemon_types_vec);
                 }
             }
             else
@@ -1245,8 +2065,8 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
                 sq->py -= 1;
                 if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
                 {
-                pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
-                            pokemon_vec, pokemon_stats_vec, level);
+                pokemon_encounter(hn->h_npc, poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level, pokemon_types_vec);
                 } 
             }
             else if(sq->px == sq->n && sq->py == 1)
@@ -1274,8 +2094,8 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
                 sq->px += 1;
                 if ((rand() % 101) <= 10 && sq->map[sq->px][sq->py] == ':')
                 {
-                    pokemon_encounter(poke_list, moves_vec, pokemon_moves_vec,
-                            pokemon_vec, pokemon_stats_vec, level);
+                    pokemon_encounter(hn->h_npc, poke_list, moves_vec, pokemon_moves_vec,
+                            pokemon_vec, pokemon_stats_vec, level, pokemon_types_vec);
                 }
             }
             else
@@ -1315,6 +2135,122 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             show_trainers(hn->h_npc, npc_arr, n);
             menu_open = 0;
         }
+        else if (c == 'B')
+        {
+            //open bag
+            WINDOW* menu = newwin(23,80,0,0);
+            int in_menu = 1;
+            while(in_menu)
+            {
+                werase(menu);
+                box(menu, '|', '-');
+                mvwprintw(menu, 1, 2, "choose an item or Q to quit");
+
+                mvwprintw(menu, 2, 2, "1: %s - %d", 
+                        "pokeball" , hn->h_npc->bag[0]);
+                mvwprintw(menu, 3, 2, "2: %s - %d", 
+                        "potion" , hn->h_npc->bag[1]);
+                mvwprintw(menu, 4, 2, "3: %s - %d", 
+                        "revive" , hn->h_npc->bag[2]);
+
+                wrefresh(menu);
+
+                int choice = wgetch(menu);
+                if(choice == 'q' || choice == 'Q')
+                {
+                    in_menu = 0;
+                    delwin(menu);
+                }
+                choice = choice - '0' - 1;
+                if(choice == 0)
+                {
+                    werase(menu);
+                    box(menu, '|', '-');
+                    mvwprintw(menu, 1, 2, "There's nothing to catch");
+                    wrefresh(menu);
+                    sleep(2);
+                    flushinp();
+                }
+                else if(choice == 1)
+                {
+
+                    int val = pokemon_menu(menu, poke_list, hn->h_npc); 
+                    if(val == -1)
+                    {
+                        werase(menu);
+                        box(menu, '|', '-');
+                        mvwprintw(menu, 1, 2, "that is not a valid choice");
+                        wrefresh(menu);
+                        sleep(2);
+                        flushinp();
+                    }
+                    else if(hn->h_npc->bag[1] == 0)
+                    {
+                        werase(menu);
+                        box(menu, '|', '-');
+                        mvwprintw(menu, 1, 2, "you don't have any more of these");
+                        wrefresh(menu);
+                        sleep(2);
+                        flushinp();
+                    }
+                    else
+                    {
+                        hn->h_npc->bag[1] -= 1;
+                        saved_poke* pc = poke_list.at(hn->h_npc->team[val]);
+                        if(pc->curr_hp + 20 >= pc->hp)
+                        {
+                            pc->curr_hp = pc->hp;
+                        }
+                        else
+                        {
+                            pc->curr_hp += 20;
+                        }
+                    }
+                }
+                else if(choice == 2)
+                {
+                    int val = pokemon_menu(menu, poke_list, hn->h_npc); 
+                    if(val == -1)
+                    {
+                        werase(menu);
+                        box(menu, '|', '-');
+                        mvwprintw(menu, 1, 2, "that is not a valid choice");
+                        wrefresh(menu);
+                        sleep(2);
+                        flushinp();
+                    }
+                    else if(hn->h_npc->bag[1] == 0)
+                    {
+                        werase(menu);
+                        box(menu, '|', '-');
+                        mvwprintw(menu, 1, 2, "you don't have any more of these");
+                        wrefresh(menu);
+                        sleep(2);
+                        flushinp();
+                    }
+                    else
+                    {
+                        saved_poke* pc = poke_list.at(hn->h_npc->team[val]);
+                        if(pc->curr_hp == 0)
+                        {
+                            hn->h_npc->bag[2] -= 1;
+                            pc->curr_hp = pc->hp/2;
+                        }
+                        else
+                        {
+                            werase(menu);
+                            box(menu, '|', '-');
+                            mvwprintw(menu, 1, 2, "you cannot revive a non-fainted pokemon");
+                            wrefresh(menu);
+                            sleep(2);
+                            flushinp();
+                        }
+                    }
+                }
+            }
+
+
+        }
         else if(c == 'Q')
         {
             endwin();
@@ -1328,7 +2264,7 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             {
                 battle(hn->h_npc,npc_arr[collision]->h_npc,character_map,
                         poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
-            pokemon_stats_vec, levels);
+            pokemon_stats_vec, levels, pokemon_types_vec);
 
             }
             return 0; 
@@ -1343,7 +2279,7 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             {
                 battle(hn->h_npc,npc_arr[collision]->h_npc,character_map,
                         poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
-                        pokemon_stats_vec, levels);}
+                        pokemon_stats_vec, levels, pokemon_types_vec);}
             return -1;
         }
         return -1;
@@ -1368,7 +2304,8 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
         heap_t* queue_array[401][401],
         std::vector<saved_poke*>& poke_list,
         std::vector<moves*>& moves_vec, std::vector<pokemon_moves*>& pokemon_moves_vec,
-        std::vector<pokemon*>& pokemon_vec, std::vector<pokemon_stats*>& pokemon_stats_vec)
+        std::vector<pokemon*>& pokemon_vec, std::vector<pokemon_stats*>& pokemon_stats_vec,
+        std::vector<pokemon_types*>& pokemon_types_vec)
 {
     heapNode_t* hn = extractMin_t(queue_array[bd->curX][bd->curY]); 
     int response = -1; 
@@ -1420,7 +2357,7 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
                     battle(npc_arr_board[bd->curX][bd->curY][collision]->h_npc,hn->h_npc,
                             bd->board[bd->curX][bd->curY]->char_map,
                         poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
-                        pokemon_stats_vec, levels);
+                        pokemon_stats_vec, levels, pokemon_types_vec);
                 }
                 break;
             case 'w':
@@ -1431,7 +2368,7 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
                 battle(npc_arr_board[bd->curX][bd->curY][collision]->h_npc,hn->h_npc,
                             bd->board[bd->curX][bd->curY]->char_map,
                         poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
-                        pokemon_stats_vec, levels);
+                        pokemon_stats_vec, levels, pokemon_types_vec);
                 }
                 break;
             case 'p':
@@ -1442,7 +2379,7 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
                     battle(npc_arr_board[bd->curX][bd->curY][collision]->h_npc,hn->h_npc,
                             bd->board[bd->curX][bd->curY]->char_map,
                         poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
-                        pokemon_stats_vec, levels);
+                        pokemon_stats_vec, levels, pokemon_types_vec);
                 }
                 break;
             case 'e':
@@ -1453,7 +2390,7 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
                     battle(npc_arr_board[bd->curX][bd->curY][collision]->h_npc,hn->h_npc,
                             bd->board[bd->curX][bd->curY]->char_map,
                         poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
-                        pokemon_stats_vec, levels);
+                        pokemon_stats_vec, levels, pokemon_types_vec);
                 }
                 break;
             case 'r':
@@ -1465,7 +2402,7 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
                     battle(npc_arr_board[bd->curX][bd->curY][collision]->h_npc,hn->h_npc,
                             bd->board[bd->curX][bd->curY]->char_map,
                         poke_list, moves_vec, pokemon_moves_vec, pokemon_vec,
-                        pokemon_stats_vec, levels);
+                        pokemon_stats_vec, levels, pokemon_types_vec);
                 }
                 break;
             case '@':
@@ -1474,7 +2411,7 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
                         bd->board[bd->curX][bd->curY]->char_map, sq, npc_arr_board[bd->curX][bd->curY], n,
                         poke_list,
                         moves_vec, pokemon_moves_vec,
-                        pokemon_vec, pokemon_stats_vec, bd);
+                        pokemon_vec, pokemon_stats_vec, bd, pokemon_types_vec);
                 if(response == 78)
                 {
                     //north

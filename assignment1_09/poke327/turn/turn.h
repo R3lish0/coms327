@@ -44,6 +44,7 @@ typedef class npc {
     char terrain;
     char cur_dir;    
     int team[6];
+    int bag[3];
 } npc;
 
 
@@ -111,7 +112,8 @@ int next_turn(heap_t* h, char map[X_MAG][Y_MAG],
          heap_t* queue_array[401][401],
         std::vector<saved_poke*>& saved_poke_list,
         std::vector<moves*>& moves_vec, std::vector<pokemon_moves*>& pokemon_moves_vec,
-        std::vector<pokemon*>& pokemon_vec, std::vector<pokemon_stats*>& pokemon_stats_vec);
+        std::vector<pokemon*>& pokemon_vec, std::vector<pokemon_stats*>& pokemon_stats_vec,
+        std::vector<pokemon_types*>& pokemon_types_vec);
 
 
 void init_new_square(board *bd,int hiker_cost_map[X_MAG][Y_MAG], 

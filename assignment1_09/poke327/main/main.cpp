@@ -20,6 +20,8 @@ using namespace std;
 #define HEIGHT 24
 
 
+int player_bag[3] = {10,10,10};
+int player_team[6] = {-1,-1,-1,-1,-1,-1};
  
 
 int gen_pokemon(std::vector<saved_poke*>& poke_list,
@@ -444,6 +446,15 @@ int main(int argc, char *argv[])
 
         if (queue_array[bd.curX][bd.curY]->arr[0]->h_npc->type == '@')
         {
+            for(int i = 0; i < 6; i++)
+            {
+                player_team[i] = queue_array[bd.curX][bd.curY]->arr[0]->h_npc->team[i];
+            }
+            for(int i = 0; i < 3; i++)
+            {
+                player_bag[i] = queue_array[bd.curX][bd.curY]->arr[0]->h_npc->bag[i];
+
+            }
             printSquare(bd.board[bd.curX][bd.curY]);
 
             mvprintw(22,0,"%d, %d", bd.curX-200,bd.curY-200);

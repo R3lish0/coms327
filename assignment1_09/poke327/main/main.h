@@ -5,6 +5,11 @@
 #include <vector>
 #include "../data/data.h"
 
+extern int player_bag[3];
+extern int player_team[6];
+
+
+
 typedef class saved_poke {
     public:
         int index;

@@ -407,7 +407,7 @@ void battle(npc* p, npc* n, int character_map[X_MAG][Y_MAG],
 
     while(valid_player_poke == -1)
     {
-        if(saved_poke_list.at(p->team[i])->curr_hp != 0)
+        if(saved_poke_list.at(p->team[i])->curr_hp > 0)
         {
             valid_player_poke = i;    
         }
@@ -784,14 +784,16 @@ void pokemon_encounter(npc* p, vector<saved_poke*>& saved_poke_list,
     int valid_player_poke = -1;
     int i = 0;
 
+    
     while(valid_player_poke == -1)
     {
-        if(saved_poke_list.at(p->team[i])->curr_hp != 0)
+        if(saved_poke_list.at(p->team[i])->curr_hp > 0)
         {
             valid_player_poke = i;    
         }
         i++;
     }
+
 
     print_pokemon_card(player, saved_poke_list,
         moves_vec,pokemon_moves_vec,
@@ -1676,15 +1678,28 @@ heapNode_t* create_npc(int index, int x, int y, char type, int cost_map[X_MAG][Y
     npc->terrain = map[x][y];
     npc->index = index;
 
-    for(int i = 0; i < 6; i++)
+    if(type == '@')
     {
-        npc->team[i] = -1;
+        for(int i = 0; i < 6; i++)
+        {
+            npc->team[i] = player_team[i];
+        }
+        for(int i = 0; i < 3; i++)
+        {
+            npc->bag[i] = player_bag[i];
+        }
     }
-    for(int i = 0; i < 3; i++)
+    else
     {
-        npc->bag[i] = 10;
+        for(int i = 0; i < 6; i++)
+        {
+            npc->team[i] = -1;
+        }
+        for(int i = 0; i < 3; i++)
+        {
+            npc->bag[i] = 10;
+        }
     }
-
     //gen our random direction (only matters for npcs we care about)
 
     switch ((rand() % 4) + 1)
@@ -2127,6 +2142,10 @@ int next_player_turn(heapNode_t* hn, int c, char map[X_MAG][Y_MAG],
             {
             menu_open = 0;
             delwin(menu);
+            }
+            for(int i = 0; i < 3; i++)
+            {
+                hn->h_npc->bag[i] = 10;
             }
         }
         else if (c == 't')

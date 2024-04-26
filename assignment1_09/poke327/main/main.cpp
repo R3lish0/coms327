@@ -4,6 +4,7 @@
 #include <vector>
 #include <string.h>
 #include <algorithm>
+#inlcude <iostream>
 
 #include "../terrain/terrain.h"
 #include "../turn/turn.h"

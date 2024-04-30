@@ -7,6 +7,8 @@
 #include "ncurses.h"
 
 
+using namespace std;
+
 
 
 static size_t write_callback(void *contents, size_t size, size_t nmemb, void *userp)
@@ -67,14 +69,18 @@ int main() {
     refresh();
     start_color();
     set_escdelay(0);
+    
+    int x_max, y_max;
+    getmaxyx(stdscr, y_max,x_max);
+    cout << y_max;
+
   
-   // int count = 0;
-   // for (int j = 0; j < product_html_elements->nodesetval->nodeNr; j++) {
-   //     count++;
-   // }
+    int count = 0;
+    for (int j = 0; j < product_html_elements->nodesetval->nodeNr; j++) {
+        count++;
+    }
     
-    
-    WINDOW * read = newwin(0,0,0,0);
+    WINDOW * read = newpad(count*3,x_max);
     scrollok(read, TRUE);
     keypad(read,TRUE);
     idlok(read,TRUE);
@@ -91,39 +97,45 @@ int main() {
 
             while(child != NULL) {
                 if(child->type == XML_TEXT_NODE) {
-                    wprintw(read,"%s", child->content);
+                    string content = reinterpret_cast<char*>(child->content);
+                    waddstr(read, content.c_str());
+                    waddstr(read, "\n");
                 }
                 else if (child->type == XML_ELEMENT_NODE &&
                         xmlStrcmp(child->name, (const xmlChar *)"strong") == 0) {
-                    wprintw(read,"%s", child->children->content);
+                    string content = reinterpret_cast<char*>(child->children->content);
+                    waddstr(read, content.c_str());
+                    waddstr(read, "\n");
                 }
+                
                 child = child->next;
             }
         }
     }
-    wrefresh(read);
+    prefresh(read,0,0,0,0,y_max - 1,x_max - 1);
     int input;
-//    int pad_location = 0;
+    int pad_location = 0;
     while(1)
     {
-        input = getch();
+        input = wgetch(read);
 
         if(input == 'Q')
         {
             delwin(read);
+            endwin();
             exit(0);
         }
-        //else if(input == KEY_UP && pad_location >= 0)
-        //{
-        //    pad_location--;
-        //    prefresh(read, pad_location,0,0,0,100,100);
+        else if(input == 'j' && pad_location >= 0)
+        {
+            pad_location--;
+            prefresh(read, pad_location,0,0,0,y_max - 1,x_max - 1);
 
-        //}
-        //else if(input == KEY_DOWN && pad_location <= i)
-        //{
-        //    pad_location++;            
-        //    prefresh(read, pad_location,0,0,0,100,100);
-        //}
+        }
+        else if(input == 'k' && pad_location <= count)
+        {
+            pad_location++;            
+            prefresh(read, pad_location,0,0,0,y_max - 1,x_max - 1);
+        }
 
 
 
@@ -131,9 +143,8 @@ int main() {
     }
 
 
-        
-        //xmlNodePtr paragraph_html = xmlXPathEvalExpression((xmlChar *) ".//", context)->nodesetval->nodeTab[0];
-        //std::string paragraph = std::string(reinterpret_cast<char *>(xmlNodeGetContent(paragraph_html)));
+    //xmlNodePtr paragraph_html = xmlXPathEvalExpression((xmlChar *) ".//", context)->nodesetval->nodeTab[0];
+    //std::string paragraph = std::string(reinterpret_cast<char *>(xmlNodeGetContent(paragraph_html)));
         //std::string paragraph = std::string(xmlXNodeGetContent(context));
         //std::cout << reinterpret_cast<char*>(product_html_element->content)<<"aaaaah" << std::endl;
         //xmlNodePtr strong_html = xmlXPathEvalExpression((xmlChar *) ".//strong", context)->nodesetval->nodeTab[0];

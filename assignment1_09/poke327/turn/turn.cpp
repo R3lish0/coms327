@@ -1430,7 +1430,7 @@ int move_npc(npc* c, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
 int explore(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG])
 {
-    int collision;
+    int collision = -1;
     //game is printed upsidown so values are adjusted accordingly
     if(p->cur_dir == 'N')
     {
@@ -1487,7 +1487,7 @@ int explore(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
 int wander(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG])
 {
-    int collision;
+    int collision = -1;
     //game is printed upsidown so values are adjusted accordingly
     if(p->cur_dir == 'N')
     {
@@ -1544,7 +1544,7 @@ int wander(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
 int pace(npc* p, char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
         int character_map[X_MAG][Y_MAG])
 {
-    int collision;
+    int collision = -1;
     //game is printed upsidown so values are adjusted accordingly
     if(p->cur_dir == 'N')
     {
@@ -1603,7 +1603,7 @@ int chase(npc* c,char map[X_MAG][Y_MAG], int cost_map[X_MAG][Y_MAG],
 {
     int min_pair[2] = {0,0};
     int min = INT16_MAX-1;
-    int collision;
+    int collision = -1;
 
     
     if(c->x < 78)

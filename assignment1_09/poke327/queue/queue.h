@@ -5,7 +5,7 @@
 
 typedef class queue_node {
     public:
-    struct queue_node *next;
+    class queue_node *next;
     int location[2];
     char val;
 
@@ -14,7 +14,7 @@ typedef class queue_node {
 
 typedef class queue {
     public:
-    struct queue_node *head, *tail;
+    class queue_node *head, *tail;
     int length;
 }queue;
 

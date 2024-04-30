@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <limits.h>
+#include <any>
 #include "../data/data.h"
 
 
@@ -20,21 +21,6 @@ int check_file(const std::string& name){
 }
 
 
-int get_data(const std::string& name, std::vector<std::any> vector_arr,
-        int i)
-{
-    ifstream file(name.c_str());
-
-    string line;
-
-    while (getline(file,line)) {
-        cout << line << endl;
-    }
-
-    file.close();
-
-    return 0;
-}
 
 
 int get_pokemon_data(const std::string& name, std::vector<pokemon*>& poke)

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int queue_init(struct queue *q)
+int queue_init(class queue *q)
 {
     //head and tail don't point to anything -> they point to NULL
     //Null is the NULL pointer. It is defined as:
@@ -14,9 +14,9 @@ int queue_init(struct queue *q)
 
     return 0;
 }
-int queue_destroy(struct queue *q)
+int queue_destroy(class queue *q)
 {
-    struct queue_node *n;
+    class queue_node *n;
 
     for (n = q->head; n; n = q->head) {
         q->head = q->head->next;
@@ -27,9 +27,9 @@ int queue_destroy(struct queue *q)
       
     return 0;
 }
-int queue_enqueue(struct queue *q, int l[2], char c)
+int queue_enqueue(class queue *q, int l[2], char c)
 {
-    struct queue_node *tmp;
+    class queue_node *tmp;
     
 
     //sizeof is a compile-time (static operator). It gives the static size
@@ -59,9 +59,9 @@ int queue_enqueue(struct queue *q, int l[2], char c)
     return 0;
 
 }
-int queue_dequeue(struct queue *q, int location[2], char *val)
+int queue_dequeue(class queue *q, int location[2], char *val)
 {
-    struct queue_node *n;
+    class queue_node *n;
     if(!q->head)
     {
         return 1;
@@ -79,11 +79,11 @@ int queue_dequeue(struct queue *q, int location[2], char *val)
     q->length--;
     return 0;
 }
-int queue_length(struct queue *q)
+int queue_length(class queue *q)
 {
     return q->length;
 }
-int queue_is_empty(struct queue *q)
+int queue_is_empty(class queue *q)
 {
     return !q->head;
 }

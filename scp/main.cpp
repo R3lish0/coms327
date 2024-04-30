@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "libxml2/libxml/HTMLparser.h"
 #include "libxml2/libxml/xpath.h"
+#include "ncurses.h"
 
 
 
@@ -36,6 +37,14 @@ std::string get_request(std::string url) {
 
 
 
+void print_page(xmlXPathObjectPtr product_html_elements)
+{
+
+
+
+}
+
+
 
 
 int main() {
@@ -52,8 +61,27 @@ int main() {
     xmlXPathContextPtr context = xmlXPathNewContext(doc);
     xmlXPathObjectPtr product_html_elements = xmlXPathEvalExpression((xmlChar *) "//div[contains(@id, 'page-content')]/p", context);
 
+    initscr();
+    cbreak();
+    noecho();
+    refresh();
+    start_color();
+    set_escdelay(0);
+  
+   // int count = 0;
+   // for (int j = 0; j < product_html_elements->nodesetval->nodeNr; j++) {
+   //     count++;
+   // }
+    
+    
+    WINDOW * read = newwin(0,0,0,0);
+    scrollok(read, TRUE);
+    keypad(read,TRUE);
+    idlok(read,TRUE);
+ 
+    int i;
 
-    for (int i = 0; i < product_html_elements->nodesetval->nodeNr; i++) {
+    for (i = 0; i < product_html_elements->nodesetval->nodeNr; i++) {
 
         xmlNodePtr element = product_html_elements->nodesetval->nodeTab[i];
 
@@ -63,16 +91,43 @@ int main() {
 
             while(child != NULL) {
                 if(child->type == XML_TEXT_NODE) {
-                    printf("%s", child->content);
+                    wprintw(read,"%s", child->content);
                 }
                 else if (child->type == XML_ELEMENT_NODE &&
                         xmlStrcmp(child->name, (const xmlChar *)"strong") == 0) {
-                    printf("%s", child->children->content);
+                    wprintw(read,"%s", child->children->content);
                 }
                 child = child->next;
             }
-            printf("\n");
         }
+    }
+    wrefresh(read);
+    int input;
+//    int pad_location = 0;
+    while(1)
+    {
+        input = getch();
+
+        if(input == 'Q')
+        {
+            delwin(read);
+            exit(0);
+        }
+        //else if(input == KEY_UP && pad_location >= 0)
+        //{
+        //    pad_location--;
+        //    prefresh(read, pad_location,0,0,0,100,100);
+
+        //}
+        //else if(input == KEY_DOWN && pad_location <= i)
+        //{
+        //    pad_location++;            
+        //    prefresh(read, pad_location,0,0,0,100,100);
+        //}
+
+
+
+
     }
 
 

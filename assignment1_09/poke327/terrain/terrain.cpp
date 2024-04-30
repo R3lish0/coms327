@@ -21,7 +21,7 @@
 
 
 
-void printSquare(struct square *sq)
+void printSquare(class square *sq)
 {
 //    clear();
     erase();
@@ -94,7 +94,7 @@ void printSquare(struct square *sq)
 
 
 //this will determine where the seeds will start 
-void seedGen(struct seeds *sd, struct square *sq)
+void seedGen(class seeds *sd, class square *sq)
 {
     int randx;
     int randy;
@@ -201,7 +201,7 @@ void seedGen(struct seeds *sd, struct square *sq)
 
 
 }
-int checkSquare(struct queue *q, struct square *sq, int offsetX, int offsetY)
+int checkSquare(class queue *q, class square *sq, int offsetX, int offsetY)
 {
     //this checks if the square is empty or not and then queues the next square if empty
     int* temp_arr;
@@ -216,9 +216,9 @@ int checkSquare(struct queue *q, struct square *sq, int offsetX, int offsetY)
 }
 
 //this will handle the growing of the seeds
-int grow(struct seeds *sd, struct square *sq) 
+int grow(class seeds *sd, class square *sq) 
 {
-    struct queue q;
+    class queue q;
     queue_init(&q);
     char val;
    
@@ -244,7 +244,7 @@ int grow(struct seeds *sd, struct square *sq)
     return 0;
 }
 
-int pathChangeUp(struct square *sq, int i, int c)
+int pathChangeUp(class square *sq, int i, int c)
 {
     sq->map[i][c] = (sq->map[i][c]  == 'C' || sq->map[i][c] == 'M') ? sq->map[i][c] : '#'; 
     sq->map[i-1][c] = (sq->map[i-1][c]  == 'C' || sq->map[i-1][c] == 'M') ? sq->map[i-1][c] : '#';
@@ -253,7 +253,7 @@ int pathChangeUp(struct square *sq, int i, int c)
     sq->map[i+1][c-1] = (sq->map[i+1][c-1]  == 'C' || sq->map[i+1][c-1] == 'M') ? sq->map[i+1][c-1] : '#';
     return 0;
 }
-int pathChangeDown(struct square *sq, int i, int c)
+int pathChangeDown(class square *sq, int i, int c)
 {
     sq->map[i][c] = (sq->map[i][c] == 'C' || sq->map[i][c] == 'M') ? sq->map[i][c] : '#'; 
     sq->map[i][c+1] = (sq->map[i][c+1] == 'C' || sq->map[i][c+1] == 'M') ? sq->map[i][c+1] : '#';
@@ -263,9 +263,9 @@ int pathChangeDown(struct square *sq, int i, int c)
     return 0;
 }
 //this will handle last touches like path gen and buildings
-int manMade(struct square *sq, int pk)
+int manMade(class square *sq, int pk)
 {
-    struct queue q;
+    class queue q;
     queue_init(&q);
    
     int e;
@@ -541,7 +541,7 @@ int genSquare(square *sq, int n, int s, int e, int w, int pk)
     
 
 
-    struct seeds seed;
+    class seeds seed;
     for(int i = 0; i < 6; i++)
     {
         for(int j = 0; j < 2; j++)

@@ -2,6 +2,8 @@
 #include <curl/curl.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
+#include <stdio.h>
 #include "libxml2/libxml/HTMLparser.h"
 #include "libxml2/libxml/xpath.h"
 #include "ncurses.h"
@@ -37,23 +39,257 @@ std::string get_request(std::string url) {
     return result;
 }
 
-
-
-void print_page(xmlXPathObjectPtr product_html_elements)
+string print_menu()
 {
 
+    int x_max, y_max;
+    getmaxyx(stdscr, y_max,x_max);
+
+    WINDOW * menu = newwin(15,79/2,y_max/2-10,x_max/2-(79/2/2));
+
+    int in_menu = 1;
+
+    while(in_menu)
+    {
 
 
+        box(menu,'|','-');
+
+        mvwaddstr(menu, 1,1,"What what you like to do?");
+        mvwaddstr(menu, 4,1,"Search Database: s");
+        mvwaddstr(menu, 6,1,"Get Random Entry: r");
+        mvwaddstr(menu, 8,1,"Quit: q");
+
+
+        wrefresh(menu);
+
+        refresh();
+
+
+        int menu_input =  wgetch(menu);
+
+        if(menu_input == 's')
+        {
+            in_menu = 0;
+            string scp;
+            int inputting = 1;
+            char input;
+            //search specific number
+            mvwaddstr(menu,5,2,"Enter Input: scp-");
+            while(inputting)
+            {
+                input = wgetch(menu);
+                if(input - '0' >= 0 && input - '0' <= 9)
+                {
+
+                    waddch(menu, input);
+                    scp+=input;
+                }
+                else if(input == '\n')
+                {
+                    delwin(menu);
+                    inputting = 0;
+                    if(stoi(scp) < 1000)
+                    {
+                        string output = "";
+                        string numstring = scp;
+                        for(long unsigned int i = 0; i < 3 - numstring.length(); i++)
+                        {
+                            output.append("0"); 
+                        }
+                        output.append(numstring);
+                        return "scp-" + output; 
+
+
+                    }
+                    else
+                    {
+                        return "scp-" + scp;
+                    }
+                }
+                    //gen random number
+            }
+        }
+        else if(menu_input == 'r')
+        {
+            in_menu = 0;
+            
+            delwin(menu);
+
+
+            int random = rand() % 100 + 1;
+
+            if(random < 1000)
+            {
+                string output = "";
+                string numstring = to_string(random);
+                for(long unsigned int i = 0; i < 3 - numstring.length(); i++)
+                {
+                   output.append("0"); 
+                }
+                output.append(numstring);
+                return "scp-" + output; 
+
+
+            }
+            else
+            {
+                return "scp-" + to_string(random);
+            }
+            
+            //gen random number
+        }
+        else if(menu_input == 'q')
+        {
+
+            delwin(menu);
+            endwin();
+            exit(0);
+
+        }
+    }
+ 
+
+    return "";
+}
+
+
+string print_sub_menu()
+{
+
+    int x_max, y_max;
+    getmaxyx(stdscr, y_max,x_max);
+
+    WINDOW * menu = newwin(15,79/2,y_max/2-10,x_max/2-(79/2/2));
+
+    int in_menu = 1;
+
+    while(in_menu)
+    {
+
+
+        box(menu,'|','-');
+
+        mvwaddstr(menu, 1,1,"What what you like to do?");
+        mvwaddstr(menu, 4,1,"Search Database: s");
+        mvwaddstr(menu, 6,1,"Get Random Entry: r");
+        mvwaddstr(menu, 8,1,"Quit: q");
+
+
+        wrefresh(menu);
+
+        refresh();
+
+
+        int menu_input =  wgetch(menu);
+
+        if(menu_input == 's')
+        {
+            in_menu = 0;
+            string scp;
+            int inputting = 1;
+            char input;
+            //search specific number
+            mvwaddstr(menu,5,2,"Enter Input: scp-");
+            while(inputting)
+            {
+                input = wgetch(menu);
+                if(input - '0' >= 0 && input - '0' <= 9)
+                {
+
+                    waddch(menu, input);
+                    scp+=input;
+                }
+                else if(input == '\n')
+                {
+                    delwin(menu);
+                    inputting = 0;
+                    if(stoi(scp) < 1000)
+                    {
+                        string output = "";
+                        string numstring = scp;
+                        for(long unsigned int i = 0; i < 3 - numstring.length(); i++)
+                        {
+                            output.append("0"); 
+                        }
+                        output.append(numstring);
+                        return "scp-" + output; 
+
+
+                    }
+                    else
+                    {
+                        return "scp-" + scp;
+                    }
+                }
+                    //gen random number
+            }
+        }
+        else if(menu_input == 'r')
+        {
+            in_menu = 0;
+            
+            delwin(menu);
+
+
+            int random = rand() % 100 + 1;
+
+            if(random < 1000)
+            {
+                string output = "";
+                string numstring = to_string(random);
+                for(long unsigned int i = 0; i < 3 - numstring.length(); i++)
+                {
+                   output.append("0"); 
+                }
+                output.append(numstring);
+                return "scp-" + output; 
+
+
+            }
+            else
+            {
+                return "scp-" + to_string(random);
+            }
+            
+            //gen random number
+        }
+        else if(menu_input == 27)
+        {
+
+            in_menu = 0;
+            werase(menu);
+            delwin(menu);
+
+        }
+        else if(menu_input == 'q')
+        {
+
+            delwin(menu);
+            endwin();
+            exit(0);
+
+        }
+    }
+ 
+
+    return "";
 }
 
 
 
 
-int main() {
-    //initialize curl globally
-    curl_global_init(CURL_GLOBAL_ALL);
-    
-    std::string html_document = get_request("https://scp-wiki.wikidot.com/scp-5000");
+
+
+void print_page(string scp)
+{
+
+
+    int x_max, y_max;
+    getmaxyx(stdscr, y_max,x_max);
+
+    std::string link = "https://scp-wiki.wikidot.com/" + scp;
+    std::string html_document = get_request(link);
     //std::cout << html_document;
 
     curl_global_cleanup();
@@ -61,30 +297,19 @@ int main() {
     htmlDocPtr doc = htmlReadMemory(html_document.c_str(), html_document.length(), nullptr, nullptr, HTML_PARSE_NOERROR);
 
     xmlXPathContextPtr context = xmlXPathNewContext(doc);
-    xmlXPathObjectPtr product_html_elements = xmlXPathEvalExpression((xmlChar *) "//div[contains(@id, 'page-content')]/p", context);
+    xmlXPathObjectPtr product_html_elements = xmlXPathEvalExpression((xmlChar *) "//div[contains(@id, 'page-content')]/*", context);
 
-    initscr();
-    cbreak();
-    noecho();
-    refresh();
-    start_color();
-    set_escdelay(0);
-    
-    int x_max, y_max;
-    getmaxyx(stdscr, y_max,x_max);
-    cout << y_max;
 
-  
     int count = 0;
     for (int j = 0; j < product_html_elements->nodesetval->nodeNr; j++) {
         count++;
     }
-    
-    WINDOW * read = newpad(count*3,x_max);
+
+    WINDOW * read = newpad(20000,x_max/2);
     scrollok(read, TRUE);
     keypad(read,TRUE);
     idlok(read,TRUE);
- 
+
     int i;
 
     for (i = 0; i < product_html_elements->nodesetval->nodeNr; i++) {
@@ -99,73 +324,167 @@ int main() {
                 if(child->type == XML_TEXT_NODE) {
                     string content = reinterpret_cast<char*>(child->content);
                     waddstr(read, content.c_str());
-                    waddstr(read, "\n");
+
                 }
                 else if (child->type == XML_ELEMENT_NODE &&
                         xmlStrcmp(child->name, (const xmlChar *)"strong") == 0) {
                     string content = reinterpret_cast<char*>(child->children->content);
+                    wattron(read ,A_BOLD | A_UNDERLINE);
                     waddstr(read, content.c_str());
-                    waddstr(read, "\n");
+                    wattroff(read, A_BOLD | A_UNDERLINE);
                 }
-                
                 child = child->next;
             }
+            waddstr(read, "\n");
         }
+        //if element is not a p
+        //else if(element->type == XML_ELEMENT_NODE &&
+        //        xmlStrcmp(element->name, (const xmlChar *)"div") == 0) {
+        //    xmlNodePtr child = element->children;
+        //    xmlAttrPtr attribute = element->properties;
+
+        //    while (attribute != NULL) {
+        //        if (xmlStrcmp(attribute->name, (const xmlChar *)"class") == 0 &&
+        //               xmlStrcmp(attribute->name, (const xmlChar *)"collapsible-block") == 0)
+        //        {
+        //            while(child != NULL) {
+
+        //                if(xmlStrcmp(attribute->name, (const xmlChar *)"class") == 0 &&
+        //               xmlStrcmp(attribute->name, (const xmlChar *)"collapsible-block-content") == 0)
+        //                {
+        //                    
+
+
+        //                }
+        //            }
+        //            attribute = attribute->next;
+        //        }
+        //        child = child->next;
+        //    }
+        //    waddstr(read, "\n");
+        //}
     }
-    prefresh(read,0,0,0,0,y_max - 1,x_max - 1);
+
+    int x, y;
+
+    getyx(read, y, x);
+
+
+
+    prefresh(read,0,0,0,x_max/2 - x_max/2/2,y_max - 2,x_max/2 + x_max/2/2);
+
+    WINDOW * sub_menu = newwin(0,x_max,y_max-1,0);
+    init_pair(2,COLOR_BLACK,COLOR_RED);
+
+    wbkgd(sub_menu, COLOR_PAIR(2));
+    string menu_options = " - Menu: m  -  Scroll Up: j - Scroll Down: k - Quit: q - ";
+    mvwaddstr(sub_menu,0,x_max/2 - menu_options.length()/2, menu_options.c_str() );
+    wrefresh(sub_menu);
+
+
     int input;
     int pad_location = 0;
-    while(1)
+    int in_menu = 1;
+    while(in_menu)
     {
         input = wgetch(read);
 
-        if(input == 'Q')
+        if(input == 'j' && pad_location >= 0)
         {
+            pad_location--;
+            prefresh(read, pad_location,0,0,x_max/2-x_max/2/2,y_max - 2,x_max/2+x_max/2/2);
+
+        }
+        else if(input == 'k' && pad_location <= y*2)
+        {
+            pad_location++;            
+            prefresh(read, pad_location,0,0,x_max/2-x_max/2/2,y_max - 2,x_max/2+x_max/2/2);
+        }
+        else if(input == 'm')
+        {
+            string new_page = print_sub_menu();
+            in_menu = 0;
+            delwin(sub_menu);
+            delwin(read);
+            print_page(new_page);
+            
+        }
+        else if(input == 'q')
+        {
+
+            delwin(sub_menu);
             delwin(read);
             endwin();
             exit(0);
-        }
-        else if(input == 'j' && pad_location >= 0)
-        {
-            pad_location--;
-            prefresh(read, pad_location,0,0,0,y_max - 1,x_max - 1);
 
         }
-        else if(input == 'k' && pad_location <= count)
-        {
-            pad_location++;            
-            prefresh(read, pad_location,0,0,0,y_max - 1,x_max - 1);
-        }
-
 
 
 
     }
+}
 
 
-    //xmlNodePtr paragraph_html = xmlXPathEvalExpression((xmlChar *) ".//", context)->nodesetval->nodeTab[0];
-    //std::string paragraph = std::string(reinterpret_cast<char *>(xmlNodeGetContent(paragraph_html)));
-        //std::string paragraph = std::string(xmlXNodeGetContent(context));
-        //std::cout << reinterpret_cast<char*>(product_html_element->content)<<"aaaaah" << std::endl;
-        //xmlNodePtr strong_html = xmlXPathEvalExpression((xmlChar *) ".//strong", context)->nodesetval->nodeTab[0];
-        //std::string strong = std::string(reinterpret_cast<char *>(xmlNodeGetContent(strong_html)));
-        //std::cout << strong << std::endl;
-
-        //PokemonProduct pokemon_product = {url, image, name, price};
-        //pokemon_products.push_back(pokemon_product);xmlNodePtr url_html_element = xmlXPathEvalExpression((xmlChar *) ".//a", context)->nodesetval->nodeTab[0];
-        //std::string url = std::string(reinterpret_cast<char *>(xmlGetProp(url_html_element, (xmlChar *) "href")));
-        //xmlNodePtr image_html_element = xmlXPathEvalExpression((xmlChar *) ".//a/img", context)->nodesetval->nodeTab[0];
-        //std::string image = std::string(reinterpret_cast<char *>(xmlGetProp(image_html_element, (xmlChar *) "src")));
-        //xmlNodePtr name_html_element = xmlXPathEvalExpression((xmlChar *) ".//a/h2", context)->nodesetval->nodeTab[0];
-        //std::string name = std::string(reinterpret_cast<char *>(xmlNodeGetContent(name_html_element)));
-        //xmlNodePtr price_html_element = xmlXPathEvalExpression((xmlChar *) ".//a/span", context)->nodesetval->nodeTab[0];
-        //std::string price = std::string(reinterpret_cast<char *>(xmlNodeGetContent(price_html_element)));
-
-        //PokemonProduct pokemon_product = {url, image, name, price};
-        //pokemon_products.push_back(pokemon_product);
-   // }
 
 
+
+
+int main() {
+    //initialize curl globally
+    curl_global_init(CURL_GLOBAL_ALL);
+    
+    //std::string html_document = get_request("https://scp-wiki.wikidot.com/scp-5000");
+    ////std::cout << html_document;
+
+    //curl_global_cleanup();
+
+    //htmlDocPtr doc = htmlReadMemory(html_document.c_str(), html_document.length(), nullptr, nullptr, HTML_PARSE_NOERROR);
+
+    //xmlXPathContextPtr context = xmlXPathNewContext(doc);
+    //xmlXPathObjectPtr product_html_elements = xmlXPathEvalExpression((xmlChar *) "//div[contains(@id, 'page-content')]/p", context);
+
+    srand(time(NULL));
+
+
+    initscr();
+    cbreak();
+    noecho();
+    refresh();
+    set_escdelay(0);
+    
+    start_color();
+    refresh();
+    init_pair(1,COLOR_RED,COLOR_BLACK);
+
+   int x_max, y_max;
+    getmaxyx(stdscr, y_max,x_max);
+
+ 
+
+    attron(COLOR_PAIR(1));
+    mvaddstr(1,x_max/2-79/2," _____  _____  _____    ____   _____  _____  _____  _____  _____  _____  _____ ");
+    mvaddstr(2,x_max/2-79/2,"|   __||     ||  _  |  |    \\ |  _  ||_   _||  _  || __  ||  _  ||   __||   __|");
+    mvaddstr(3,x_max/2-79/2,"|__   ||   --||   __|  |  |  ||     |  | |  |     || __ -||     ||__   ||   __|");
+    mvaddstr(4,x_max/2-79/2,"|_____||_____||__|     |____/ |__|__|  |_|  |__|__||_____||__|__||_____||_____|");
+    attroff(COLOR_PAIR(1));
+    
+    //create original menu
+    
+   
+    
+
+
+
+
+    string scp = print_menu();
+
+
+    clear();
+    refresh();
+  
+    print_page(scp);
+    refresh();
+    
 
 
 

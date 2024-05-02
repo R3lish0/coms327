@@ -174,6 +174,7 @@ string print_sub_menu()
         mvwaddstr(menu, 4,1,"Search Database: s");
         mvwaddstr(menu, 6,1,"Get Random Entry: r");
         mvwaddstr(menu, 8,1,"Quit: q");
+        mvwaddstr(menu, 10,1,"Close Menu: m");
 
 
         wrefresh(menu);
@@ -254,7 +255,7 @@ string print_sub_menu()
             
             //gen random number
         }
-        else if(menu_input == 27)
+        else if(menu_input == 'm')
         {
 
             in_menu = 0;
@@ -403,11 +404,18 @@ void print_page(string scp)
         else if(input == 'm')
         {
             string new_page = print_sub_menu();
-            in_menu = 0;
-            delwin(sub_menu);
-            delwin(read);
-            print_page(new_page);
-            
+
+            if(new_page != "")
+            {
+                in_menu = 0;
+                delwin(sub_menu);
+                delwin(read);
+                print_page(new_page);
+            }
+            else
+            {
+            prefresh(read, pad_location,0,0,x_max/2-x_max/2/2,y_max - 2,x_max/2+x_max/2/2);
+            }
         }
         else if(input == 'q')
         {
